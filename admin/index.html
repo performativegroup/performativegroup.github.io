@@ -6,131 +6,263 @@
 <title>Performative Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-  :root { --ink:#0A0A0A; --paper:#FFFFFF; --card:#F2F2F2; --muted:#7A7A7A; --hair:#E4E4E4; --red:#D6281F; --green:#1F8A4C; }
+  :root {
+    --ink:#0A0A0A; --ink2:#1C1C1C; --paper:#FFFFFF; --bg:#F6F6F4; --card:#FFFFFF; --soft:#F1F1EF;
+    --muted:#77777A; --hair:#E7E7E4; --red:#D6281F; --redbg:#FDECEA; --green:#16834A; --greenbg:#E6F4EC;
+    --amber:#A86B00; --amberbg:#FFF4D6; --blue:#2453D6; --bluebg:#E8EEFC;
+    --r:14px; --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  }
   * { box-sizing: border-box; }
-  html, body { margin:0; background:var(--paper); color:var(--ink); font-family:"Inter Tight", system-ui, sans-serif; font-size:14px; }
-  h1, h2, h3 { font-family:"Instrument Serif", serif; font-weight:400; margin:0; }
-  h1 { font-size:34px; } h2 { font-size:28px; } h3 { font-size:22px; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font-family:"Inter Tight", system-ui, sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3 { font-family:"Instrument Serif", serif; font-weight:400; margin:0; letter-spacing:-.01em; }
+  h1 { font-size:36px; } h2 { font-size:28px; } h3 { font-size:21px; }
   button, input, select, textarea { font:inherit; color:inherit; }
+  a { color:inherit; }
   .eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-  .muted { color:var(--muted); }
-  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 80px; }
-  header.top { display:flex; align-items:center; gap:16px; justify-content:space-between; flex-wrap:wrap; margin-bottom:18px; }
-  nav.tabs { display:flex; gap:6px; flex-wrap:wrap; }
-  nav.tabs button { border:0; background:var(--card); padding:9px 14px; border-radius:99px; font-weight:600; cursor:pointer; }
-  nav.tabs button.on { background:var(--ink); color:var(--paper); }
-  .btn { border:0; background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:12px; font-weight:600; cursor:pointer; }
-  .btn.ghost { background:var(--card); color:var(--ink); }
-  .btn.red { background:var(--red); }
-  .btn.small { padding:6px 10px; border-radius:9px; font-size:13px; }
-  .btn:disabled { opacity:.4; cursor:default; }
-  .card { background:var(--card); border-radius:18px; padding:16px; }
-  .grid { display:grid; gap:10px; }
-  .tiles { grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); }
-  .tile { background:var(--paper); border-radius:14px; padding:14px; }
-  .tile b { display:block; font-size:30px; font-weight:700; letter-spacing:-.02em; }
-  .tile span { font-size:12px; color:#555; }
-  table { width:100%; border-collapse:collapse; }
-  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--hair); vertical-align:top; }
-  th { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
-  tr.click { cursor:pointer; } tr.click:hover td { background:#FAFAFA; }
-  .pill { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:99px; background:var(--card); }
-  .pill.live { background:var(--ink); color:var(--paper); } .pill.draft { background:#FFF3C4; } .pill.ended { background:var(--hair); color:#555; }
-  .pill.red { background:#FDE7E5; color:var(--red); }
-  .split { display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:18px; align-items:start; }
-  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
-  label.f { display:block; margin-bottom:12px; }
-  label.f > span { display:block; font-size:12px; font-weight:600; margin-bottom:5px; }
-  label.f small { color:var(--muted); font-weight:400; }
-  input[type=text], input[type=number], input[type=date], input[type=email], input[type=password], input[type=url], select, textarea {
-    width:100%; border:1px solid var(--hair); background:var(--paper); border-radius:10px; padding:9px 11px; }
-  textarea { min-height:84px; resize:vertical; }
-  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; }
-  .chips label { display:inline-flex; align-items:center; gap:5px; background:var(--paper); border:1px solid var(--hair); border-radius:99px; padding:5px 10px; font-size:13px; cursor:pointer; }
-  .chips input { margin:0; }
-  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:11px 18px; border-radius:12px; font-weight:600; z-index:9; display:none; max-width:90vw; }
-  .toast.err { background:var(--red); }
-  .login { max-width:380px; margin:12vh auto; }
-  .preview { border-radius:18px; padding:16px; color:#fff; min-height:150px; display:flex; flex-direction:column; justify-content:space-between; }
-  .preview .w { font-weight:700; letter-spacing:.14em; font-size:12px; opacity:.9; }
-  .preview h3 { font-size:26px; line-height:1.05; margin:10px 0 4px; }
-  .chart svg { width:100%; height:140px; display:block; }
-  .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .space { flex:1; }
-  .thumb { width:64px; height:64px; object-fit:cover; border-radius:10px; background:var(--hair); }
-  .swatch { width:16px; height:16px; border-radius:5px; display:inline-block; vertical-align:-3px; border:1px solid rgba(0,0,0,.1); }
-  .copy { font-family: ui-monospace, Menlo, monospace; font-size:12px; word-break:break-all; background:var(--paper); padding:8px; border-radius:8px; border:1px solid var(--hair); }
+  .muted { color:var(--muted); } .small { font-size:12px; }
   .hidden { display:none !important; }
+
+  /* Layout */
+  .shell { display:grid; grid-template-columns: 232px minmax(0,1fr); min-height:100vh; }
+  aside.side { background:var(--ink); color:#fff; padding:22px 14px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:4px; }
+  aside .brand { font-family:"Instrument Serif", serif; font-size:26px; padding:4px 10px 18px; }
+  aside .brand small { display:block; font-family:"Inter Tight"; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8d8d8d; margin-top:2px; }
+  aside nav button { all:unset; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; cursor:pointer; color:#cfcfcf; font-weight:500; }
+  aside nav button:hover { background:#1b1b1b; color:#fff; }
+  aside nav button.on { background:#fff; color:var(--ink); font-weight:600; }
+  aside nav .badge { margin-left:auto; background:var(--red); color:#fff; font-size:11px; font-weight:700; border-radius:99px; padding:1px 7px; }
+  aside .me { margin-top:auto; padding:12px; border-top:1px solid #222; font-size:12px; color:#9a9a9a; }
+  aside .me button { all:unset; cursor:pointer; color:#fff; font-weight:600; margin-top:6px; display:inline-block; }
+  main { padding:26px 30px 80px; min-width:0; }
+  .pagehead { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+  .pagehead p { margin:4px 0 0; color:var(--muted); }
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    aside.side { position:static; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; padding:12px; }
+    aside .brand { padding:0 10px 0 4px; font-size:22px; } aside .brand small { display:none; }
+    aside nav { display:flex; flex-wrap:wrap; gap:4px; } aside .me { margin:0 0 0 auto; border:0; padding:0; }
+    main { padding:18px 14px 60px; }
+  }
+
+  /* Pieces */
+  .card { background:var(--card); border-radius:18px; box-shadow:var(--shadow); padding:18px; }
+  .grid { display:grid; gap:12px; }
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .kpi { background:var(--card); border-radius:16px; box-shadow:var(--shadow); padding:16px; }
+  .kpi b { display:block; font-size:30px; font-weight:700; letter-spacing:-.02em; margin-top:6px; }
+  .kpi.alert { outline:2px solid var(--red); }
+  .btn { border:0; background:var(--ink); color:#fff; padding:10px 16px; border-radius:11px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+  .btn:hover { background:#262626; }
+  .btn.ghost { background:var(--soft); color:var(--ink); } .btn.ghost:hover { background:#e8e8e5; }
+  .btn.line { background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1px var(--hair); }
+  .btn.red { background:var(--red); } .btn.green { background:var(--green); }
+  .btn.small { padding:6px 11px; border-radius:9px; font-size:13px; }
+  .btn:disabled { opacity:.4; cursor:default; }
+  .pill { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:99px; background:var(--soft); color:#444; white-space:nowrap; }
+  .pill.live { background:var(--greenbg); color:var(--green); } .pill.live::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--green); }
+  .pill.scheduled { background:var(--bluebg); color:var(--blue); }
+  .pill.draft { background:var(--amberbg); color:var(--amber); }
+  .pill.ended { background:var(--soft); color:#777; }
+  .pill.red { background:var(--redbg); color:var(--red); }
+  .pill.dark { background:var(--ink); color:#fff; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:12px 10px; border-bottom:1px solid var(--hair); vertical-align:middle; }
+  th { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  tr.click { cursor:pointer; } tr.click:hover td { background:#FAFAF8; }
+  .segs { display:inline-flex; background:var(--soft); border-radius:11px; padding:3px; gap:2px; flex-wrap:wrap; }
+  .segs button { all:unset; padding:7px 12px; border-radius:9px; cursor:pointer; font-weight:600; font-size:13px; color:#555; }
+  .segs button.on { background:#fff; color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .search { position:relative; } .search input { padding-left:34px; min-width:240px; }
+  .search::before { content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-52%); color:var(--muted); font-size:16px; }
+  .space { flex:1; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .swatch { width:16px; height:16px; border-radius:5px; display:inline-block; vertical-align:-3px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1); }
+  .logo { width:36px; height:36px; border-radius:10px; object-fit:cover; background:var(--soft); display:inline-grid; place-items:center; font-weight:700; color:#fff; vertical-align:middle; }
+
+  /* Forms */
+  input[type=text], input[type=number], input[type=date], input[type=time], input[type=email], input[type=password], input[type=url], input[type=search], select, textarea {
+    width:100%; border:1px solid var(--hair); background:#fff; border-radius:10px; padding:10px 12px; outline:none; transition:border-color .15s, box-shadow .15s; }
+  input:focus, select:focus, textarea:focus { border-color:var(--ink); box-shadow:0 0 0 3px rgba(10,10,10,.06); }
+  textarea { min-height:80px; resize:vertical; }
+  label.f { display:block; margin-bottom:14px; }
+  label.f > span, .flabel { display:block; font-size:12px; font-weight:600; margin-bottom:6px; }
+  label.f small, .flabel small { color:var(--muted); font-weight:400; }
+  .help { font-size:12px; color:var(--muted); margin-top:5px; }
+  .err { font-size:12px; color:var(--red); margin-top:5px; font-weight:600; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .three { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media (max-width: 640px) { .two, .three { grid-template-columns:1fr; } }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { all:unset; cursor:pointer; padding:7px 12px; border-radius:99px; background:var(--soft); font-size:13px; font-weight:500; }
+  .chip.on { background:var(--ink); color:#fff; }
+  .switch { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--hair); cursor:pointer; }
+  .switch:last-child { border-bottom:0; }
+  .switch .t { flex:1; } .switch .t b { display:block; font-weight:600; } .switch .t span { color:var(--muted); font-size:12px; }
+  .switch input { appearance:none; width:42px; height:25px; background:#d7d7d3; border-radius:99px; position:relative; cursor:pointer; transition:background .2s; flex:none; }
+  .switch input::after { content:""; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 1px 2px rgba(0,0,0,.2); }
+  .switch input:checked { background:var(--ink); } .switch input:checked::after { left:20px; }
+
+  /* Editor */
+  .editor { display:grid; grid-template-columns: 200px minmax(0,1fr) 330px; gap:20px; align-items:start; }
+  @media (max-width: 1200px) { .editor { grid-template-columns: minmax(0,1fr) 320px; } .steps { display:none; } }
+  @media (max-width: 900px) { .editor { grid-template-columns: 1fr; } }
+  .steps { position:sticky; top:20px; display:flex; flex-direction:column; gap:2px; }
+  .steps a { text-decoration:none; padding:9px 12px; border-radius:10px; color:#666; font-weight:500; display:flex; gap:8px; align-items:center; }
+  .steps a:hover { background:#ececea; color:var(--ink); }
+  .steps a .n { width:20px; height:20px; border-radius:50%; background:#e5e5e2; display:grid; place-items:center; font-size:11px; font-weight:700; color:#555; }
+  .steps a.ok .n { background:var(--ink); color:#fff; }
+  .steps a.bad .n { background:var(--red); color:#fff; }
+  .section { scroll-margin-top:16px; margin-bottom:14px; }
+  .section h3 { margin-bottom:4px; } .section > p { margin:0 0 14px; color:var(--muted); font-size:13px; }
+  .sticky { position:sticky; top:20px; }
+  .savebar { position:sticky; bottom:12px; margin-top:6px; background:var(--ink); color:#fff; border-radius:16px; padding:12px 14px; display:flex; gap:10px; align-items:center; box-shadow:0 10px 30px rgba(0,0,0,.25); flex-wrap:wrap; }
+  .savebar .btn.ghost { background:#262626; color:#fff; } .savebar .btn.white { background:#fff; color:var(--ink); }
+  .stepsrow { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .stepsrow .num { width:24px; height:24px; border-radius:50%; background:var(--soft); display:grid; place-items:center; font-size:12px; font-weight:700; flex:none; }
+  .iconbtn { all:unset; cursor:pointer; width:30px; height:30px; display:grid; place-items:center; border-radius:8px; color:#666; flex:none; }
+  .iconbtn:hover { background:var(--soft); color:var(--ink); }
+
+  /* Phone preview */
+  .phone { width:300px; margin:0 auto; background:#000; border-radius:44px; padding:10px; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+  .screen { background:#fff; border-radius:36px; overflow:hidden; height:600px; display:flex; flex-direction:column; }
+  .screen .status { height:34px; display:flex; justify-content:space-between; align-items:center; padding:0 26px; font-size:12px; font-weight:600; }
+  .screen .scroll { overflow:auto; padding:6px 16px 16px; flex:1; }
+  .pcard { border-radius:20px; padding:16px; color:#fff; min-height:170px; display:flex; flex-direction:column; justify-content:space-between; }
+  .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:11px; opacity:.95; display:flex; align-items:center; gap:7px; }
+  .pcard .wm img { width:18px; height:18px; border-radius:5px; background:#fff; object-fit:contain; }
+  .pcard h4 { font-family:"Instrument Serif"; font-weight:400; font-size:28px; line-height:1.02; margin:14px 0 6px; }
+  .pcard .meta { font-size:12px; opacity:.88; }
+  .pcard .join { align-self:flex-start; margin-top:12px; background:#fff; color:#111; border-radius:99px; padding:7px 14px; font-weight:700; font-size:12px; }
+  .ptint { border-radius:16px; padding:12px; margin-top:12px; }
+  .plist { margin-top:14px; } .plist div { display:flex; gap:9px; font-size:12px; margin-bottom:8px; color:#333; }
+  .plist div span { width:18px; height:18px; border-radius:50%; background:#eee; flex:none; display:grid; place-items:center; font-size:10px; font-weight:700; }
+  .notif { background:rgba(245,245,245,.95); border-radius:16px; padding:10px 12px; font-size:12px; margin:8px 0; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+  .notif b { display:block; font-size:11px; color:#666; font-weight:600; margin-bottom:2px; }
+
+  /* Colour */
+  .colorrow { display:flex; gap:10px; align-items:center; }
+  .colorrow input[type=color] { appearance:none; -webkit-appearance:none; width:46px; height:42px; border:0; padding:0; background:none; cursor:pointer; flex:none; }
+  .colorrow input[type=color]::-webkit-color-swatch-wrapper { padding:0; } .colorrow input[type=color]::-webkit-color-swatch { border:none; border-radius:10px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
+  .colorrow input[type=color]::-moz-color-swatch { border:none; border-radius:10px; }
+  .colorrow input[type=text] { font-family:ui-monospace, Menlo, monospace; text-transform:uppercase; }
+  .wheel { width:180px; height:180px; border-radius:50%; position:relative; cursor:crosshair; flex:none;
+    background: radial-gradient(circle closest-side, #fff, rgba(255,255,255,0) 100%), conic-gradient(red, yellow, lime, aqua, blue, magenta, red); box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+  .wheel .dot { position:absolute; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.3); transform:translate(-50%,-50%); pointer-events:none; }
+  .light { width:100%; height:12px; border-radius:99px; appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+  .light::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.25); }
+  .swatches { display:flex; gap:6px; flex-wrap:wrap; }
+  .swatches button { all:unset; cursor:pointer; width:28px; height:28px; border-radius:8px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
+  .contrast { font-size:12px; font-weight:600; display:inline-flex; gap:6px; align-items:center; padding:4px 9px; border-radius:99px; }
+  .contrast.ok { background:var(--greenbg); color:var(--green); } .contrast.bad { background:var(--amberbg); color:var(--amber); }
+
+  /* Country picker */
+  .combo { position:relative; }
+  .combo .list { position:absolute; z-index:5; left:0; right:0; top:calc(100% + 4px); background:#fff; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.15); max-height:260px; overflow:auto; padding:6px; }
+  .combo .list button { all:unset; display:flex; gap:10px; width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  .combo .list button:hover, .combo .list button.hl { background:var(--soft); }
+  .chart svg { width:100%; height:120px; display:block; }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30; display:flex; align-items:center; justify-content:center; padding:16px; }
+  .modalbox { background:#fff; border-radius:18px; width:min(720px, 100%); max-height:92vh; overflow:hidden; display:flex; flex-direction:column; }
+  .modalbox iframe { width:100%; height:75vh; border:0; background:#EDEDEA; }
+  .quote { background:var(--ink); color:#fff; border-radius:20px; padding:22px; }
+  .quote .big { font-size:44px; font-weight:700; letter-spacing:-.03em; margin:6px 0 2px; }
+  .quote .muted { color:#a8a8a8; }
+  .qgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px; }
+  .qgrid div { background:#1d1d1d; border-radius:12px; padding:10px 12px; } .qgrid b { display:block; font-size:18px; } .qgrid span { font-size:11px; color:#a8a8a8; }
+  .breakdown td, .breakdown th { padding:8px 6px; font-size:13px; } .breakdown td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+  .formula { font-family: ui-monospace, Menlo, monospace; font-size:12px; background:var(--soft); border-radius:12px; padding:12px 14px; line-height:1.7; white-space:pre-wrap; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 18px; border-radius:12px; font-weight:600; z-index:20; display:none; max-width:90vw; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .toast.err { background:var(--red); }
+  .login { max-width:400px; margin:14vh auto; padding:0 16px; }
+  .empty { text-align:center; padding:40px 10px; color:var(--muted); }
+  .thumb { width:64px; height:64px; object-fit:cover; border-radius:10px; background:var(--soft); }
+  .copy { font-family: ui-monospace, Menlo, monospace; font-size:12px; word-break:break-all; background:var(--soft); padding:10px; border-radius:10px; }
+  .scard { cursor:pointer; transition:transform .15s; } .scard:hover { transform:translateY(-2px); }
+  .scard .band { height:70px; border-radius:12px; margin-bottom:12px; display:flex; align-items:flex-end; padding:10px; color:#fff; font-weight:700; letter-spacing:.14em; font-size:11px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <!-- Sign in -->
-  <section id="login" class="login hidden">
-    <div class="eyebrow">Performative</div>
-    <h1 style="margin:6px 0 4px">Admin</h1>
-    <p class="muted" style="margin:0 0 18px">Sign in with your Performative account. Only admins can use this page.</p>
-    <form id="loginForm">
-      <label class="f"><span>Email</span><input type="email" id="email" autocomplete="username" required></label>
-      <label class="f"><span>Password</span><input type="password" id="password" autocomplete="current-password" required></label>
-      <button class="btn" style="width:100%" type="submit">Sign in</button>
-      <p id="loginErr" style="color:var(--red); font-weight:600"></p>
-    </form>
-  </section>
 
-  <!-- App -->
-  <section id="app" class="hidden">
-    <header class="top">
-      <div><div class="eyebrow">Performative</div><h1>Admin</h1></div>
-      <nav class="tabs" id="tabs">
-        <button data-tab="overview" class="on">Overview</button>
-        <button data-tab="challenges">Challenges</button>
-        <button data-tab="sponsors">Sponsors</button>
-        <button data-tab="reports">Reports <span id="reportCount"></span></button>
-        <button data-tab="people">People</button>
-      </nav>
-      <div class="flex"><span class="muted" id="who"></span><button class="btn ghost small" id="signOut">Sign out</button></div>
-    </header>
+<!-- Sign in -->
+<section id="login" class="login hidden">
+  <div class="eyebrow">Performative</div>
+  <h1 style="margin:6px 0 4px">Admin</h1>
+  <p class="muted" style="margin:0 0 20px">Sign in with your Performative account. Only admins get in.</p>
+  <form id="loginForm" class="card">
+    <label class="f"><span>Email</span><input type="email" id="email" autocomplete="username" required></label>
+    <label class="f"><span>Password</span><input type="password" id="password" autocomplete="current-password" required></label>
+    <button class="btn" style="width:100%; justify-content:center" type="submit">Sign in</button>
+    <p id="loginErr" class="err"></p>
+  </form>
+</section>
 
+<!-- App -->
+<div id="app" class="shell hidden">
+  <aside class="side">
+    <div class="brand">Performative.<small>Admin</small></div>
+    <nav id="tabs">
+      <button data-tab="overview">◐ Overview</button>
+      <button data-tab="challenges">◎ Challenges</button>
+      <button data-tab="sponsors">◆ Sponsors</button>
+      <button data-tab="reports">⚑ Reports <span class="badge hidden" id="reportCount"></span></button>
+      <button data-tab="people">◉ People</button>
+      <button data-tab="pricing">＄ Sponsor pricing</button>
+    </nav>
+    <div class="me"><div id="who"></div><button id="signOut">Sign out</button></div>
+  </aside>
+  <main>
     <div id="tab-overview"></div>
     <div id="tab-challenges" class="hidden"></div>
     <div id="tab-sponsors" class="hidden"></div>
     <div id="tab-reports" class="hidden"></div>
     <div id="tab-people" class="hidden"></div>
-  </section>
+    <div id="tab-pricing" class="hidden"></div>
+  </main>
 </div>
 <div class="toast" id="toast"></div>
+<div class="modal hidden" id="modal"><div class="modalbox"><div class="row" style="padding:14px 16px; border-bottom:1px solid var(--hair)"><b id="modalTitle"></b><span class="space"></span><button class="btn ghost small" id="modalClose">Close</button></div><div id="modalBody"></div></div></div>
 
 <script>
-// The project address and publishable key are public by design (they're in the app too).
-// Everything here is protected on the server: only accounts in the moderators table can see or change it.
+// Public by design (they ship in the app). Every change is checked on the server: only admins can do anything here.
 const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
-// Where sponsor report links point (the sponsor report page, once hosted).
 const REPORT_BASE = "https://performativegroup.github.io/reports/";
 
 const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY);
 const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const fmt = n => Number(n || 0).toLocaleString("en-GB");
-const day = d => d ? new Date(String(d).length <= 10 ? d + "T00:00:00" : d).toLocaleDateString("en-GB", { day:"numeric", month:"short" }) : "";
+const dayLabel = d => d ? new Date(String(d).length <= 10 ? d + "T00:00:00" : d).toLocaleDateString("en-GB", { day:"numeric", month:"short" }) : "";
 const when = d => d ? new Date(d).toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
+const todayISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
 
 const GROUPS = ["Exercise","Learning","Work","Arts","Mind","Home","Other"];
-const CATEGORIES = ["Workout","Walking","Running","Reading","Studying","Work","Gym","Yoga","Cycling","Swimming","Sport","Meditation","Coding","Writing","Language","Music practice","Art","Cooking","Cleaning","Journaling","Other"];
-const METRICS = { time: "Time (minutes a day)", km: "Distance (km a day)", steps: "Steps (a day)" };
+const CATEGORIES = { Exercise:["Workout","Walking","Running","Gym","Yoga","Cycling","Swimming","Sport"], Learning:["Reading","Studying","Language","Coding"],
+  Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Mind:["Meditation","Journaling","Yoga"], Home:["Cooking","Cleaning"], Other:["Other"] };
+const ALL_CATEGORIES = [...new Set(Object.values(CATEGORIES).flat())];
+const METRICS = { time:{ label:"Time", unit:"minutes a day", eg:"e.g. 20", step:5, def:20 }, km:{ label:"Distance", unit:"km a day", eg:"e.g. 3", step:0.5, def:3 }, steps:{ label:"Steps", unit:"steps a day", eg:"e.g. 8000", step:500, def:8000 } };
+// Every country (ISO 3166 two-letter codes); names come from the browser in your language.
+const COUNTRY_CODES = "AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
+const regionNames = new Intl.DisplayNames(["en"], { type:"region" });
+const flag = c => c ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : "🌍";
+const SHORT_NAMES = { HK:"Hong Kong", MO:"Macau" };
+const countryName = c => c ? (SHORT_NAMES[c] || regionNames.of(c) || c) : "Worldwide";
+const COUNTRIES = COUNTRY_CODES.map(c => ({ code:c, name:countryName(c) })).sort((a, b) => a.name.localeCompare(b.name));
+const POPULAR = ["HK","SG","GB","US","AU","CA","TW","JP","KR","MY","AE","FR","DE","CN"];
 
 function toast(msg, err = false) {
   const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.style.display = "block";
-  clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", err ? 5000 : 2200);
+  clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", err ? 5000 : 2400);
 }
 function fail(e) { console.error(e); toast(e?.message || String(e), true); }
 
-// ---------- Sign in ----------
+// ---------------- Sign in ----------------
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return showLogin();
@@ -138,7 +270,8 @@ async function start() {
   if (error || !admin) { await sb.auth.signOut(); return showLogin("This account isn't an admin."); }
   $("#who").textContent = session.user.email;
   $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
-  openTab(location.hash.slice(1) || "overview");
+  openTab(location.hash.slice(1).split("/")[0] || "overview");
+  refreshReportBadge();
 }
 function showLogin(msg = "") { $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); $("#loginErr").textContent = msg; }
 $("#loginForm").addEventListener("submit", async e => {
@@ -149,240 +282,539 @@ $("#loginForm").addEventListener("submit", async e => {
 });
 $("#signOut").onclick = async () => { await sb.auth.signOut(); showLogin(); };
 
-// ---------- Tabs ----------
-const loaders = { overview: loadOverview, challenges: loadChallenges, sponsors: loadSponsors, reports: loadReports, people: loadPeople };
+// ---------------- Tabs ----------------
+const loaders = { overview: loadOverview, challenges: () => loadChallenges(), sponsors: () => loadSponsors(), reports: () => loadReports(), people: () => loadPeople(), pricing: () => loadPricing() };
 function openTab(name) {
   if (!loaders[name]) name = "overview";
-  location.hash = name;
-  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  history.replaceState(null, "", "#" + name);
+  $$("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
   Object.keys(loaders).forEach(k => $("#tab-" + k).classList.toggle("hidden", k !== name));
-  loaders[name]().catch(fail);
+  Promise.resolve(loaders[name]()).catch(fail);
+  window.scrollTo(0, 0);
 }
-document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => openTab(b.dataset.tab));
+$$("#tabs button").forEach(b => b.onclick = () => openTab(b.dataset.tab));
+async function refreshReportBadge() {
+  const { data } = await sb.rpc("admin_reports", { include_resolved: false });
+  const n = (data || []).length, b = $("#reportCount");
+  b.textContent = n; b.classList.toggle("hidden", !n);
+}
 
-// ---------- Overview ----------
+// ---------------- Overview ----------------
 function bars(rows, key, label) {
-  const max = Math.max(1, ...rows.map(r => r[key]));
-  const w = 600, h = 120, bw = w / rows.length;
+  const max = Math.max(1, ...rows.map(r => r[key])), w = 600, h = 110, bw = w / Math.max(rows.length, 1);
   const rects = rows.map((r, i) => {
-    const bh = Math.round((r[key] / max) * (h - 18));
-    return `<rect x="${i * bw + 1}" y="${h - bh}" width="${Math.max(2, bw - 3)}" height="${Math.max(bh, 1)}" rx="2" fill="#0A0A0A"><title>${day(r.day)}: ${fmt(r[key])}</title></rect>`;
+    const bh = Math.round((r[key] / max) * (h - 10));
+    return `<rect x="${i * bw + 1}" y="${h - bh}" width="${Math.max(2, bw - 3)}" height="${Math.max(bh, 1.5)}" rx="2" fill="${i === rows.length - 1 ? "#0A0A0A" : "#BDBDB8"}"><title>${dayLabel(r.day)}: ${fmt(r[key])}</title></rect>`;
   }).join("");
-  return `<div class="tile chart"><div class="flex"><span class="eyebrow">${label}</span><span class="space"></span>
-    <span class="muted">${fmt(rows.reduce((a, r) => a + r[key], 0))} in 30 days</span></div>
-    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${label} per day">${rects}</svg>
-    <div class="flex muted" style="font-size:11px"><span>${day(rows[0]?.day)}</span><span class="space"></span><span>Today</span></div></div>`;
+  const total = rows.reduce((a, r) => a + r[key], 0);
+  return `<div class="card chart"><div class="row"><span class="eyebrow">${label}</span><span class="space"></span><b>${fmt(total)}</b><span class="muted small">30 days</span></div>
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${label} per day" style="margin-top:12px">${rects}</svg>
+    <div class="row muted small" style="margin-top:6px"><span>${dayLabel(rows[0]?.day)}</span><span class="space"></span><span>Today</span></div></div>`;
 }
 async function loadOverview() {
   const el = $("#tab-overview");
-  const { data, error } = await sb.rpc("admin_overview"); if (error) throw error;
+  const [{ data, error }, ch] = await Promise.all([sb.rpc("admin_overview"), sb.from("challenges").select("id,title,status,starts_on,ends_on,featured")]);
+  if (error) throw error;
   const t = data.totals, d = data.daily || [];
+  const today = todayISO();
+  const upcoming = (ch.data || []).filter(c => c.status === "live" && c.starts_on > today).sort((a, b) => a.starts_on.localeCompare(b.starts_on));
+  const endingSoon = (ch.data || []).filter(c => c.status === "live" && c.starts_on <= today && daysBetween(today, c.ends_on) <= 3 && c.ends_on >= today);
+  const drafts = (ch.data || []).filter(c => c.status === "draft");
   el.innerHTML = `
-    <div class="grid tiles">
-      <div class="tile"><b>${fmt(t.people)}</b><span>accounts</span></div>
-      <div class="tile"><b>${fmt(t.active_today)}</b><span>posted today</span></div>
-      <div class="tile"><b>${fmt(t.posts)}</b><span>posts</span></div>
-      <div class="tile"><b>${fmt(t.messages)}</b><span>messages</span></div>
-      <div class="tile"><b>${fmt(t.friendships)}</b><span>friendships</span></div>
-      <div class="tile"><b>${fmt(t.live_challenges)}</b><span>live challenges</span></div>
-      <div class="tile" style="${t.open_reports ? "outline:2px solid var(--red)" : ""}"><b>${fmt(t.open_reports)}</b><span>reports to review</span></div>
-      <div class="tile"><b>${fmt(t.suspended)}</b><span>suspended</span></div>
+    <div class="pagehead"><div><div class="eyebrow">${new Date().toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long" })}</div><h1>Overview</h1></div>
+      <div class="row"><button class="btn" id="ovNew">＋ New challenge</button></div></div>
+    <div class="grid kpis">
+      <div class="kpi"><span class="eyebrow">Accounts</span><b>${fmt(t.people)}</b></div>
+      <div class="kpi"><span class="eyebrow">Posted today</span><b>${fmt(t.active_today)}</b></div>
+      <div class="kpi"><span class="eyebrow">Posts</span><b>${fmt(t.posts)}</b></div>
+      <div class="kpi"><span class="eyebrow">Messages</span><b>${fmt(t.messages)}</b></div>
+      <div class="kpi"><span class="eyebrow">Friendships</span><b>${fmt(t.friendships)}</b></div>
+      <div class="kpi"><span class="eyebrow">Live challenges</span><b>${fmt(t.live_challenges)}</b></div>
+      <div class="kpi ${t.open_reports ? "alert" : ""}"><span class="eyebrow">To review</span><b>${fmt(t.open_reports)}</b></div>
     </div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-top:12px">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:14px">
       ${bars(d, "signups", "Sign-ups")}${bars(d, "active", "People posting")}${bars(d, "posts", "Posts")}${bars(d, "messages", "Messages")}
     </div>
-    <p class="muted" style="margin-top:14px">Days are Hong Kong time. Refresh the page for the latest.</p>`;
-  $("#reportCount").textContent = t.open_reports ? `· ${t.open_reports}` : "";
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:14px">
+      ${miniList("Starting soon", upcoming, c => `starts ${dayLabel(c.starts_on)}`)}
+      ${miniList("Ending in 3 days or less", endingSoon, c => `ends ${dayLabel(c.ends_on)}`)}
+      ${miniList("Drafts", drafts, c => "not live yet")}
+    </div>
+    <p class="muted small" style="margin-top:14px">Days are Hong Kong time.</p>`;
+  $("#ovNew").onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(null), 50); };
+  $$("[data-open]", el).forEach(a => a.onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === a.dataset.open)), 300); });
+}
+function miniList(title, items, sub) {
+  return `<div class="card"><div class="eyebrow" style="margin-bottom:8px">${title}</div>
+    ${items.length ? items.slice(0, 6).map(c => `<div class="row" style="padding:8px 0; border-bottom:1px solid var(--hair); cursor:pointer" data-open="${esc(c.id)}"><b>${esc(c.title)}</b><span class="space"></span><span class="muted small">${sub(c)}</span></div>`).join("") : '<div class="muted small">Nothing here.</div>'}</div>`;
 }
 
-// ---------- Challenges ----------
-let challenges = [], sponsors = [], counts = {};
+// ---------------- Challenges ----------------
+let challenges = [], sponsors = [], counts = {}, chFilter = "all", chSearch = "";
 async function fetchSponsors() {
   const { data, error } = await sb.from("sponsors").select("*").order("name"); if (error) throw error;
   sponsors = data;
 }
+function stateOf(c) {
+  const t = todayISO();
+  if (c.status === "draft") return "draft";
+  if (c.status === "ended" || c.ends_on < t) return "ended";
+  if (c.starts_on > t) return "scheduled";
+  return "live";
+}
+const STATE_LABEL = { live:"Live", scheduled:"Scheduled", draft:"Draft", ended:"Ended" };
 async function loadChallenges() {
   const el = $("#tab-challenges");
   await fetchSponsors();
   const [{ data, error }, cnt] = await Promise.all([
-    sb.from("challenges").select("*").order("starts_on", { ascending: false }),
-    sb.rpc("challenge_counts")
-  ]);
+    sb.from("challenges").select("*").order("starts_on", { ascending: false }), sb.rpc("challenge_counts")]);
   if (error) throw error;
   challenges = data; counts = Object.fromEntries((cnt.data || []).map(c => [c.challenge_id, c.joined]));
+  renderChallengeList();
+}
+function renderChallengeList() {
+  const el = $("#tab-challenges");
   const sp = id => sponsors.find(s => s.id === id);
-  el.innerHTML = `<div class="split">
-    <div class="card">
-      <div class="flex" style="margin-bottom:8px"><h2>Challenges</h2><span class="space"></span><button class="btn" id="newChallenge">New challenge</button></div>
-      <table><thead><tr><th>Challenge</th><th>Dates</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
-      ${challenges.map(c => `<tr class="click" data-id="${esc(c.id)}">
-        <td><b>${esc(c.title)}</b>${c.featured ? ' <span class="pill">Featured</span>' : ""}<div class="muted">${esc(c.rule)}</div></td>
-        <td>${day(c.starts_on)} – ${day(c.ends_on)}</td>
-        <td>${sp(c.sponsor_id) ? `<span class="swatch" style="background:${esc(sp(c.sponsor_id).color)}"></span> ${esc(sp(c.sponsor_id).name)}` : '<span class="muted">Performative</span>'}</td>
-        <td>${fmt(counts[c.id])}${c.capacity ? `<span class="muted"> / ${fmt(c.capacity)}</span>` : ""}</td>
-        <td><span class="pill ${c.status}">${c.status}</span></td></tr>`).join("")}
-      </tbody></table>
+  const byState = s => challenges.filter(c => stateOf(c) === s).length;
+  const rows = challenges.filter(c => (chFilter === "all" || stateOf(c) === chFilter)
+    && (!chSearch || (c.title + " " + c.id + " " + (sp(c.sponsor_id)?.name || "")).toLowerCase().includes(chSearch.toLowerCase())));
+  el.innerHTML = `
+    <div class="pagehead"><div><h1>Challenges</h1><p>What everyone can join in the app. Changes reach phones within seconds.</p></div>
+      <button class="btn" id="newChallenge">＋ New challenge</button></div>
+    <div class="toolbar">
+      <div class="segs" id="chSegs">${["all","live","scheduled","draft","ended"].map(s => `<button data-s="${s}" class="${chFilter === s ? "on" : ""}">${s === "all" ? "All" : STATE_LABEL[s]} <span class="muted">${s === "all" ? challenges.length : byState(s)}</span></button>`).join("")}</div>
+      <span class="space"></span>
+      <div class="search"><input type="search" id="chSearch" placeholder="Search challenges or sponsors" value="${esc(chSearch)}"></div>
     </div>
-    <div class="card" id="challengeEditor"><p class="muted">Pick a challenge to edit, or make a new one.</p></div>
-  </div>`;
+    <div class="card" style="padding:6px 8px">
+      ${rows.length ? `<table><thead><tr><th>Challenge</th><th>Runs</th><th>Where</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(c => { const s = sp(c.sponsor_id), st = stateOf(c); return `<tr class="click" data-id="${esc(c.id)}">
+        <td><div class="row" style="gap:10px; flex-wrap:nowrap"><span class="swatch" style="width:10px;height:36px;border-radius:4px;background:${esc(s?.color || "#0A0A0A")}"></span>
+          <div><b>${esc(c.title)}</b>${c.featured ? ' <span class="pill dark">Featured</span>' : ""}<div class="muted small">${esc(c.rule)}</div></div></div></td>
+        <td>${dayLabel(c.starts_on)} – ${dayLabel(c.ends_on)}<div class="muted small">${daysBetween(c.starts_on, c.ends_on) + 1} days</div></td>
+        <td>${flag(c.region)} ${esc(countryName(c.region))}</td>
+        <td>${s ? `<span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.name)}` : '<span class="muted">Performative</span>'}</td>
+        <td>${fmt(counts[c.id])}${c.capacity ? `<span class="muted"> / ${fmt(c.capacity)}</span>` : ""}</td>
+        <td><span class="pill ${st}">${STATE_LABEL[st]}</span></td></tr>`; }).join("")}
+      </tbody></table>` : `<div class="empty">No challenges here. <a href="#" id="emptyNew">Make one</a>.</div>`}
+    </div>`;
   $("#newChallenge").onclick = () => editChallenge(null);
-  el.querySelectorAll("tr.click").forEach(tr => tr.onclick = () => editChallenge(challenges.find(c => c.id === tr.dataset.id)));
+  $("#emptyNew")?.addEventListener("click", e => { e.preventDefault(); editChallenge(null); });
+  $$("#chSegs button").forEach(b => b.onclick = () => { chFilter = b.dataset.s; renderChallengeList(); });
+  $("#chSearch").oninput = e => { chSearch = e.target.value; const pos = e.target.selectionStart; renderChallengeList(); const i = $("#chSearch"); i.focus(); i.setSelectionRange(pos, pos); };
+  $$("tr.click", el).forEach(tr => tr.onclick = () => editChallenge(challenges.find(c => c.id === tr.dataset.id)));
 }
 function slugify(s) { return s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
-function editChallenge(c) {
-  const isNew = !c;
-  const today = new Date().toISOString().slice(0, 10);
-  c = c || { id:"", title:"", rule:"", group_name:"Exercise", categories:["Running"], metric:"time", daily_target:30,
-             starts_on: today, ends_on: today, sponsor_id:null, region:null, capacity:null, featured:false, steps:[], status:"draft", joined_base:0 };
-  const box = $("#challengeEditor");
-  box.innerHTML = `
-    <div class="flex"><h3>${isNew ? "New challenge" : "Edit challenge"}</h3><span class="space"></span>
-      ${isNew ? "" : `<span class="pill ${c.status}">${c.status}</span>`}</div>
-    <div id="cPreview" style="margin:12px 0"></div>
-    <form id="cForm">
-      <label class="f"><span>Title</span><input type="text" name="title" value="${esc(c.title)}" required maxlength="60"></label>
-      <label class="f"><span>Id <small>· short, lowercase, can't change later</small></span>
-        <input type="text" name="id" value="${esc(c.id)}" ${isNew ? "" : "readonly"} pattern="[a-z0-9-]+" required></label>
-      <label class="f"><span>Rule <small>· one line shown on the card</small></span><input type="text" name="rule" value="${esc(c.rule)}" required maxlength="80"></label>
-      <div class="row2">
-        <label class="f"><span>Starts</span><input type="date" name="starts_on" value="${esc(c.starts_on)}" required></label>
-        <label class="f"><span>Ends <small>· included</small></span><input type="date" name="ends_on" value="${esc(c.ends_on)}" required></label>
-      </div>
-      <div class="row2">
-        <label class="f"><span>Measured by</span><select name="metric">${Object.entries(METRICS).map(([k, v]) => `<option value="${k}" ${c.metric === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
-        <label class="f"><span>Daily target</span><input type="number" name="daily_target" min="0" step="any" value="${esc(c.daily_target)}" required></label>
-      </div>
-      <label class="f"><span>Area</span><select name="group_name">${GROUPS.map(g => `<option ${c.group_name === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>
-      <div class="f" style="margin-bottom:12px"><span style="display:block;font-size:12px;font-weight:600;margin-bottom:5px">Activities that count</span>
-        <div class="chips">${CATEGORIES.map(k => `<label><input type="checkbox" name="cat" value="${esc(k)}" ${(c.categories || []).includes(k) ? "checked" : ""}>${esc(k)}</label>`).join("")}</div></div>
-      <label class="f"><span>Sponsor</span><select name="sponsor_id"><option value="">None (Performative)</option>
-        ${sponsors.map(s => `<option value="${s.id}" ${c.sponsor_id === s.id ? "selected" : ""}>${esc(s.name)}${s.is_sample ? " (sample)" : ""}</option>`).join("")}</select></label>
-      <div class="row2">
-        <label class="f"><span>Region <small>· e.g. HK, blank = worldwide</small></span><input type="text" name="region" value="${esc(c.region || "")}" maxlength="2" style="text-transform:uppercase"></label>
-        <label class="f"><span>Spots <small>· blank = no limit</small></span><input type="number" name="capacity" min="1" value="${esc(c.capacity ?? "")}"></label>
-      </div>
-      <label class="f"><span>How it works <small>· one step per line</small></span><textarea name="steps">${esc((c.steps || []).join("\n"))}</textarea></label>
-      <label class="f" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="featured" ${c.featured ? "checked" : ""}> <span style="margin:0">Featured (the big card at the top; only one at a time)</span></label>
-      <label class="f"><span>Status</span><select name="status">
-        <option value="draft" ${c.status === "draft" ? "selected" : ""}>Draft · only you see it</option>
-        <option value="live" ${c.status === "live" ? "selected" : ""}>Live · in everyone's app</option>
-        <option value="ended" ${c.status === "ended" ? "selected" : ""}>Ended · hidden from the app, report kept</option></select></label>
-      <input type="hidden" name="joined_base" value="${esc(c.joined_base ?? 0)}">
-      <div class="flex"><button class="btn" type="submit">${isNew ? "Create" : "Save"}</button>
-        ${isNew ? "" : `<button class="btn red" type="button" id="cDelete">Delete</button>`}
-        <span class="space"></span><button class="btn ghost" type="button" id="cCancel">Close</button></div>
-    </form>`;
+
+// The challenge editor: one page, in clear sections, with the phone preview beside it.
+function editChallenge(orig) {
+  const isNew = !orig;
+  const t = todayISO();
+  let c = orig ? structuredClone(orig) : { id:"", title:"", rule:"", group_name:"Exercise", categories:["Running"], metric:"time", daily_target:20,
+    starts_on: addDays(t, 1), ends_on: addDays(t, 7), sponsor_id:null, region:null, capacity:null, featured:false,
+    steps:["Do it every day.", "Post a live photo when you're done.", "Ranked by total."], status:"draft", joined_base:0,
+    notify_start:true, reminder_time:"18:00:00", notify_ending:true, notify_results:true, announcement:"", cover_note:"" };
+  const el = $("#tab-challenges");
+  const sections = [["basics","Basics"],["schedule","When"],["goal","Daily target"],["audience","Who can join"],["look","Sponsor & look"],["how","How it works"],["notify","Notifications"]];
+  el.innerHTML = `
+    <div class="pagehead"><div><a href="#" id="back" class="muted small" style="text-decoration:none">← All challenges</a>
+      <h1 style="margin-top:6px">${isNew ? "New challenge" : esc(c.title)}</h1>
+      <p>${isNew ? "Fill in each section. It stays a draft until you publish." : `<span class="pill ${stateOf(c)}">${STATE_LABEL[stateOf(c)]}</span> · ${fmt(counts[c.id])} joined · last edited ${when(c.updated_at)}`}</p></div></div>
+    <div class="editor">
+      <nav class="steps">${sections.map(([id, l], i) => `<a href="#" data-sec="${id}" id="nav-${id}"><span class="n">${i + 1}</span>${l}</a>`).join("")}</nav>
+      <form id="cForm" novalidate>
+        <div class="card section" id="sec-basics"><h3>Basics</h3><p>What people see on the card.</p>
+          <label class="f"><span>Title</span><input type="text" name="title" maxlength="40" placeholder="e.g. Run Week" value="${esc(c.title)}"><div class="err" data-err="title"></div></label>
+          <label class="f"><span>Rule <small>· the one line under the title</small></span><input type="text" name="rule" maxlength="60" placeholder="e.g. Run 3 km a day" value="${esc(c.rule)}"><div class="err" data-err="rule"></div></label>
+          <div class="two">
+            <label class="f"><span>Area</span><select name="group_name">${GROUPS.map(g => `<option ${c.group_name === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>
+            <label class="f"><span>Id <small>· ${isNew ? "made from the title" : "fixed"}</small></span><input type="text" name="id" value="${esc(c.id)}" ${isNew ? "" : "readonly"} pattern="[a-z0-9-]+"><div class="err" data-err="id"></div></label>
+          </div>
+          <div class="flabel">Activities that count <small>· posts of these count towards the target</small></div>
+          <div class="chips" id="catChips"></div><div class="err" data-err="categories"></div>
+        </div>
+
+        <div class="card section" id="sec-schedule"><h3>When</h3><p>Days run midnight to midnight, Hong Kong time. Both dates count.</p>
+          <div class="flabel">Length</div>
+          <div class="segs" id="lenSegs" style="margin-bottom:14px">${[7, 14, 21, 30].map(n => `<button type="button" data-len="${n}">${n} days</button>`).join("")}<button type="button" data-len="custom">Custom</button></div>
+          <div class="two">
+            <label class="f"><span>Starts</span><input type="date" name="starts_on" value="${esc(c.starts_on)}"></label>
+            <label class="f"><span>Ends</span><input type="date" name="ends_on" value="${esc(c.ends_on)}"><div class="err" data-err="dates"></div></label>
+          </div>
+          <div class="help" id="schedHelp"></div>
+        </div>
+
+        <div class="card section" id="sec-goal"><h3>Daily target</h3><p>What counts as done each day. Measured from the app's timer or Apple Health, never typed in.</p>
+          <div class="segs" id="metricSegs" style="margin-bottom:14px">${Object.entries(METRICS).map(([k, m]) => `<button type="button" data-m="${k}">${m.label}</button>`).join("")}</div>
+          <label class="f"><span id="targetLabel">Target</span>
+            <div class="row" style="flex-wrap:nowrap"><input type="number" name="daily_target" min="0" step="any" value="${esc(c.daily_target)}" style="max-width:180px"><span class="muted" id="targetUnit"></span></div>
+            <div class="err" data-err="target"></div></label>
+          <div class="help" id="metricHelp"></div>
+        </div>
+
+        <div class="card section" id="sec-audience"><h3>Who can join</h3><p>Everyone, or one country (people see it under "Near you"; we use their phone's location or region).</p>
+          <div class="segs" id="whereSegs" style="margin-bottom:14px"><button type="button" data-w="world">🌍 Worldwide</button><button type="button" data-w="country">One country</button></div>
+          <div class="combo ${c.region ? "" : "hidden"}" id="countryBox">
+            <input type="search" id="countryInput" placeholder="Search countries" autocomplete="off" value="${c.region ? esc(flag(c.region) + " " + countryName(c.region)) : ""}">
+            <div class="list hidden" id="countryList"></div>
+            <div class="chips" style="margin-top:8px" id="popular">${POPULAR.map(p => `<button type="button" class="chip" data-c="${p}">${flag(p)} ${esc(countryName(p))}</button>`).join("")}</div>
+          </div>
+          <label class="f" style="margin-top:14px"><span>Spots <small>· leave empty for no limit</small></span><input type="number" name="capacity" min="1" placeholder="No limit" value="${esc(c.capacity ?? "")}" style="max-width:220px"></label>
+        </div>
+
+        <div class="card section" id="sec-look"><h3>Sponsor & look</h3><p>A sponsor's colours and logo go on the card. No sponsor means it's a Performative challenge (black).</p>
+          <label class="f"><span>Sponsor</span><select name="sponsor_id"><option value="">None · Performative</option>
+            ${sponsors.map(s => `<option value="${s.id}" ${c.sponsor_id === s.id ? "selected" : ""}>${esc(s.name)}${s.is_sample ? " (sample)" : ""}</option>`).join("")}</select>
+            <div class="help"><a href="#" id="toSponsors">Add or edit sponsors</a></div></label>
+          <label class="switch"><div class="t"><b>Featured</b><span>The big card at the top of Challenges. Only one at a time; setting this one turns off the other.</span></div><input type="checkbox" name="featured" ${c.featured ? "checked" : ""}></label>
+          <label class="f" style="margin-top:12px"><span>Note under the card <small>· optional, e.g. a prize</small></span><input type="text" name="cover_note" maxlength="200" placeholder="e.g. Top 3 win a pair of Northline runners" value="${esc(c.cover_note || "")}"></label>
+        </div>
+
+        <div class="card section" id="sec-how"><h3>How it works</h3><p>Short steps on the challenge page. Drag isn't needed: use the arrows.</p>
+          <div id="stepsList"></div>
+          <button type="button" class="btn line small" id="addStep">＋ Add a step</button>
+        </div>
+
+        <div class="card section" id="sec-notify"><h3>Notifications</h3><p>Sent on the phones of people who joined. They can turn them off in the app.</p>
+          <label class="switch"><div class="t"><b>Starts today</b><span>9:00 on day 1.</span></div><input type="checkbox" name="notify_start" ${c.notify_start !== false ? "checked" : ""}></label>
+          <div class="switch" style="cursor:default"><div class="t"><b>Daily reminder</b><span>Only if they haven't done it yet that day.</span></div>
+            <input type="time" name="reminder_time" value="${esc((c.reminder_time || "").slice(0, 5))}" style="width:120px"></div>
+          <label class="switch"><div class="t"><b>Ending soon</b><span>2 days before the end, at 9:00.</span></div><input type="checkbox" name="notify_ending" ${c.notify_ending !== false ? "checked" : ""}></label>
+          <label class="switch"><div class="t"><b>Results</b><span>The morning after it ends: how they did.</span></div><input type="checkbox" name="notify_results" ${c.notify_results !== false ? "checked" : ""}></label>
+          <label class="f" style="margin-top:12px"><span>Announcement <small>· optional, added to the "starts today" message</small></span><input type="text" name="announcement" maxlength="140" placeholder="e.g. Free coached run Saturday 8am, Central Pier" value="${esc(c.announcement || "")}"></label>
+        </div>
+
+        <div class="savebar">
+          <span id="saveState" class="small" style="color:#bbb"></span><span class="space"></span>
+          ${isNew ? "" : `<button type="button" class="btn ghost small" id="cDelete">Delete</button>`}
+          ${!isNew && c.status === "live" ? `<button type="button" class="btn ghost" id="cEnd">End now</button>` : ""}
+          <button type="button" class="btn ghost" id="cDraft">${isNew || c.status === "draft" ? "Save draft" : "Move to draft"}</button>
+          <button type="button" class="btn white" id="cPublish">${c.status === "live" ? "Save changes" : "Publish"}</button>
+        </div>
+      </form>
+      <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">Preview</div><div id="cPreview"></div></div>
+    </div>`;
+
   const form = $("#cForm");
-  const read = () => {
+  const setSeg = (id, key, val) => $$(`#${id} button`).forEach(b => b.classList.toggle("on", b.dataset[key] === String(val)));
+
+  // Activities
+  function drawCats() {
+    const list = [...new Set([...(CATEGORIES[c.group_name] || []), ...ALL_CATEGORIES])];
+    $("#catChips").innerHTML = list.map(k => `<button type="button" class="chip ${c.categories.includes(k) ? "on" : ""}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
+    $$("#catChips .chip").forEach(b => b.onclick = () => {
+      const k = b.dataset.k; c.categories = c.categories.includes(k) ? c.categories.filter(x => x !== k) : [...c.categories, k];
+      drawCats(); refresh();
+    });
+  }
+  // Schedule
+  function drawSchedule() {
+    const n = daysBetween(c.starts_on, c.ends_on) + 1;
+    setSeg("lenSegs", "len", [7, 14, 21, 30].includes(n) ? n : "custom");
+    const startsIn = daysBetween(t, c.starts_on);
+    $("#schedHelp").textContent = n > 0 ? `${n} days · ${startsIn > 0 ? `starts in ${startsIn} day${startsIn === 1 ? "" : "s"}` : startsIn === 0 ? "starts today" : "already started"} · ends ${new Date(c.ends_on + "T00:00:00").toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long" })}` : "";
+  }
+  $$("#lenSegs button").forEach(b => b.onclick = () => {
+    if (b.dataset.len === "custom") { form.ends_on.focus(); return; }
+    c.ends_on = addDays(c.starts_on, Number(b.dataset.len) - 1); form.ends_on.value = c.ends_on; drawSchedule(); refresh();
+  });
+  // Metric
+  function drawMetric() {
+    setSeg("metricSegs", "m", c.metric);
+    const m = METRICS[c.metric]; $("#targetUnit").textContent = m.unit; form.daily_target.step = m.step; form.daily_target.placeholder = m.eg;
+    $("#metricHelp").textContent = c.metric === "time" ? "From the app's timer: sessions of the activities above." : c.metric === "km" ? "From Apple Health workouts (running, walking, cycling)." : "From Apple Health's step count for the day.";
+  }
+  $$("#metricSegs button").forEach(b => b.onclick = () => { c.metric = b.dataset.m; c.daily_target = METRICS[c.metric].def; form.daily_target.value = c.daily_target; drawMetric(); refresh(); });
+  // Where
+  function drawWhere() { setSeg("whereSegs", "w", c.region ? "country" : "world"); $("#countryBox").classList.toggle("hidden", !c.region && !$("#countryBox")._open); }
+  $$("#whereSegs button").forEach(b => b.onclick = () => {
+    if (b.dataset.w === "world") { c.region = null; $("#countryBox")._open = false; $("#countryInput").value = ""; }
+    else { $("#countryBox")._open = true; if (!c.region) setTimeout(() => $("#countryInput").focus(), 0); }
+    drawWhere(); refresh();
+  });
+  const pickCountry = code => { c.region = code; $("#countryInput").value = flag(code) + " " + countryName(code); $("#countryList").classList.add("hidden"); drawWhere(); refresh(); };
+  $("#countryInput").addEventListener("input", e => {
+    const q = e.target.value.replace(/[^\p{L}\s]/gu, "").trim().toLowerCase();
+    const hits = COUNTRIES.filter(x => !q || x.name.toLowerCase().includes(q) || x.code.toLowerCase() === q).slice(0, 40);
+    const list = $("#countryList"); list.classList.remove("hidden");
+    list.innerHTML = hits.map(x => `<button type="button" data-c="${x.code}">${flag(x.code)} <span>${esc(x.name)}</span><span class="space"></span><span class="muted small">${x.code}</span></button>`).join("") || '<div class="muted small" style="padding:8px">No match</div>';
+    $$("button", list).forEach(b => b.onclick = () => pickCountry(b.dataset.c));
+  });
+  $("#countryInput").addEventListener("focus", e => e.target.dispatchEvent(new Event("input")));
+  document.addEventListener("click", e => { if (!e.target.closest("#countryBox")) $("#countryList")?.classList.add("hidden"); }, { once:false });
+  $$("#popular .chip").forEach(b => b.onclick = () => pickCountry(b.dataset.c));
+  // Steps
+  function drawSteps() {
+    $("#stepsList").innerHTML = c.steps.map((s, i) => `<div class="stepsrow"><span class="num">${i + 1}</span>
+      <input type="text" data-i="${i}" value="${esc(s)}" maxlength="120">
+      <button type="button" class="iconbtn" data-up="${i}" title="Move up">↑</button><button type="button" class="iconbtn" data-down="${i}" title="Move down">↓</button>
+      <button type="button" class="iconbtn" data-del="${i}" title="Remove">✕</button></div>`).join("") || '<div class="muted small" style="margin-bottom:10px">No steps yet.</div>';
+    $$("#stepsList input").forEach(inp => inp.oninput = () => { c.steps[inp.dataset.i] = inp.value; refresh(false); });
+    $$("[data-up]").forEach(b => b.onclick = () => { const i = +b.dataset.up; if (i > 0) { [c.steps[i - 1], c.steps[i]] = [c.steps[i], c.steps[i - 1]]; drawSteps(); refresh(); } });
+    $$("[data-down]").forEach(b => b.onclick = () => { const i = +b.dataset.down; if (i < c.steps.length - 1) { [c.steps[i + 1], c.steps[i]] = [c.steps[i], c.steps[i + 1]]; drawSteps(); refresh(); } });
+    $$("[data-del]").forEach(b => b.onclick = () => { c.steps.splice(+b.dataset.del, 1); drawSteps(); refresh(); });
+  }
+  $("#addStep").onclick = () => { c.steps.push(""); drawSteps(); $$("#stepsList input").at(-1).focus(); };
+
+  // Read the plain fields, check everything, update the preview and section ticks.
+  function read() {
     const f = new FormData(form);
-    return {
-      id: (f.get("id") || slugify(f.get("title") || "")).trim(), title: f.get("title").trim(), rule: f.get("rule").trim(),
-      group_name: f.get("group_name"), categories: f.getAll("cat"), metric: f.get("metric"), daily_target: Number(f.get("daily_target")),
-      starts_on: f.get("starts_on"), ends_on: f.get("ends_on"), sponsor_id: f.get("sponsor_id") || null,
-      region: (f.get("region") || "").trim().toUpperCase() || null, capacity: f.get("capacity") ? Number(f.get("capacity")) : null,
-      featured: f.get("featured") === "on", steps: (f.get("steps") || "").split("\n").map(s => s.trim()).filter(Boolean),
-      status: f.get("status"), joined_base: Number(f.get("joined_base") || 0)
-    };
-  };
-  const preview = () => {
-    const v = read(); const s = sponsors.find(x => x.id === v.sponsor_id);
-    $("#cPreview").innerHTML = `<div class="preview" style="background:${esc(s?.color || "#0A0A0A")}">
-      <div class="w">${esc(s ? (s.wordmark || s.name) : "PERFORMATIVE")}</div>
-      <div><h3>${esc(v.title || "Challenge title")}</h3><div style="opacity:.85">${esc(v.rule || "The daily rule")} · ${day(v.starts_on)} – ${day(v.ends_on)}</div></div></div>`;
-  };
+    c.title = (f.get("title") || "").trim(); c.rule = (f.get("rule") || "").trim(); c.group_name = f.get("group_name");
+    c.id = isNew ? (f.get("id") || "").trim() : c.id;
+    c.starts_on = f.get("starts_on"); c.ends_on = f.get("ends_on");
+    c.daily_target = Number(f.get("daily_target")); c.capacity = f.get("capacity") ? Number(f.get("capacity")) : null;
+    c.sponsor_id = f.get("sponsor_id") || null; c.featured = f.get("featured") === "on";
+    c.cover_note = (f.get("cover_note") || "").trim(); c.announcement = (f.get("announcement") || "").trim();
+    c.notify_start = f.get("notify_start") === "on"; c.notify_ending = f.get("notify_ending") === "on"; c.notify_results = f.get("notify_results") === "on";
+    c.reminder_time = f.get("reminder_time") ? f.get("reminder_time") + ":00" : null;
+  }
+  function problems() {
+    const p = {};
+    if (!c.title) p.title = "Give it a title.";
+    if (!c.rule) p.rule = "Add the one-line rule.";
+    if (!/^[a-z0-9-]{3,40}$/.test(c.id)) p.id = "3–40 characters: lowercase letters, numbers and dashes.";
+    else if (isNew && challenges.some(x => x.id === c.id)) p.id = "That id is taken. Change it a little.";
+    if (!c.categories.length) p.categories = "Pick at least one activity.";
+    if (!c.starts_on || !c.ends_on || c.ends_on < c.starts_on) p.dates = "The end has to be on or after the start.";
+    if (!(c.daily_target > 0)) p.target = "Set a target above 0.";
+    return p;
+  }
+  const sectionOf = { title:"basics", rule:"basics", id:"basics", categories:"basics", dates:"schedule", target:"goal" };
+  function refresh(redrawSteps = true) {
+    read();
+    const p = problems();
+    $$("[data-err]", form).forEach(e => e.textContent = form._tried ? (p[e.dataset.err] || "") : "");
+    sections.forEach(([id]) => {
+      const bad = Object.keys(p).some(k => sectionOf[k] === id);
+      $("#nav-" + id).classList.toggle("bad", form._tried && bad); $("#nav-" + id).classList.toggle("ok", !bad);
+    });
+    $("#saveState").textContent = Object.keys(p).length ? `${Object.keys(p).length} thing${Object.keys(p).length > 1 ? "s" : ""} to fix` : "Ready to publish";
+    drawPreview();
+  }
+  function drawPreview() {
+    const s = sponsors.find(x => x.id === c.sponsor_id);
+    const color = s?.color || "#0A0A0A", tint = s?.tint || "#F2F2F2";
+    const days = daysBetween(c.starts_on, c.ends_on) + 1, m = METRICS[c.metric];
+    const logo = s?.logo_path ? `<img src="${logoURL(s.logo_path)}">` : "";
+    const firstName = "Alex";
+    $("#cPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+      <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
+      <div class="pcard" style="background:${esc(color)}">
+        <div class="wm">${logo}${esc(s ? (s.wordmark || s.name).toUpperCase() : "PERFORMATIVE")}${c.featured ? " · FEATURED" : ""}</div>
+        <div><h4>${esc(c.title || "Challenge title")}</h4>
+          <div class="meta">${esc(c.rule || "The daily rule")} · ${days} days · ${c.region ? flag(c.region) + " " + esc(countryName(c.region)) : "🌍 Worldwide"}</div>
+          <div class="meta" style="margin-top:3px">${fmt(counts[c.id] || 0)} in${c.capacity ? ` · ${fmt(c.capacity)} spots` : ""} · ${dayLabel(c.starts_on)} – ${dayLabel(c.ends_on)}</div></div>
+        <span class="join">Join</span>
+      </div>
+      ${c.cover_note ? `<div class="ptint" style="background:${esc(tint)}; font-size:12px"><b>${esc(c.cover_note)}</b></div>` : ""}
+      <div class="plist"><div class="eyebrow" style="display:block; margin-bottom:8px">How it works</div>
+        ${(c.steps.filter(Boolean).length ? c.steps.filter(Boolean) : ["Steps show here"]).map((st, i) => `<div><span>${i + 1}</span>${esc(st)}</div>`).join("")}
+        <div><span>✓</span>${c.daily_target || "?"} ${m.unit} · ${esc(c.categories.join(", ") || "pick activities")}</div></div>
+      <div class="eyebrow" style="margin:16px 0 4px">Notifications</div>
+      ${c.notify_start ? `<div class="notif"><b>PERFORMATIVE · ${dayLabel(c.starts_on)}, 9:00</b>${esc(c.title || "Your challenge")} starts today. ${esc(c.announcement || "")}</div>` : ""}
+      ${c.reminder_time ? `<div class="notif"><b>DAILY · ${c.reminder_time.slice(0, 5)}</b>${esc(c.rule || "Today's target")}: not done yet today, ${firstName}.</div>` : ""}
+      ${c.notify_ending ? `<div class="notif"><b>${dayLabel(addDays(c.ends_on, -2))}, 9:00</b>2 days left in ${esc(c.title || "the challenge")}.</div>` : ""}
+      ${c.notify_results ? `<div class="notif"><b>${dayLabel(addDays(c.ends_on, 1))}, 9:00</b>${esc(c.title || "The challenge")} is over. See how you did.</div>` : ""}
+      ${!c.notify_start && !c.reminder_time && !c.notify_ending && !c.notify_results ? '<div class="muted small">None</div>' : ""}
+    </div></div></div>`;
+  }
+
+  // Wiring
   form.addEventListener("input", e => {
     if (isNew && e.target.name === "title") form.id.value = slugify(e.target.value);
-    preview();
+    if (e.target.name === "starts_on" && c.ends_on) { const len = daysBetween(c.starts_on, c.ends_on); read(); c.ends_on = addDays(c.starts_on, Math.max(0, len)); form.ends_on.value = c.ends_on; }
+    if (e.target.name === "group_name") { read(); drawCats(); }
+    refresh(); drawSchedule();
   });
-  preview();
-  $("#cCancel").onclick = () => box.innerHTML = '<p class="muted">Pick a challenge to edit, or make a new one.</p>';
-  form.onsubmit = async e => {
-    e.preventDefault();
-    const v = read();
-    if (!v.categories.length) return toast("Pick at least one activity that counts.", true);
-    if (v.ends_on < v.starts_on) return toast("The end date is before the start date.", true);
+  form.addEventListener("change", () => refresh());
+  $$(".steps a").forEach(a => a.onclick = e => { e.preventDefault(); $("#sec-" + a.dataset.sec).scrollIntoView({ behavior:"smooth" }); });
+  $("#back").onclick = e => { e.preventDefault(); renderChallengeList(); };
+  $("#toSponsors").onclick = e => { e.preventDefault(); openTab("sponsors"); };
+
+  async function save(status) {
+    read(); form._tried = true; const p = problems(); refresh();
+    if (Object.keys(p).length) { const k = Object.keys(p)[0]; $("#sec-" + sectionOf[k]).scrollIntoView({ behavior:"smooth" }); return toast("Fix the highlighted bits first.", true); }
+    const row = { ...c, status, steps: c.steps.map(s => s.trim()).filter(Boolean), cover_note: c.cover_note || null, announcement: c.announcement || null };
+    delete row.updated_at; delete row.created_at;
     try {
-      if (v.featured) { const { error } = await sb.from("challenges").update({ featured: false }).neq("id", v.id).eq("featured", true); if (error) throw error; }
-      const { error } = isNew ? await sb.from("challenges").insert(v) : await sb.from("challenges").update(v).eq("id", v.id);
+      if (row.featured) { const { error } = await sb.from("challenges").update({ featured:false }).neq("id", row.id).eq("featured", true); if (error) throw error; }
+      const { error } = isNew ? await sb.from("challenges").insert(row) : await sb.from("challenges").update(row).eq("id", row.id);
       if (error) throw error;
-      toast(isNew ? "Challenge created" : "Saved"); await loadChallenges();
-      editChallenge(challenges.find(x => x.id === v.id));
-    } catch (err) { fail(err.code === "23505" ? { message: "A challenge with that id already exists." } : err); }
-  };
-  if (!isNew) $("#cDelete").onclick = async () => {
-    if (!confirm(`Delete "${c.title}"? Everyone in it leaves, and the sponsor's report for it goes too. To keep the numbers, set it to Ended instead.`)) return;
+      toast(status === "live" ? (isNew || orig?.status !== "live" ? "Published. It's in the app now." : "Saved. Phones update within seconds.") : status === "ended" ? "Ended." : "Saved as a draft.");
+      await loadChallenges(); editChallenge(challenges.find(x => x.id === row.id));
+    } catch (err) { fail(err.code === "23505" ? { message:"A challenge with that id already exists." } : err); }
+  }
+  $("#cPublish").onclick = () => save("live");
+  $("#cDraft").onclick = () => save("draft");
+  $("#cEnd")?.addEventListener("click", () => { if (confirm("End this challenge now? It leaves the app; the sponsor's report keeps the numbers.")) save("ended"); });
+  $("#cDelete")?.addEventListener("click", async () => {
+    if (!confirm(`Delete "${c.title}" for good? Everyone in it leaves and the sponsor's report for it goes too. To keep the numbers, use End instead.`)) return;
     const { error } = await sb.from("challenges").delete().eq("id", c.id); if (error) return fail(error);
-    toast("Deleted"); loadChallenges();
-  };
+    toast("Deleted"); await loadChallenges();
+  });
+
+  drawCats(); drawSteps(); drawMetric(); drawWhere(); drawSchedule(); refresh();
+  window.scrollTo(0, 0);
 }
 
-// ---------- Sponsors ----------
+// ---------------- Sponsors ----------------
+function logoURL(path) { return sb.storage.from("brand").getPublicUrl(path).data.publicUrl + "?v=" + (logoURL.v ||= Date.now()); }
 async function loadSponsors() {
   const el = $("#tab-sponsors");
   await fetchSponsors();
-  el.innerHTML = `<div class="split">
-    <div class="card">
-      <div class="flex" style="margin-bottom:8px"><h2>Sponsors</h2><span class="space"></span><button class="btn" id="newSponsor">New sponsor</button></div>
-      <table><thead><tr><th>Sponsor</th><th>Colour</th><th>Live challenges</th><th></th></tr></thead><tbody>
-      ${sponsors.map(s => `<tr class="click" data-id="${s.id}">
-        <td>${s.logo_path ? `<img class="thumb" style="width:34px;height:34px;vertical-align:middle;margin-right:8px" src="${logoURL(s.logo_path)}">` : ""}<b>${esc(s.name)}</b>${s.is_sample ? ' <span class="pill">sample</span>' : ""}</td>
-        <td><span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</td>
-        <td id="live-${s.id}" class="muted">…</td><td class="muted">Edit ›</td></tr>`).join("")}
-      </tbody></table>
-    </div>
-    <div class="card" id="sponsorEditor"><p class="muted">Pick a sponsor to edit, or add a new one.</p></div>
-  </div>`;
-  const { data: ch } = await sb.from("challenges").select("sponsor_id,status");
-  sponsors.forEach(s => { const n = (ch || []).filter(c => c.sponsor_id === s.id && c.status === "live").length; const td = $("#live-" + s.id); if (td) td.textContent = n; });
+  const { data: ch } = await sb.from("challenges").select("sponsor_id,status,ends_on,starts_on");
+  const live = id => (ch || []).filter(c => c.sponsor_id === id && stateOf(c) === "live").length;
+  el.innerHTML = `
+    <div class="pagehead"><div><h1>Sponsors</h1><p>Brands that run challenges. Each one has a private report link with their numbers.</p></div>
+      <button class="btn" id="newSponsor">＋ New sponsor</button></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
+      ${sponsors.map(s => `<div class="card scard" data-id="${s.id}">
+        <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${logoURL(s.logo_path)}" style="width:26px;height:26px;border-radius:7px;background:#fff;object-fit:contain;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
+        <div class="row"><b>${esc(s.name)}</b>${s.is_sample ? '<span class="pill">sample</span>' : ""}<span class="space"></span></div>
+        <div class="muted small" style="margin-top:4px">${live(s.id)} live challenge${live(s.id) === 1 ? "" : "s"} · <span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</div>
+      </div>`).join("")}
+    </div>`;
   $("#newSponsor").onclick = () => editSponsor(null);
-  el.querySelectorAll("tr.click").forEach(tr => tr.onclick = () => editSponsor(sponsors.find(s => s.id === tr.dataset.id)));
+  $$(".scard", el).forEach(d => d.onclick = () => editSponsor(sponsors.find(s => s.id === d.dataset.id)));
 }
-function logoURL(path) { return sb.storage.from("brand").getPublicUrl(path).data.publicUrl + "?v=" + Date.now(); }
-function tintOf(hex) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ""); if (!m) return "#F2F2F2";
-  const n = parseInt(m[1], 16), mix = c => Math.round(c * 0.12 + 255 * 0.88);
-  return "#" + [n >> 16 & 255, n >> 8 & 255, n & 255].map(mix).map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+
+// Colour maths: hex ↔ HSL, the light tint, and WCAG contrast of white text on the brand colour.
+const hexToRgb = h => { const m = /^#?([0-9a-f]{6})$/i.exec(h || ""); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const rgbToHex = (r, g, b) => "#" + [r, g, b].map(x => Math.round(Math.max(0, Math.min(255, x))).toString(16).padStart(2, "0")).join("").toUpperCase();
+function rgbToHsl(r, g, b) { r /= 255; g /= 255; b /= 255; const max = Math.max(r, g, b), min = Math.min(r, g, b); let h = 0, s = 0; const l = (max + min) / 2;
+  if (max !== min) { const d = max - min; s = l > .5 ? d / (2 - max - min) : d / (max + min); h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; } return [h, s, l]; }
+function hslToRgb(h, s, l) { const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return [f(0) * 255, f(8) * 255, f(4) * 255]; }
+const tintOf = hex => { const c = hexToRgb(hex); if (!c) return "#F2F2F2"; return rgbToHex(...c.map(x => x * .12 + 255 * .88)); };
+const lum = hex => { const c = hexToRgb(hex) || [0, 0, 0]; const v = c.map(x => { x /= 255; return x <= .03928 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4; }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; };
+const contrastWhite = hex => 1.05 / (lum(hex) + .05);
+
+// A colour field: wheel (hue around, white in the middle), lightness slider, hex box, system picker, eyedropper, swatches.
+function colorField(name, value, opts = {}) {
+  return `<div class="colorfield" data-name="${name}">
+    <div class="row" style="align-items:flex-start; gap:16px; flex-wrap:wrap">
+      <div class="wheel" data-wheel><span class="dot" data-dot></span></div>
+      <div style="flex:1; min-width:200px">
+        <div class="colorrow"><input type="color" data-native value="${esc(value)}" title="Open the colour picker"><input type="text" name="${name}" value="${esc(value)}" maxlength="7" pattern="#[0-9A-Fa-f]{6}">
+          <button type="button" class="btn line small" data-drop title="Pick a colour from anywhere on screen">⌖ Dropper</button></div>
+        <div class="flabel" style="margin-top:12px">Lightness</div><input type="range" class="light" data-light min="5" max="95" value="50">
+        ${opts.swatches ? `<div class="flabel" style="margin-top:12px">From the logo</div><div class="swatches" data-swatches><span class="muted small">Upload a logo to get its colours.</span></div>` : ""}
+        <div class="help" data-drophelp></div>
+      </div>
+    </div></div>`;
 }
-async function editSponsor(s) {
-  const isNew = !s;
-  s = s || { slug:"", name:"", wordmark:"", color:"#0A0A0A", tint:"#F2F2F2", about:"", website:"", logo_path:null, is_sample:false };
+function wireColorField(root, onChange) {
+  const text = $("input[type=text]", root), native = $("[data-native]", root), wheel = $("[data-wheel]", root), dot = $("[data-dot]", root), light = $("[data-light]", root);
+  let hsl = rgbToHsl(...(hexToRgb(text.value) || [10, 10, 10]));
+  const place = () => { const r = 90, a = (hsl[0] - 90) * Math.PI / 180, d = hsl[1] * r; dot.style.left = (r + Math.cos(a) * d) + "px"; dot.style.top = (r + Math.sin(a) * d) + "px"; dot.style.background = text.value; };
+  const paintLight = () => { const mid = rgbToHex(...hslToRgb(hsl[0], hsl[1], .5)); light.style.background = `linear-gradient(90deg, #000, ${mid}, #fff)`; light.value = Math.round(hsl[2] * 100); };
+  const set = (hex, from) => { hex = hex.toUpperCase(); if (!/^#[0-9A-F]{6}$/.test(hex)) return; text.value = hex; native.value = hex;
+    if (from !== "hsl") hsl = rgbToHsl(...hexToRgb(hex)); place(); paintLight(); onChange(hex); };
+  root._set = set;
+  const fromPoint = e => { const b = wheel.getBoundingClientRect(), x = e.clientX - b.left - b.width / 2, y = e.clientY - b.top - b.height / 2;
+    hsl[0] = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360) % 360; hsl[1] = Math.min(1, Math.hypot(x, y) / (b.width / 2)); if (hsl[2] > .9 || hsl[2] < .1) hsl[2] = .5;
+    set(rgbToHex(...hslToRgb(...hsl)), "hsl"); };
+  wheel.addEventListener("pointerdown", e => { wheel.setPointerCapture(e.pointerId); fromPoint(e); wheel.onpointermove = fromPoint; });
+  wheel.addEventListener("pointerup", () => wheel.onpointermove = null);
+  light.oninput = () => { hsl[2] = light.value / 100; set(rgbToHex(...hslToRgb(...hsl)), "hsl"); };
+  native.oninput = () => set(native.value);
+  text.oninput = () => { if (/^#[0-9A-Fa-f]{6}$/.test(text.value)) set(text.value); };
+  $("[data-drop]", root).onclick = async () => {
+    if (!("EyeDropper" in window)) { $("[data-drophelp]", root).textContent = "The screen dropper works in Chrome and Edge. In Safari, use the colour box: its picker has a magnifier to pick from the screen."; native.click(); return; }
+    try { const r = await new EyeDropper().open(); set(r.sRGBHex.length === 7 ? r.sRGBHex : rgbToHex(...(r.sRGBHex.match(/\d+/g) || []).map(Number))); } catch {}
+  };
+  place(); paintLight();
+}
+// The main colours in a logo (skipping near-white, near-black and see-through pixels).
+function logoColours(img) {
+  const c = document.createElement("canvas"), n = 48; c.width = n; c.height = n; const x = c.getContext("2d"); x.drawImage(img, 0, 0, n, n);
+  let d; try { d = x.getImageData(0, 0, n, n).data; } catch { return []; }
+  const buckets = {};
+  for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 128) continue; const [r, g, b] = [d[i], d[i + 1], d[i + 2]]; const l = (r + g + b) / 3; if (l > 240 || l < 15) continue;
+    const k = [r, g, b].map(v => Math.round(v / 32) * 32).join(","); (buckets[k] ||= { n:0, r:0, g:0, b:0 }); const q = buckets[k]; q.n++; q.r += r; q.g += g; q.b += b; }
+  return Object.values(buckets).sort((a, b) => b.n - a.n).slice(0, 6).map(q => rgbToHex(q.r / q.n, q.g / q.n, q.b / q.n));
+}
+
+async function editSponsor(orig) {
+  const isNew = !orig;
+  const s = orig ? { ...orig } : { slug:"", name:"", wordmark:"", color:"#2340FF", tint:tintOf("#2340FF"), about:"", website:"", logo_path:null, is_sample:false };
   let priv = null;
   if (!isNew) { const { data } = await sb.from("sponsor_private").select("*").eq("sponsor_id", s.id).maybeSingle(); priv = data; }
-  const box = $("#sponsorEditor");
-  box.innerHTML = `
-    <h3>${isNew ? "New sponsor" : esc(s.name)}</h3>
-    <form id="sForm" style="margin-top:12px">
-      <label class="f"><span>Name</span><input type="text" name="name" value="${esc(s.name)}" required maxlength="40"></label>
-      <label class="f"><span>Id <small>· short, lowercase, can't change later</small></span>
-        <input type="text" name="slug" value="${esc(s.slug)}" ${isNew ? "" : "readonly"} pattern="[a-z0-9-]+" required></label>
-      <label class="f"><span>Wordmark <small>· how they write their name next to the logo</small></span><input type="text" name="wordmark" value="${esc(s.wordmark || "")}" maxlength="30"></label>
-      <div class="row2">
-        <label class="f"><span>Brand colour</span><input type="text" name="color" value="${esc(s.color)}" pattern="#[0-9A-Fa-f]{6}" required></label>
-        <label class="f"><span>Light tint <small>· auto</small></span><input type="text" name="tint" value="${esc(s.tint)}" pattern="#[0-9A-Fa-f]{6}" required></label>
-      </div>
-      <label class="f"><span>About <small>· shown when people tap "Sponsored"</small></span><textarea name="about" maxlength="400">${esc(s.about || "")}</textarea></label>
-      <label class="f"><span>Website</span><input type="url" name="website" value="${esc(s.website || "")}" placeholder="https://"></label>
-      <label class="f"><span>Logo <small>· square PNG, 512×512, transparent</small></span>
-        ${s.logo_path ? `<img class="thumb" src="${logoURL(s.logo_path)}" style="display:block;margin-bottom:6px">` : ""}
-        <input type="file" name="logo" accept="image/png,image/jpeg"></label>
-      ${isNew ? "" : `
-      <div class="tile" style="margin:6px 0 14px">
-        <div class="eyebrow" style="margin-bottom:6px">Private report link</div>
-        ${priv ? `<div class="copy" id="reportLink">${esc(REPORT_BASE + "?t=" + priv.report_token)}</div>
-        <div class="flex" style="margin-top:8px"><button class="btn small" type="button" id="copyLink">Copy link</button>
-          <button class="btn ghost small" type="button" id="newLink">Make a new link</button></div>
-        <label class="f" style="margin-top:10px"><span>Contact name</span><input type="text" name="contact_name" value="${esc(priv.contact_name || "")}"></label>
-        <label class="f"><span>Contact email</span><input type="email" name="contact_email" value="${esc(priv.contact_email || "")}"></label>
-        <label class="f"><span>Notes <small>· only admins see these</small></span><textarea name="notes">${esc(priv.notes || "")}</textarea></label>`
-        : '<p class="muted">No report link yet.</p>'}
-      </div>`}
-      <div class="flex"><button class="btn" type="submit">${isNew ? "Add sponsor" : "Save"}</button>
-        <span class="space"></span><button class="btn ghost" type="button" id="sCancel">Close</button></div>
-    </form>`;
+  let logoFile = null, logoPreview = s.logo_path ? logoURL(s.logo_path) : null, autoTint = isNew || s.tint === tintOf(s.color);
+  const el = $("#tab-sponsors");
+  el.innerHTML = `
+    <div class="pagehead"><div><a href="#" id="sBack" class="muted small" style="text-decoration:none">← All sponsors</a><h1 style="margin-top:6px">${isNew ? "New sponsor" : esc(s.name)}</h1>
+      <p>${isNew ? "Name, logo and colours. Then make their first challenge." : "Changes show on their challenges in the app straight away."}</p></div></div>
+    <div class="editor" style="grid-template-columns: minmax(0,1fr) 330px">
+      <form id="sForm" novalidate>
+        <div class="card section"><h3>Brand</h3><p>How they appear in the app.</p>
+          <div class="two">
+            <label class="f"><span>Name</span><input type="text" name="name" maxlength="40" value="${esc(s.name)}" placeholder="e.g. Northline"><div class="err" data-err="name"></div></label>
+            <label class="f"><span>Wordmark <small>· how they write it on the card</small></span><input type="text" name="wordmark" maxlength="30" value="${esc(s.wordmark || "")}" placeholder="e.g. NORTHLINE"></label>
+          </div>
+          <label class="f"><span>Id <small>· ${isNew ? "made from the name" : "fixed"}</small></span><input type="text" name="slug" value="${esc(s.slug)}" ${isNew ? "" : "readonly"}><div class="err" data-err="slug"></div></label>
+          <div class="flabel">Logo <small>· square PNG, transparent, at least 512 × 512</small></div>
+          <div class="row" style="gap:14px; margin-bottom:14px">
+            <img id="logoImg" class="thumb ${logoPreview ? "" : "hidden"}" style="object-fit:contain; background:#fff; box-shadow:inset 0 0 0 1px var(--hair)" ${logoPreview ? `src="${logoPreview}"` : ""} crossorigin="anonymous">
+            <label class="btn line small" style="cursor:pointer">${logoPreview ? "Replace logo" : "Upload logo"}<input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml" hidden></label>
+          </div>
+          <label class="f"><span>About <small>· shown when people tap "Sponsored"</small></span><textarea name="about" maxlength="400" placeholder="Two sentences about who they are.">${esc(s.about || "")}</textarea></label>
+          <label class="f"><span>Website</span><input type="url" name="website" value="${esc(s.website || "")}" placeholder="https://"></label>
+        </div>
+        <div class="card section"><h3>Colours</h3><p>The brand colour fills their challenge card; the light tint sits behind their logo and notes.</p>
+          <div class="flabel">Brand colour <span id="contrast" class="contrast"></span></div>
+          ${colorField("color", s.color, { swatches:true })}
+          <div style="height:18px"></div>
+          <label class="switch"><div class="t"><b>Work out the light tint for me</b><span>A very light version of the brand colour.</span></div><input type="checkbox" id="autoTint" ${autoTint ? "checked" : ""}></label>
+          <div id="tintBox" class="${autoTint ? "hidden" : ""}" style="margin-top:12px"><div class="flabel">Light tint</div>${colorField("tint", s.tint)}</div>
+        </div>
+        ${isNew ? "" : `<div class="card section"><h3>Private report</h3><p>Their numbers only: totals, never names or photos. Send them this link.</p>
+          ${priv ? `<div class="copy" id="reportLink">${esc(REPORT_BASE + "?t=" + priv.report_token)}</div>
+            <div class="row" style="margin-top:10px"><button type="button" class="btn small" id="copyLink">Copy link</button><a class="btn line small" target="_blank" id="openLink" href="${esc(REPORT_BASE + "?t=" + priv.report_token)}">Open</a>
+              <span class="space"></span><button type="button" class="btn ghost small" id="newLink">Make a new link</button></div>
+            <div class="two" style="margin-top:14px"><label class="f"><span>Contact name</span><input type="text" name="contact_name" value="${esc(priv.contact_name || "")}"></label>
+              <label class="f"><span>Contact email</span><input type="email" name="contact_email" value="${esc(priv.contact_email || "")}"></label></div>
+            <label class="f"><span>Notes <small>· only admins see these</small></span><textarea name="notes">${esc(priv.notes || "")}</textarea></label>` : '<p class="muted">No report link yet.</p>'}</div>`}
+        ${isNew || !priv ? "" : `<div class="card section"><h3>Report emails</h3><p>A halftime report the morning after the middle day, and a final report the morning after the end, at 9:00 Hong Kong time. Sent from reports@performativegroup.com to the contact email above.</p>
+          <label class="switch"><div class="t"><b>Send reports automatically</b><span>${s.is_sample ? "Sample sponsors never get emails." : "Turn off to send them yourself from here instead."}</span></div><input type="checkbox" name="send_reports" ${priv.send_reports !== false ? "checked" : ""}></label>
+          <label class="f" style="margin-top:12px"><span>Also send to <small>· optional, separate addresses with commas</small></span><input type="text" name="report_cc" value="${esc(priv.report_cc || "")}" placeholder="marketing@brand.com, ceo@brand.com"></label>
+          <div id="reportRows"><div class="muted small">Loading…</div></div></div>`}
+        <div class="savebar"><span class="small" style="color:#bbb">${isNew ? "" : "Saved changes show in the app within seconds."}</span><span class="space"></span>
+          ${isNew ? "" : `<button type="button" class="btn ghost" id="newForSponsor">＋ Challenge for ${esc(s.name)}</button>`}
+          <button type="submit" class="btn white">${isNew ? "Add sponsor" : "Save"}</button></div>
+      </form>
+      <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">Preview</div><div id="sPreview"></div></div>
+    </div>`;
   const form = $("#sForm");
-  form.name.addEventListener("input", () => { if (isNew) form.slug.value = slugify(form.name.value); });
-  form.color.addEventListener("input", () => { form.tint.value = tintOf(form.color.value); });
-  $("#sCancel").onclick = () => box.innerHTML = '<p class="muted">Pick a sponsor to edit, or add a new one.</p>';
+  const preview = () => {
+    const name = form.name.value || "Brand", wm = form.wordmark.value || name, color = form.color.value, tint = autoTint ? tintOf(color) : form.tint?.value || tintOf(color);
+    const ratio = contrastWhite(color), ok = ratio >= 3;
+    const cb = $("#contrast"); cb.className = "contrast " + (ok ? "ok" : "bad"); cb.textContent = ok ? `✓ White text reads well (${ratio.toFixed(1)}:1)` : `⚠ White text is hard to read (${ratio.toFixed(1)}:1). Pick a darker shade.`;
+    $("#sPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+      <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
+      <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${logoPreview}">` : ""}${esc(wm.toUpperCase())}</div>
+        <div><h4>Run Week</h4><div class="meta">Run 3 km a day · 7 days · 🌍 Worldwide</div></div><span class="join">Join</span></div>
+      <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${logoPreview}" style="width:30px;height:30px;border-radius:8px;object-fit:contain;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
+        <b style="font-size:13px">About ${esc(name)}</b></div><div style="font-size:12px; margin-top:8px; color:#333">${esc(form.about.value || "Their two sentences show here.")}</div></div>
+    </div></div></div>`;
+  };
+  wireColorField($(".colorfield[data-name=color]", form), hex => { if (autoTint && form.tint) form.tint.value = tintOf(hex); preview(); });
+  if ($(".colorfield[data-name=tint]", form)) wireColorField($(".colorfield[data-name=tint]", form), () => preview());
+  $("#autoTint").onchange = e => { autoTint = e.target.checked; $("#tintBox").classList.toggle("hidden", autoTint); if (autoTint) $(".colorfield[data-name=tint]")._set(tintOf(form.color.value)); preview(); };
+  const showSwatches = img => {
+    const cols = logoColours(img), box = $("[data-swatches]", form); if (!box) return;
+    box.innerHTML = cols.length ? cols.map(c => `<button type="button" style="background:${c}" title="${c}" data-hex="${c}"></button>`).join("") : '<span class="muted small">No clear colours found in the logo.</span>';
+    $$("button", box).forEach(b => b.onclick = () => $(".colorfield[data-name=color]")._set(b.dataset.hex));
+  };
+  $("#logoImg").onload = e => showSwatches(e.target);
+  $("#logoFile").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > 2_000_000) return toast("That logo is over 2 MB. Use a smaller PNG.", true);
+    logoFile = f; logoPreview = URL.createObjectURL(f); const img = $("#logoImg"); img.src = logoPreview; img.classList.remove("hidden"); preview();
+  };
+  form.addEventListener("input", e => { if (isNew && e.target.name === "name") form.slug.value = slugify(e.target.value); preview(); });
+  $("#sBack").onclick = e => { e.preventDefault(); loadSponsors(); };
+  $("#newForSponsor")?.addEventListener("click", () => { openTab("challenges"); setTimeout(() => { editChallenge(null); const sel = $("#cForm [name=sponsor_id]"); if (sel) { sel.value = s.id; sel.dispatchEvent(new Event("input", { bubbles:true })); } }, 350); });
+  if (priv) drawReportRows(s, priv);
   if (priv) {
     $("#copyLink").onclick = async () => { await navigator.clipboard.writeText($("#reportLink").textContent); toast("Link copied"); };
     $("#newLink").onclick = async () => {
@@ -393,91 +825,314 @@ async function editSponsor(s) {
   }
   form.onsubmit = async e => {
     e.preventDefault();
-    const f = new FormData(form);
-    const row = { slug: f.get("slug").trim(), name: f.get("name").trim(), wordmark: f.get("wordmark").trim() || null,
-                  color: f.get("color").toUpperCase(), tint: f.get("tint").toUpperCase(), about: f.get("about").trim() || null,
-                  website: f.get("website").trim() || null };
+    const f = new FormData(form), errs = {};
+    const row = { slug: (f.get("slug") || "").trim(), name: (f.get("name") || "").trim(), wordmark: (f.get("wordmark") || "").trim() || null,
+      color: form.color.value.toUpperCase(), tint: (autoTint ? tintOf(form.color.value) : form.tint.value).toUpperCase(),
+      about: (f.get("about") || "").trim() || null, website: (f.get("website") || "").trim() || null };
+    if (!row.name) errs.name = "Give the sponsor a name.";
+    if (!/^[a-z0-9-]{2,40}$/.test(row.slug)) errs.slug = "Lowercase letters, numbers and dashes.";
+    $$("[data-err]", form).forEach(x => x.textContent = errs[x.dataset.err] || "");
+    if (Object.keys(errs).length) return toast("Fix the highlighted bits first.", true);
     try {
-      const file = f.get("logo");
-      if (file && file.size) {
-        if (file.size > 2_000_000) return toast("The logo is over 2 MB. Use a smaller PNG.", true);
-        const ext = file.type === "image/png" ? "png" : "jpg";
+      if (logoFile) {
+        const ext = logoFile.type === "image/png" ? "png" : logoFile.type === "image/svg+xml" ? "svg" : "jpg";
         const path = `${row.slug}.${ext}`;
-        const { error } = await sb.storage.from("brand").upload(path, file, { upsert: true, contentType: file.type });
-        if (error) throw error;
-        row.logo_path = path;
+        const { error } = await sb.storage.from("brand").upload(path, logoFile, { upsert:true, contentType: logoFile.type });
+        if (error) throw error; row.logo_path = path; logoURL.v = Date.now();
       }
       let saved;
       if (isNew) { const r = await sb.from("sponsors").insert(row).select().single(); if (r.error) throw r.error; saved = r.data; }
       else { const r = await sb.from("sponsors").update(row).eq("id", s.id).select().single(); if (r.error) throw r.error; saved = r.data; }
       if (!isNew && priv) {
-        const { error } = await sb.from("sponsor_private").update({ contact_name: f.get("contact_name") || null,
-          contact_email: f.get("contact_email") || null, notes: f.get("notes") || null }).eq("sponsor_id", s.id);
+        const { error } = await sb.from("sponsor_private").update({ contact_name: f.get("contact_name") || null, contact_email: f.get("contact_email") || null, notes: f.get("notes") || null,
+          send_reports: f.get("send_reports") === "on", report_cc: (f.get("report_cc") || "").trim() || null }).eq("sponsor_id", s.id);
         if (error) throw error;
       }
-      toast(isNew ? "Sponsor added" : "Saved"); await loadSponsors(); editSponsor(saved);
-    } catch (err) { fail(err.code === "23505" ? { message: "A sponsor with that id already exists." } : err); }
+      toast(isNew ? "Sponsor added" : "Saved"); await fetchSponsors(); editSponsor(saved);
+    } catch (err) { fail(err.code === "23505" ? { message:"A sponsor with that id already exists." } : err); }
   };
+  preview();
+  window.scrollTo(0, 0);
 }
 
-// ---------- Reports ----------
-async function photoURL(path) {
-  if (!path) return null;
-  const { data } = await sb.storage.from("photos").createSignedUrl(path, 600); return data?.signedUrl;
-}
+// ---------------- Reports ----------------
+async function photoURL(path) { if (!path) return null; const { data } = await sb.storage.from("photos").createSignedUrl(path, 600); return data?.signedUrl; }
 async function loadReports(showResolved = false) {
   const el = $("#tab-reports");
   const { data, error } = await sb.rpc("admin_reports", { include_resolved: showResolved }); if (error) throw error;
-  const open = data.filter(r => !r.outcome).length;
-  $("#reportCount").textContent = open ? `· ${open}` : "";
-  el.innerHTML = `<div class="card">
-    <div class="flex" style="margin-bottom:8px"><h2>Reports</h2><span class="space"></span>
-      <label class="flex"><input type="checkbox" id="showResolved" ${showResolved ? "checked" : ""}> Show resolved</label></div>
-    ${data.length ? "" : '<p class="muted">Nothing to review. 🎉</p>'}
-    <table><tbody>${data.map(r => `<tr>
-      <td style="width:76px">${r.image_path ? `<img class="thumb" data-path="${esc(r.image_path)}">` : ""}</td>
-      <td><div class="flex"><span class="pill red">${esc(r.reason)}</span><span class="pill">${esc(r.target_type)}</span>
-          <span class="muted">${when(r.created_at)}</span></div>
+  refreshReportBadge();
+  el.innerHTML = `<div class="pagehead"><div><h1>Reports</h1><p>What people flagged. Remove takes it down for everyone; Suspend stops that person posting, commenting and messaging.</p></div>
+      <div class="segs"><button class="${showResolved ? "" : "on"}" data-r="0">To review</button><button class="${showResolved ? "on" : ""}" data-r="1">All</button></div></div>
+    <div class="card" style="padding:6px 8px">${data.length ? `<table><tbody>${data.map(r => `<tr>
+      <td style="width:80px">${r.image_path ? `<img class="thumb" data-path="${esc(r.image_path)}">` : `<div class="thumb" style="display:grid;place-items:center;color:#999">Aa</div>`}</td>
+      <td><div class="row"><span class="pill red">${esc(r.reason)}</span><span class="pill">${esc(r.target_type)}</span><span class="muted small">${when(r.created_at)}</span></div>
         <div style="margin-top:6px">${r.content ? `“${esc(r.content)}”` : '<span class="muted">(no text)</span>'}</div>
-        ${r.note ? `<div class="muted" style="margin-top:4px">Note: ${esc(r.note)}</div>` : ""}
-        <div class="muted" style="margin-top:4px">Reported: <b>@${esc(r.reported || "?")}</b> · by @${esc(r.reporter || "?")}</div></td>
-      <td style="width:290px; text-align:right">${r.outcome
-        ? `<span class="pill">${esc(r.outcome)}</span><div class="muted">${when(r.resolved_at)}</div>`
-        : `<div class="flex" style="justify-content:flex-end">
+        ${r.note ? `<div class="muted small" style="margin-top:4px">Their note: ${esc(r.note)}</div>` : ""}
+        <div class="muted small" style="margin-top:4px">Reported <b>@${esc(r.reported || "?")}</b> · by @${esc(r.reporter || "?")}</div></td>
+      <td style="width:300px; text-align:right">${r.outcome ? `<span class="pill">${esc(r.outcome)}</span><div class="muted small">${when(r.resolved_at)}</div>`
+        : `<div class="row" style="justify-content:flex-end">
             ${["post", "comment"].includes(r.target_type) ? `<button class="btn red small" data-act="removed" data-id="${r.id}">Remove</button>` : ""}
             ${r.reported_id ? `<button class="btn small" data-act="suspended" data-id="${r.id}">Suspend</button>` : ""}
-            <button class="btn ghost small" data-act="dismissed" data-id="${r.id}">Dismiss</button></div>`}</td></tr>`).join("")}
-    </tbody></table></div>`;
-  $("#showResolved").onchange = e => loadReports(e.target.checked).catch(fail);
-  el.querySelectorAll("img[data-path]").forEach(async img => { img.src = await photoURL(img.dataset.path) || ""; });
-  el.querySelectorAll("button[data-act]").forEach(b => b.onclick = async () => {
-    const words = { removed: "Remove this content for everyone?", suspended: "Suspend this person? They won't be able to post, comment or message.", dismissed: "Dismiss this report?" };
+            <button class="btn ghost small" data-act="dismissed" data-id="${r.id}">Dismiss</button></div>`}</td></tr>`).join("")}</tbody></table>`
+      : '<div class="empty">Nothing to review. 🎉</div>'}</div>`;
+  $$(".segs button", el).forEach(b => b.onclick = () => loadReports(b.dataset.r === "1").catch(fail));
+  $$("img[data-path]", el).forEach(async img => { img.src = await photoURL(img.dataset.path) || ""; });
+  $$("button[data-act]", el).forEach(b => b.onclick = async () => {
+    const words = { removed:"Remove this for everyone?", suspended:"Suspend this person? They can still open the app but can't post, comment or message.", dismissed:"Dismiss this report?" };
     if (!confirm(words[b.dataset.act])) return;
     const { error } = await sb.rpc("resolve_report", { report: b.dataset.id, action: b.dataset.act });
     if (error) return fail(error); toast("Done"); loadReports(showResolved).catch(fail);
   });
 }
 
-// ---------- People ----------
+// ---------------- Report emails (in the sponsor editor) ----------------
+function openModal(title, html) {
+  $("#modalTitle").textContent = title; $("#modalBody").innerHTML = html; $("#modal").classList.remove("hidden");
+}
+$("#modalClose").onclick = () => $("#modal").classList.add("hidden");
+$("#modal").onclick = e => { if (e.target.id === "modal") $("#modal").classList.add("hidden"); };
+
+async function reportFn(body) {
+  const { data, error } = await sb.functions.invoke("sponsor-reports", { body });
+  if (error) { let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch {} throw new Error(msg); }
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+function reportDates(c) {
+  const total = daysBetween(c.starts_on, c.ends_on) + 1;
+  return { half: total >= 4 ? addDays(c.starts_on, Math.ceil(total / 2)) : null, final: addDays(c.ends_on, 1) };
+}
+async function drawReportRows(s, priv) {
+  const box = $("#reportRows"); if (!box) return;
+  const { data: list } = await sb.from("challenges").select("id,title,starts_on,ends_on,status").eq("sponsor_id", s.id).order("starts_on", { ascending:false });
+  const ids = (list || []).map(c => c.id);
+  const { data: sent } = ids.length ? await sb.from("sponsor_report_emails").select("*").in("challenge_id", ids).order("sent_at", { ascending:false }) : { data: [] };
+  const last = (id, kind) => (sent || []).find(r => r.challenge_id === id && r.kind === kind && r.mode !== "preview");
+  const cell = (c, kind, due) => {
+    if (!due) return '<span class="muted small">Too short for halftime</span>';
+    const r = last(c.id, kind);
+    if (r) return `<span class="pill live">Sent</span><div class="muted small" style="margin-top:4px">${when(r.sent_at)}${r.mode === "manual" ? " · by hand" : ""}</div>`;
+    return `<span class="pill ${due <= todayISO() ? "draft" : "scheduled"}">${due <= todayISO() ? "Due" : "Scheduled"}</span><div class="muted small" style="margin-top:4px">${dayLabel(due)}, 9:00</div>`;
+  };
+  const live = (list || []).filter(c => c.status === "live" || c.status === "ended");
+  box.innerHTML = live.length ? `<table style="margin-top:6px"><thead><tr><th>Challenge</th><th>Halftime</th><th>Final</th><th></th></tr></thead><tbody>
+    ${live.map(c => { const d = reportDates(c); const started = c.starts_on <= todayISO(); return `<tr>
+      <td><b>${esc(c.title)}</b><div class="muted small">${dayLabel(c.starts_on)} – ${dayLabel(c.ends_on)}</div></td>
+      <td>${cell(c, "halftime", d.half)}</td><td>${cell(c, "fulltime", d.final)}</td>
+      <td style="text-align:right">${started ? `<div class="row" style="justify-content:flex-end; gap:6px">
+        ${["halftime", "fulltime"].filter(k => k === "fulltime" || d.half).map(k => `<button type="button" class="btn line small" data-view="${esc(c.id)}" data-kind="${k}">${k === "halftime" ? "Halftime" : "Final"}</button>`).join("")}
+      </div>` : '<span class="muted small">Starts ' + dayLabel(c.starts_on) + '</span>'}</td></tr>`; }).join("")}
+    </tbody></table><p class="help">Open one to preview it as the sponsor will see it, email yourself a copy, or send it now.</p>`
+    : '<p class="muted small">Reports appear here once one of their challenges is live.</p>';
+  $$("[data-view]", box).forEach(b => b.onclick = () => viewReport(s, b.dataset.view, b.dataset.kind));
+}
+async function viewReport(s, id, kind) {
+  openModal(kind === "halftime" ? "Halftime report" : "Final report", '<div class="empty">Building the report…</div>');
+  try {
+    const r = await reportFn({ challenge_id: id, kind, mode: "render" });
+    $("#modalBody").innerHTML = `<div style="padding:12px 16px; border-bottom:1px solid var(--hair)"><div class="small"><b>Subject:</b> ${esc(r.subject)}</div>
+        <div class="small muted" style="margin-top:4px">To: ${r.to.length ? esc(r.to.join(", ")) : "<span style='color:var(--red)'>no contact email yet</span>"}</div>
+        <div class="row" style="margin-top:10px"><button class="btn line small" id="mPreview">Email me a copy</button><span class="space"></span>
+          <button class="btn small" id="mSend" ${r.to.length ? "" : "disabled"}>Send to ${esc(s.name)} now</button></div></div>
+      <iframe id="mFrame" title="Report preview"></iframe>`;
+    $("#mFrame").srcdoc = r.html;
+    $("#mPreview").onclick = async () => { try { const x = await reportFn({ challenge_id: id, kind, mode: "preview" }); toast("Sent to " + x.to.join(", ")); } catch (e) { fail(e); } };
+    $("#mSend").onclick = async () => {
+      if (!confirm(`Send this ${kind === "halftime" ? "halftime" : "final"} report to ${r.to.join(", ")} now?`)) return;
+      try { await reportFn({ challenge_id: id, kind, mode: "manual" }); toast("Sent"); $("#modal").classList.add("hidden"); const { data: priv } = await sb.from("sponsor_private").select("*").eq("sponsor_id", s.id).maybeSingle(); drawReportRows(s, priv); } catch (e) { fail(e); }
+    };
+  } catch (e) { $("#modalBody").innerHTML = `<div class="empty" style="color:var(--red)">${esc(e.message)}</div>`; }
+}
+
+// ---------------- Sponsor pricing ----------------
+// Price = set-up + featured fee + (expected participants × active days each × rate) × country premium, never below the minimum.
+const PRICE_DEFAULTS = { baseJoin: 8, featuredBoost: 1.6, lengthDrag: 0.3, halfLife: 10, rate: 1.2, setup: 2500, featuredFee: 3000, countryPremium: 1.2, minimum: 5000, round: 500 };
+let priceAssume = (() => { try { return { ...PRICE_DEFAULTS, ...JSON.parse(localStorage.getItem("priceAssume") || "{}") }; } catch { return { ...PRICE_DEFAULTS }; } })();
+let audience = null;
+const pq = { from:"", region:null, basis:"all", growth:0, days:14, cap:"", featured:false };
+const HKD_PER_USD = 7.8;
+const whole = x => Math.round(Number(x) || 0).toLocaleString("en-GB");
+const money = (x, cur = "HK$") => cur + Math.round(x).toLocaleString("en-GB");
+
+function audienceFor(region, basis) {
+  if (!audience) return 0;
+  if (!region) return basis === "active" ? audience.active_30d : audience.total;
+  const r = audience.regions.find(x => x.region === region);
+  return r ? (basis === "active" ? r.active_30d : r.people) : 0;
+}
+function priceModel(q, a) {
+  const L = Math.max(1, Number(q.days) || 1);
+  const N0 = audienceFor(q.region, q.basis);
+  const N = N0 * (1 + (Number(q.growth) || 0) / 100);
+  const p = (a.baseJoin / 100) * (q.featured ? a.featuredBoost : 1) * Math.pow(7 / L, a.lengthDrag);
+  const cap = Number(q.cap) > 0 ? Number(q.cap) : Infinity;
+  const E = { low: Math.min(cap, N * p * 0.5), mid: Math.min(cap, N * p), high: Math.min(cap, N * p * 1.5) };
+  const A = a.halfLife * (1 - Math.exp(-L / a.halfLife));
+  const fees = a.setup + (q.featured ? a.featuredFee : 0);
+  const m = q.region ? a.countryPremium : 1;
+  const raw = k => fees + E[k] * A * a.rate * m;
+  const round = x => Math.max(a.minimum, Math.ceil(x / a.round) * a.round);
+  return { L, N0, N, p, cap, E, A, fees, m, raw: { low: raw("low"), mid: raw("mid"), high: raw("high") },
+    price: { low: round(raw("low")), mid: round(raw("mid")), high: round(raw("high")) }, floor: raw("mid") < a.minimum };
+}
+function measuredJoinRate() {
+  if (!audience) return null;
+  const rows = audience.challenges.filter(c => c.starts_on <= todayISO() && audienceFor(c.region, "all") > 0);
+  if (!rows.length) return null;
+  const joined = rows.reduce((t, c) => t + c.joined, 0), pool = rows.reduce((t, c) => t + audienceFor(c.region, "all"), 0);
+  return { rate: joined / pool * 100, n: rows.length };
+}
+
+async function loadPricing() {
+  const el = $("#tab-pricing");
+  const { data, error } = await sb.rpc("admin_audience"); if (error) throw error;
+  audience = data;
+  if (!challenges.length) { const r = await sb.from("challenges").select("*"); challenges = r.data || []; }
+  const regionsWithPeople = [...audience.regions].sort((a, b) => b.people - a.people);
+  el.innerHTML = `
+    <div class="pagehead"><div><h1>Sponsor pricing</h1><p>What to charge for a sponsored challenge, from how many people can see it, how many are likely to join, and for how long.</p></div></div>
+    <div class="editor" style="grid-template-columns: minmax(0,1fr) 380px">
+      <div>
+        <div class="card section"><h3>The challenge</h3><p>Start from one you've made, or fill it in.</p>
+          <label class="f"><span>Start from</span><select id="pqFrom"><option value="">A new challenge</option>
+            ${challenges.concat().sort((a, b) => b.starts_on.localeCompare(a.starts_on)).map(c => `<option value="${esc(c.id)}">${esc(c.title)} · ${dayLabel(c.starts_on)}</option>`).join("")}</select></label>
+          <div class="flabel">Length</div>
+          <div class="row" style="margin-bottom:14px"><div class="segs" id="pqLen">${[7, 14, 21, 30].map(n => `<button type="button" data-len="${n}">${n} days</button>`).join("")}</div>
+            <input type="number" id="pqDays" min="1" max="90" style="width:100px"> <span class="muted small">days</span></div>
+          <div class="two">
+            <label class="f"><span>Spots <small>· empty for no limit</small></span><input type="number" id="pqCap" min="1" placeholder="No limit"></label>
+            <div class="f"><span class="flabel">Placement</span><label class="switch" style="padding:8px 0"><div class="t"><b>Featured</b><span>The big card at the top</span></div><input type="checkbox" id="pqFeat"></label></div>
+          </div>
+        </div>
+        <div class="card section"><h3>Who can see it</h3><p>The audience is everyone who could join: all accounts, or only those in one country.</p>
+          <div class="segs" id="pqWhere" style="margin-bottom:12px"><button type="button" data-w="world">🌍 Worldwide</button><button type="button" data-w="country">One country</button></div>
+          <select id="pqRegion" class="hidden" style="margin-bottom:12px">${regionsWithPeople.map(r => `<option value="${r.region}">${flag(r.region)} ${esc(countryName(r.region))} · ${whole(r.people)} accounts</option>`).join("")}
+            <option disabled>──────────</option>${COUNTRIES.filter(c => !audience.regions.some(r => r.region === c.code)).map(c => `<option value="${c.code}">${flag(c.code)} ${esc(c.name)} · 0 accounts</option>`).join("")}</select>
+          <div class="segs" id="pqBasis" style="margin-bottom:12px"><button type="button" data-b="all">All accounts</button><button type="button" data-b="active">Posted in the last 30 days</button></div>
+          <label class="f"><span>Growth by the start date <small>· e.g. 20 if you expect 20% more accounts by then</small></span>
+            <div class="row" style="flex-wrap:nowrap"><input type="number" id="pqGrowth" step="5" style="max-width:120px"><span class="muted">%</span></div></label>
+          <div class="help" id="pqAudienceLine"></div>
+        </div>
+        <div class="card section"><div class="row"><h3>Assumptions</h3><span class="space"></span><button type="button" class="btn ghost small" id="pqReset">Reset</button></div>
+          <p>The levers behind the price. Saved in this browser. Start with these and adjust them as real challenges show what people actually do.</p>
+          <div class="three">
+            ${[["baseJoin", "Join rate %", "Share of the audience who join a standard challenge", 0.5],
+               ["featuredBoost", "Featured boost ×", "How many more join when it's the big card", 0.1],
+               ["lengthDrag", "Length drag", "How much a longer challenge puts people off (0 = not at all)", 0.05],
+               ["halfLife", "Staying power, days", "On average, how long someone keeps going", 1],
+               ["rate", "HK$ per active day", "Price for one person active on one day", 0.1],
+               ["countryPremium", "Country premium ×", "Targeting one country is worth more per person", 0.05],
+               ["setup", "Set-up fee HK$", "Building it: brand, card, reports", 100],
+               ["featuredFee", "Featured fee HK$", "For the top spot", 100],
+               ["minimum", "Minimum HK$", "Never quote below this", 500]].map(([k, l, h, st]) =>
+               `<label class="f"><span>${l}</span><input type="number" step="${st}" data-a="${k}" value="${priceAssume[k]}"><div class="help">${h}</div></label>`).join("")}
+          </div>
+          <div class="help" id="pqMeasured"></div>
+        </div>
+        <div class="card section"><h3>How the price is worked out</h3><p>The same steps for every quote, so it's easy to explain to a sponsor.</p>
+          <div class="formula" id="pqFormula"></div>
+          <table class="breakdown" style="margin-top:12px"><tbody id="pqBreakdown"></tbody></table>
+        </div>
+      </div>
+      <div class="sticky"><div class="quote" id="pqQuote"></div></div>
+    </div>`;
+
+  const draw = () => {
+    const a = priceAssume, m = priceModel(pq, a);
+    $$("#pqLen button").forEach(b => b.classList.toggle("on", Number(b.dataset.len) === m.L));
+    $$("#pqWhere button").forEach(b => b.classList.toggle("on", (b.dataset.w === "country") === !!pq.region));
+    $$("#pqBasis button").forEach(b => b.classList.toggle("on", b.dataset.b === pq.basis));
+    $("#pqRegion").classList.toggle("hidden", !pq.region);
+    const place = pq.region ? `${flag(pq.region)} ${countryName(pq.region)}` : "🌍 everyone";
+    $("#pqAudienceLine").textContent = `Audience now: ${whole(m.N0)} ${pq.basis === "active" ? "active accounts" : "accounts"} (${place})${Number(pq.growth) ? `, about ${whole(m.N)} by the start` : ""}. Across the app: ${whole(audience.total)} accounts, ${whole(audience.active_30d)} posted in the last 30 days, ${whole(audience.new_30d)} joined in the last 30 days.`;
+    const meas = measuredJoinRate();
+    $("#pqMeasured").innerHTML = meas ? `Measured so far: <b>${meas.rate.toFixed(1)}%</b> of accounts joined, across ${meas.n} challenge${meas.n === 1 ? "" : "s"} (uses today's account numbers, so it's rough). <a href="#" id="pqUseMeasured">Use it</a>`
+      : "No challenges have run yet, so the join rate is a starting guess. Once a few have run, the measured rate shows here.";
+    $("#pqUseMeasured")?.addEventListener("click", e => { e.preventDefault(); priceAssume.baseJoin = Math.round(meas.rate * 10) / 10; saveAssume(); loadPricing(); });
+
+    const capTxt = m.cap === Infinity ? "no limit" : whole(m.cap);
+    $("#pqFormula").textContent =
+`Join chance   p = ${a.baseJoin}%${pq.featured ? ` × ${a.featuredBoost} featured` : ""} × (7 ÷ ${m.L} days)^${a.lengthDrag}  =  ${(m.p * 100).toFixed(2)}%
+Participants  E = min(spots, audience × p) = min(${capTxt}, ${whole(m.N)} × ${(m.p * 100).toFixed(2)}%)  =  ${whole(m.E.mid)}
+Active days   A = ${a.halfLife} × (1 − e^(−${m.L} ÷ ${a.halfLife}))  =  ${m.A.toFixed(1)} days each
+Price         = HK$${whole(m.fees)} fees + ${whole(m.E.mid)} × ${m.A.toFixed(1)} × HK$${a.rate}${m.m !== 1 ? ` × ${a.countryPremium} country` : ""}  =  ${money(m.raw.mid)}
+Quote         = rounded up to HK$${whole(a.round)}, at least HK$${whole(a.minimum)}  =  ${money(m.price.mid)}`;
+    const rows = [
+      ["Audience", `${whole(m.N)} accounts`], ["Chance each joins", `${(m.p * 100).toFixed(2)}%`],
+      ["Expected participants", `${whole(m.E.low)} – ${whole(m.E.high)} (likely ${whole(m.E.mid)})`],
+      ["Active days per participant", `${m.A.toFixed(1)} of ${m.L}`], ["Active participant-days", whole(m.E.mid * m.A)],
+      ["Set-up and placement fees", money(m.fees)], ["Participation", money(m.raw.mid - m.fees)],
+    ];
+    $("#pqBreakdown").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+
+    const per = m.E.mid > 0 ? m.price.mid / m.E.mid : null, perDay = m.E.mid > 0 ? m.price.mid / (m.E.mid * m.A) : null;
+    $("#pqQuote").innerHTML = `<div class="eyebrow" style="color:#a8a8a8">Suggested price</div>
+      <div class="big">${money(m.price.mid)}</div>
+      <div class="muted">≈ ${money(m.price.mid / HKD_PER_USD, "US$")} · range ${money(m.price.low)} – ${money(m.price.high)}</div>
+      ${m.floor ? '<div class="small" style="margin-top:8px; color:#ffd27a">The minimum applies: the audience is still small.</div>' : ""}
+      <div class="qgrid">
+        <div><b>${whole(m.E.mid)}</b><span>likely participants</span></div>
+        <div><b>${whole(m.E.mid * m.A)}</b><span>active participant-days</span></div>
+        <div><b>${per ? money(per) : "—"}</b><span>per participant</span></div>
+        <div><b>${perDay ? "HK$" + perDay.toFixed(2) : "—"}</b><span>per active day</span></div>
+      </div>
+      <button class="btn white" style="width:100%; justify-content:center; margin-top:16px" id="pqCopy">Copy quote for the sponsor</button>
+      <p class="small muted" style="margin:10px 0 0">A guide, not a promise: the range shows half to one and a half times the likely number of participants.</p>`;
+    $("#pqCopy").onclick = async () => {
+      const text = `Performative sponsored challenge: quote
+
+Challenge: ${pq.from ? (challenges.find(c => c.id === pq.from)?.title || "") : "To be named"}
+Length: ${m.L} days${pq.featured ? ", featured placement" : ""}
+Audience: ${pq.region ? countryName(pq.region) + " only" : "Worldwide"}${m.cap !== Infinity ? `, capped at ${whole(m.cap)} participants` : ""}
+
+Expected participants: ${whole(m.E.low)} to ${whole(m.E.high)}
+Price: ${money(m.price.mid)} (about ${money(m.price.mid / HKD_PER_USD, "US$")})
+
+Included: your branded challenge card${pq.featured ? " in the featured spot" : ""}, logo and brand colours, start, reminder and results notifications to participants, a live report link, and halftime and final reports by email.
+Every figure we share is a total: Performative never shares names, photos, posts or messages.`;
+      await navigator.clipboard.writeText(text); toast("Quote copied");
+    };
+  };
+  const saveAssume = () => { try { localStorage.setItem("priceAssume", JSON.stringify(priceAssume)); } catch {} };
+
+  $("#pqDays").value = pq.days; $("#pqCap").value = pq.cap; $("#pqFeat").checked = pq.featured; $("#pqGrowth").value = pq.growth;
+  if (pq.region) $("#pqRegion").value = pq.region;
+  $("#pqFrom").value = pq.from;
+  $("#pqFrom").onchange = e => {
+    pq.from = e.target.value; const c = challenges.find(x => x.id === pq.from); if (!c) return draw();
+    pq.days = daysBetween(c.starts_on, c.ends_on) + 1; pq.cap = c.capacity || ""; pq.featured = !!c.featured; pq.region = c.region || null;
+    $("#pqDays").value = pq.days; $("#pqCap").value = pq.cap; $("#pqFeat").checked = pq.featured; if (pq.region) $("#pqRegion").value = pq.region; draw();
+  };
+  $$("#pqLen button").forEach(b => b.onclick = () => { pq.days = Number(b.dataset.len); $("#pqDays").value = pq.days; draw(); });
+  $("#pqDays").oninput = e => { pq.days = e.target.value; draw(); };
+  $("#pqCap").oninput = e => { pq.cap = e.target.value; draw(); };
+  $("#pqFeat").onchange = e => { pq.featured = e.target.checked; draw(); };
+  $("#pqGrowth").oninput = e => { pq.growth = e.target.value; draw(); };
+  $$("#pqWhere button").forEach(b => b.onclick = () => { pq.region = b.dataset.w === "country" ? ($("#pqRegion").value || "HK") : null; draw(); });
+  $("#pqRegion").onchange = e => { pq.region = e.target.value; draw(); };
+  $$("#pqBasis button").forEach(b => b.onclick = () => { pq.basis = b.dataset.b; draw(); });
+  $$("[data-a]").forEach(i => i.oninput = () => { const v = Number(i.value); if (!isNaN(v)) { priceAssume[i.dataset.a] = v; saveAssume(); draw(); } });
+  $("#pqReset").onclick = () => { priceAssume = { ...PRICE_DEFAULTS }; saveAssume(); loadPricing(); };
+  draw();
+}
+
+// ---------------- People ----------------
 async function loadPeople(q = "") {
   const el = $("#tab-people");
   if (!$("#peopleSearch")) {
-    el.innerHTML = `<div class="card"><div class="flex" style="margin-bottom:10px"><h2>People</h2><span class="space"></span>
-      <input type="text" id="peopleSearch" placeholder="Name, username or email" style="max-width:320px"></div><div id="peopleList"></div></div>`;
+    el.innerHTML = `<div class="pagehead"><div><h1>People</h1><p>Everyone with an account, newest first.</p></div>
+      <div class="search"><input type="search" id="peopleSearch" placeholder="Name, username or email"></div></div><div class="card" style="padding:6px 8px" id="peopleList"></div>`;
     let h; $("#peopleSearch").addEventListener("input", e => { clearTimeout(h); h = setTimeout(() => loadPeople(e.target.value).catch(fail), 250); });
   }
   const { data, error } = await sb.rpc("admin_people", { q }); if (error) throw error;
-  $("#peopleList").innerHTML = `<table><thead><tr><th>Person</th><th>Email</th><th>Joined</th><th>Posts</th><th>Friends</th><th>Last post</th><th></th></tr></thead><tbody>
-    ${data.map(p => `<tr>
-      <td><b>${esc(p.name)}</b><div class="muted">@${esc(p.handle)}</div>
-        ${p.suspended_at ? '<span class="pill red">Suspended</span>' : ""}${p.open_reports ? ` <span class="pill red">${p.open_reports} report${p.open_reports > 1 ? "s" : ""}</span>` : ""}</td>
-      <td>${esc(p.email || "")}</td><td>${day(p.created_at)}</td><td>${fmt(p.posts)}</td><td>${fmt(p.friends)}</td>
+  $("#peopleList").innerHTML = data.length ? `<table><thead><tr><th>Person</th><th>Email</th><th>Joined</th><th>Posts</th><th>Friends</th><th>Last post</th><th></th></tr></thead><tbody>
+    ${data.map(p => `<tr><td><b>${esc(p.name)}</b><div class="muted small">@${esc(p.handle)}</div>
+        <div class="row" style="margin-top:4px; gap:6px">${p.suspended_at ? '<span class="pill red">Suspended</span>' : ""}${p.open_reports ? `<span class="pill red">${p.open_reports} report${p.open_reports > 1 ? "s" : ""}</span>` : ""}</div></td>
+      <td>${esc(p.email || "")}</td><td>${dayLabel(p.created_at)}</td><td>${fmt(p.posts)}</td><td>${fmt(p.friends)}</td>
       <td>${p.last_post ? when(p.last_post) : '<span class="muted">—</span>'}</td>
-      <td style="text-align:right">${p.suspended_at
-        ? `<button class="btn ghost small" data-id="${p.id}" data-s="0">Unsuspend</button>`
-        : `<button class="btn red small" data-id="${p.id}" data-s="1">Suspend</button>`}</td></tr>`).join("")}
-  </tbody></table>${data.length ? "" : '<p class="muted">No one found.</p>'}`;
-  $("#peopleList").querySelectorAll("button[data-id]").forEach(b => b.onclick = async () => {
+      <td style="text-align:right">${p.suspended_at ? `<button class="btn ghost small" data-id="${p.id}" data-s="0">Lift suspension</button>` : `<button class="btn line small" data-id="${p.id}" data-s="1">Suspend</button>`}</td></tr>`).join("")}
+    </tbody></table>` : '<div class="empty">No one found.</div>';
+  $$("#peopleList button[data-id]").forEach(b => b.onclick = async () => {
     const suspend = b.dataset.s === "1";
     if (!confirm(suspend ? "Suspend this person? They can still open the app but can't post, comment or message." : "Lift the suspension?")) return;
     const { error } = await sb.rpc("admin_set_suspended", { person: b.dataset.id, suspended: suspend });
