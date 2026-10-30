@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performative · Sponsor report</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0A0A0A; --paper:#FFFFFF; --card:#F2F2F2; --muted:#8A8A8A; --hair:#E6E6E6; --brand:#0A0A0A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:"Inter Tight", system-ui, sans-serif; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 32px 16px 64px; }
+  .top { display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  h1 { font-family:"Instrument Serif", serif; font-weight:400; font-size:44px; margin:6px 0 4px; }
+  h2 { font-family:"Instrument Serif", serif; font-weight:400; font-size:30px; margin:0; }
+  .sub { color:#555; font-size:14px; }
+  .card { background:var(--card); border-radius:22px; padding:20px; margin-top:20px; }
+  .head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+  .pill { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:99px; background:var(--paper); }
+  .pill.live { background:var(--brand); color:#fff; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:16px; }
+  .stat { background:var(--paper); border-radius:16px; padding:14px; }
+  .stat b { display:block; font-size:28px; font-weight:700; letter-spacing:-.02em; }
+  .stat span { font-size:12px; color:#555; }
+  .bar { height:8px; background:var(--hair); border-radius:99px; margin-top:16px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--brand); border-radius:99px; }
+  .section { margin-top:18px; }
+  .chart { background:var(--paper); border-radius:16px; padding:14px; overflow-x:auto; }
+  .regions { display:flex; flex-wrap:wrap; gap:8px; }
+  .regions div { background:var(--paper); border-radius:99px; padding:6px 12px; font-size:13px; }
+  .empty, .error { text-align:center; padding:60px 16px; color:#555; }
+  footer { margin-top:28px; font-size:12px; color:var(--muted); line-height:1.5; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --ink:#F5F5F5; --paper:#0A0A0A; --card:#1A1A1A; --muted:#8F8F8F; --hair:#2A2A2A; }
+    :root:not([data-theme="light"]) .sub, :root:not([data-theme="light"]) .stat span, :root:not([data-theme="light"]) .empty { color:#B0B0B0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="empty">Loading your report…</div></div>
+<script>
+// The report link looks like: …/index.html?t=<sponsor's private token>
+// The publishable key is safe to be public; the token only opens this sponsor's totals.
+const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
+const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
+
+const fmt = n => Number(n || 0).toLocaleString("en-GB");
+const day = d => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+function total(c) {
+  if (c.metric === "km") return { value: fmt(Math.round(c.total_km)), label: "km run in total" };
+  if (c.metric === "steps") return { value: fmt(c.total_steps), label: "steps in total" };
+  const h = Math.round(c.total_minutes / 60);
+  return { value: fmt(h), label: "hours logged in total" };
+}
+
+function chart(c) {
+  const days = c.daily || [];
+  if (!days.length) return `<div class="sub">The day-by-day chart starts on ${day(c.starts_on)}.</div>`;
+  const max = Math.max(1, ...days.map(d => d.people_done));
+  const w = Math.max(320, days.length * 28), h = 140, bw = Math.max(8, Math.floor(w / days.length) - 8);
+  const bars = days.map((d, i) => {
+    const bh = Math.round((d.people_done / max) * (h - 34));
+    const x = i * (w / days.length) + 4;
+    return `<g><title>${day(d.day)}: ${fmt(d.people_done)} people did it, ${fmt(d.posts)} posts, ${fmt(d.joins)} joined</title>
+      <rect x="${x}" y="${h - 20 - bh}" width="${bw}" height="${Math.max(bh, 2)}" rx="4" fill="var(--brand)"></rect>
+      ${i % Math.ceil(days.length / 8) === 0 ? `<text x="${x}" y="${h - 4}" font-size="10" fill="var(--muted)">${day(d.day)}</text>` : ""}</g>`;
+  }).join("");
+  return `<svg width="${w}" height="${h}" role="img" aria-label="People who did the challenge each day">${bars}</svg>`;
+}
+
+function render(r) {
+  document.documentElement.style.setProperty("--brand", r.color || "#0A0A0A");
+  const app = document.getElementById("app");
+  const updated = new Date(r.generated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+  const cards = (r.challenges || []).map(c => {
+    const t = total(c);
+    const fill = c.capacity ? Math.min(100, Math.round((c.still_in / c.capacity) * 100)) : null;
+    const status = c.status === "ended" ? "Ended" : (c.days_elapsed > 0 ? `Day ${Math.min(c.days_elapsed, c.days_total)} of ${c.days_total}` : `Starts ${day(c.starts_on)}`);
+    return `<section class="card">
+      <div class="head">
+        <div><h2>${esc(c.title)}</h2>
+          <div class="sub">${esc(c.rule)} · ${day(c.starts_on)} – ${day(c.ends_on)}${c.region ? " · " + esc(c.region) + " only" : " · Worldwide"}</div></div>
+        <span class="pill ${c.status === "live" ? "live" : ""}">${status}</span>
+      </div>
+      <div class="grid">
+        <div class="stat"><b>${fmt(c.still_in)}</b><span>taking part${c.capacity ? ` of ${fmt(c.capacity)} spots` : ""}</span></div>
+        <div class="stat"><b>${fmt(c.active_people)}</b><span>have done it at least once</span></div>
+        <div class="stat"><b>${fmt(c.on_track)}</b><span>on track (done on 80%+ of days)</span></div>
+        <div class="stat"><b>${t.value}</b><span>${t.label}</span></div>
+        <div class="stat"><b>${fmt(c.posts)}</b><span>live photos posted</span></div>
+        <div class="stat"><b>${fmt(c.left)}</b><span>left the challenge</span></div>
+      </div>
+      ${fill !== null ? `<div class="bar" title="${fill}% of spots filled"><i style="width:${fill}%"></i></div>` : ""}
+      <div class="section"><div class="eyebrow" style="margin-bottom:8px">People who did it each day</div><div class="chart">${chart(c)}</div></div>
+      <div class="section"><div class="eyebrow" style="margin-bottom:8px">Where people are</div>
+        <div class="regions">${(c.regions || []).map(x => `<div>${esc(x.region)} · ${fmt(x.people)}</div>`).join("") || '<div>No one yet</div>'}</div></div>
+    </section>`;
+  }).join("");
+  app.innerHTML = `
+    <div class="top"><div><div class="eyebrow">Performative · Sponsor report</div><h1>${esc(r.sponsor)}</h1>
+      <div class="sub">Updated ${updated}. Refresh the page for the latest numbers.</div></div></div>
+    ${cards || '<div class="empty">No live challenges yet. They appear here once they go live.</div>'}
+    <footer>Every number here is a total. Performative never shares names, photos, posts or messages with sponsors.
+      Regions with fewer than 5 people are grouped as "Other" so no one can be singled out.
+      Questions: sponsors@performativegroup.com</footer>`;
+}
+
+async function load() {
+  const token = new URLSearchParams(location.search).get("t");
+  const app = document.getElementById("app");
+  if (!token) { app.innerHTML = '<div class="error">This link is missing its key. Use the full link Performative sent you.</div>'; return; }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sponsor_report`, {
+      method: "POST",
+      headers: { "apikey": PUBLISHABLE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (!res.ok || !data) { app.innerHTML = '<div class="error">This report link isn\'t valid any more. Ask Performative for a new one.</div>'; return; }
+    render(data);
+  } catch (e) {
+    app.innerHTML = '<div class="error">Couldn\'t load the report. Check your connection and refresh.</div>';
+  }
+}
+load();
+</script>
+</body>
+</html>

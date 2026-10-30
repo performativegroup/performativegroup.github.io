@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performative Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root { --ink:#0A0A0A; --paper:#FFFFFF; --card:#F2F2F2; --muted:#7A7A7A; --hair:#E4E4E4; --red:#D6281F; --green:#1F8A4C; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background:var(--paper); color:var(--ink); font-family:"Inter Tight", system-ui, sans-serif; font-size:14px; }
+  h1, h2, h3 { font-family:"Instrument Serif", serif; font-weight:400; margin:0; }
+  h1 { font-size:34px; } h2 { font-size:28px; } h3 { font-size:22px; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+  .eyebrow { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .muted { color:var(--muted); }
+  .wrap { max-width:1180px; margin:0 auto; padding:20px 16px 80px; }
+  header.top { display:flex; align-items:center; gap:16px; justify-content:space-between; flex-wrap:wrap; margin-bottom:18px; }
+  nav.tabs { display:flex; gap:6px; flex-wrap:wrap; }
+  nav.tabs button { border:0; background:var(--card); padding:9px 14px; border-radius:99px; font-weight:600; cursor:pointer; }
+  nav.tabs button.on { background:var(--ink); color:var(--paper); }
+  .btn { border:0; background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:12px; font-weight:600; cursor:pointer; }
+  .btn.ghost { background:var(--card); color:var(--ink); }
+  .btn.red { background:var(--red); }
+  .btn.small { padding:6px 10px; border-radius:9px; font-size:13px; }
+  .btn:disabled { opacity:.4; cursor:default; }
+  .card { background:var(--card); border-radius:18px; padding:16px; }
+  .grid { display:grid; gap:10px; }
+  .tiles { grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); }
+  .tile { background:var(--paper); border-radius:14px; padding:14px; }
+  .tile b { display:block; font-size:30px; font-weight:700; letter-spacing:-.02em; }
+  .tile span { font-size:12px; color:#555; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--hair); vertical-align:top; }
+  th { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  tr.click { cursor:pointer; } tr.click:hover td { background:#FAFAFA; }
+  .pill { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border-radius:99px; background:var(--card); }
+  .pill.live { background:var(--ink); color:var(--paper); } .pill.draft { background:#FFF3C4; } .pill.ended { background:var(--hair); color:#555; }
+  .pill.red { background:#FDE7E5; color:var(--red); }
+  .split { display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:18px; align-items:start; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+  label.f { display:block; margin-bottom:12px; }
+  label.f > span { display:block; font-size:12px; font-weight:600; margin-bottom:5px; }
+  label.f small { color:var(--muted); font-weight:400; }
+  input[type=text], input[type=number], input[type=date], input[type=email], input[type=password], input[type=url], select, textarea {
+    width:100%; border:1px solid var(--hair); background:var(--paper); border-radius:10px; padding:9px 11px; }
+  textarea { min-height:84px; resize:vertical; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chips label { display:inline-flex; align-items:center; gap:5px; background:var(--paper); border:1px solid var(--hair); border-radius:99px; padding:5px 10px; font-size:13px; cursor:pointer; }
+  .chips input { margin:0; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:11px 18px; border-radius:12px; font-weight:600; z-index:9; display:none; max-width:90vw; }
+  .toast.err { background:var(--red); }
+  .login { max-width:380px; margin:12vh auto; }
+  .preview { border-radius:18px; padding:16px; color:#fff; min-height:150px; display:flex; flex-direction:column; justify-content:space-between; }
+  .preview .w { font-weight:700; letter-spacing:.14em; font-size:12px; opacity:.9; }
+  .preview h3 { font-size:26px; line-height:1.05; margin:10px 0 4px; }
+  .chart svg { width:100%; height:140px; display:block; }
+  .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .space { flex:1; }
+  .thumb { width:64px; height:64px; object-fit:cover; border-radius:10px; background:var(--hair); }
+  .swatch { width:16px; height:16px; border-radius:5px; display:inline-block; vertical-align:-3px; border:1px solid rgba(0,0,0,.1); }
+  .copy { font-family: ui-monospace, Menlo, monospace; font-size:12px; word-break:break-all; background:var(--paper); padding:8px; border-radius:8px; border:1px solid var(--hair); }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Sign in -->
+  <section id="login" class="login hidden">
+    <div class="eyebrow">Performative</div>
+    <h1 style="margin:6px 0 4px">Admin</h1>
+    <p class="muted" style="margin:0 0 18px">Sign in with your Performative account. Only admins can use this page.</p>
+    <form id="loginForm">
+      <label class="f"><span>Email</span><input type="email" id="email" autocomplete="username" required></label>
+      <label class="f"><span>Password</span><input type="password" id="password" autocomplete="current-password" required></label>
+      <button class="btn" style="width:100%" type="submit">Sign in</button>
+      <p id="loginErr" style="color:var(--red); font-weight:600"></p>
+    </form>
+  </section>
+
+  <!-- App -->
+  <section id="app" class="hidden">
+    <header class="top">
+      <div><div class="eyebrow">Performative</div><h1>Admin</h1></div>
+      <nav class="tabs" id="tabs">
+        <button data-tab="overview" class="on">Overview</button>
+        <button data-tab="challenges">Challenges</button>
+        <button data-tab="sponsors">Sponsors</button>
+        <button data-tab="reports">Reports <span id="reportCount"></span></button>
+        <button data-tab="people">People</button>
+      </nav>
+      <div class="flex"><span class="muted" id="who"></span><button class="btn ghost small" id="signOut">Sign out</button></div>
+    </header>
+
+    <div id="tab-overview"></div>
+    <div id="tab-challenges" class="hidden"></div>
+    <div id="tab-sponsors" class="hidden"></div>
+    <div id="tab-reports" class="hidden"></div>
+    <div id="tab-people" class="hidden"></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// The project address and publishable key are public by design (they're in the app too).
+// Everything here is protected on the server: only accounts in the moderators table can see or change it.
+const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
+const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
+// Where sponsor report links point (the sponsor report page, once hosted).
+const REPORT_BASE = "https://performativegroup.github.io/reports/";
+
+const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY);
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const fmt = n => Number(n || 0).toLocaleString("en-GB");
+const day = d => d ? new Date(String(d).length <= 10 ? d + "T00:00:00" : d).toLocaleDateString("en-GB", { day:"numeric", month:"short" }) : "";
+const when = d => d ? new Date(d).toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
+
+const GROUPS = ["Exercise","Learning","Work","Arts","Mind","Home","Other"];
+const CATEGORIES = ["Workout","Walking","Running","Reading","Studying","Work","Gym","Yoga","Cycling","Swimming","Sport","Meditation","Coding","Writing","Language","Music practice","Art","Cooking","Cleaning","Journaling","Other"];
+const METRICS = { time: "Time (minutes a day)", km: "Distance (km a day)", steps: "Steps (a day)" };
+
+function toast(msg, err = false) {
+  const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.style.display = "block";
+  clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", err ? 5000 : 2200);
+}
+function fail(e) { console.error(e); toast(e?.message || String(e), true); }
+
+// ---------- Sign in ----------
+async function start() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return showLogin();
+  const { data: admin, error } = await sb.rpc("am_admin");
+  if (error || !admin) { await sb.auth.signOut(); return showLogin("This account isn't an admin."); }
+  $("#who").textContent = session.user.email;
+  $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
+  openTab(location.hash.slice(1) || "overview");
+}
+function showLogin(msg = "") { $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); $("#loginErr").textContent = msg; }
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault(); $("#loginErr").textContent = "";
+  const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+  if (error) { $("#loginErr").textContent = "That email and password don't match."; return; }
+  $("#password").value = ""; start();
+});
+$("#signOut").onclick = async () => { await sb.auth.signOut(); showLogin(); };
+
+// ---------- Tabs ----------
+const loaders = { overview: loadOverview, challenges: loadChallenges, sponsors: loadSponsors, reports: loadReports, people: loadPeople };
+function openTab(name) {
+  if (!loaders[name]) name = "overview";
+  location.hash = name;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  Object.keys(loaders).forEach(k => $("#tab-" + k).classList.toggle("hidden", k !== name));
+  loaders[name]().catch(fail);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => openTab(b.dataset.tab));
+
+// ---------- Overview ----------
+function bars(rows, key, label) {
+  const max = Math.max(1, ...rows.map(r => r[key]));
+  const w = 600, h = 120, bw = w / rows.length;
+  const rects = rows.map((r, i) => {
+    const bh = Math.round((r[key] / max) * (h - 18));
+    return `<rect x="${i * bw + 1}" y="${h - bh}" width="${Math.max(2, bw - 3)}" height="${Math.max(bh, 1)}" rx="2" fill="#0A0A0A"><title>${day(r.day)}: ${fmt(r[key])}</title></rect>`;
+  }).join("");
+  return `<div class="tile chart"><div class="flex"><span class="eyebrow">${label}</span><span class="space"></span>
+    <span class="muted">${fmt(rows.reduce((a, r) => a + r[key], 0))} in 30 days</span></div>
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${label} per day">${rects}</svg>
+    <div class="flex muted" style="font-size:11px"><span>${day(rows[0]?.day)}</span><span class="space"></span><span>Today</span></div></div>`;
+}
+async function loadOverview() {
+  const el = $("#tab-overview");
+  const { data, error } = await sb.rpc("admin_overview"); if (error) throw error;
+  const t = data.totals, d = data.daily || [];
+  el.innerHTML = `
+    <div class="grid tiles">
+      <div class="tile"><b>${fmt(t.people)}</b><span>accounts</span></div>
+      <div class="tile"><b>${fmt(t.active_today)}</b><span>posted today</span></div>
+      <div class="tile"><b>${fmt(t.posts)}</b><span>posts</span></div>
+      <div class="tile"><b>${fmt(t.messages)}</b><span>messages</span></div>
+      <div class="tile"><b>${fmt(t.friendships)}</b><span>friendships</span></div>
+      <div class="tile"><b>${fmt(t.live_challenges)}</b><span>live challenges</span></div>
+      <div class="tile" style="${t.open_reports ? "outline:2px solid var(--red)" : ""}"><b>${fmt(t.open_reports)}</b><span>reports to review</span></div>
+      <div class="tile"><b>${fmt(t.suspended)}</b><span>suspended</span></div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-top:12px">
+      ${bars(d, "signups", "Sign-ups")}${bars(d, "active", "People posting")}${bars(d, "posts", "Posts")}${bars(d, "messages", "Messages")}
+    </div>
+    <p class="muted" style="margin-top:14px">Days are Hong Kong time. Refresh the page for the latest.</p>`;
+  $("#reportCount").textContent = t.open_reports ? `· ${t.open_reports}` : "";
+}
+
+// ---------- Challenges ----------
+let challenges = [], sponsors = [], counts = {};
+async function fetchSponsors() {
+  const { data, error } = await sb.from("sponsors").select("*").order("name"); if (error) throw error;
+  sponsors = data;
+}
+async function loadChallenges() {
+  const el = $("#tab-challenges");
+  await fetchSponsors();
+  const [{ data, error }, cnt] = await Promise.all([
+    sb.from("challenges").select("*").order("starts_on", { ascending: false }),
+    sb.rpc("challenge_counts")
+  ]);
+  if (error) throw error;
+  challenges = data; counts = Object.fromEntries((cnt.data || []).map(c => [c.challenge_id, c.joined]));
+  const sp = id => sponsors.find(s => s.id === id);
+  el.innerHTML = `<div class="split">
+    <div class="card">
+      <div class="flex" style="margin-bottom:8px"><h2>Challenges</h2><span class="space"></span><button class="btn" id="newChallenge">New challenge</button></div>
+      <table><thead><tr><th>Challenge</th><th>Dates</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
+      ${challenges.map(c => `<tr class="click" data-id="${esc(c.id)}">
+        <td><b>${esc(c.title)}</b>${c.featured ? ' <span class="pill">Featured</span>' : ""}<div class="muted">${esc(c.rule)}</div></td>
+        <td>${day(c.starts_on)} – ${day(c.ends_on)}</td>
+        <td>${sp(c.sponsor_id) ? `<span class="swatch" style="background:${esc(sp(c.sponsor_id).color)}"></span> ${esc(sp(c.sponsor_id).name)}` : '<span class="muted">Performative</span>'}</td>
+        <td>${fmt(counts[c.id])}${c.capacity ? `<span class="muted"> / ${fmt(c.capacity)}</span>` : ""}</td>
+        <td><span class="pill ${c.status}">${c.status}</span></td></tr>`).join("")}
+      </tbody></table>
+    </div>
+    <div class="card" id="challengeEditor"><p class="muted">Pick a challenge to edit, or make a new one.</p></div>
+  </div>`;
+  $("#newChallenge").onclick = () => editChallenge(null);
+  el.querySelectorAll("tr.click").forEach(tr => tr.onclick = () => editChallenge(challenges.find(c => c.id === tr.dataset.id)));
+}
+function slugify(s) { return s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
+function editChallenge(c) {
+  const isNew = !c;
+  const today = new Date().toISOString().slice(0, 10);
+  c = c || { id:"", title:"", rule:"", group_name:"Exercise", categories:["Running"], metric:"time", daily_target:30,
+             starts_on: today, ends_on: today, sponsor_id:null, region:null, capacity:null, featured:false, steps:[], status:"draft", joined_base:0 };
+  const box = $("#challengeEditor");
+  box.innerHTML = `
+    <div class="flex"><h3>${isNew ? "New challenge" : "Edit challenge"}</h3><span class="space"></span>
+      ${isNew ? "" : `<span class="pill ${c.status}">${c.status}</span>`}</div>
+    <div id="cPreview" style="margin:12px 0"></div>
+    <form id="cForm">
+      <label class="f"><span>Title</span><input type="text" name="title" value="${esc(c.title)}" required maxlength="60"></label>
+      <label class="f"><span>Id <small>· short, lowercase, can't change later</small></span>
+        <input type="text" name="id" value="${esc(c.id)}" ${isNew ? "" : "readonly"} pattern="[a-z0-9-]+" required></label>
+      <label class="f"><span>Rule <small>· one line shown on the card</small></span><input type="text" name="rule" value="${esc(c.rule)}" required maxlength="80"></label>
+      <div class="row2">
+        <label class="f"><span>Starts</span><input type="date" name="starts_on" value="${esc(c.starts_on)}" required></label>
+        <label class="f"><span>Ends <small>· included</small></span><input type="date" name="ends_on" value="${esc(c.ends_on)}" required></label>
+      </div>
+      <div class="row2">
+        <label class="f"><span>Measured by</span><select name="metric">${Object.entries(METRICS).map(([k, v]) => `<option value="${k}" ${c.metric === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+        <label class="f"><span>Daily target</span><input type="number" name="daily_target" min="0" step="any" value="${esc(c.daily_target)}" required></label>
+      </div>
+      <label class="f"><span>Area</span><select name="group_name">${GROUPS.map(g => `<option ${c.group_name === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>
+      <div class="f" style="margin-bottom:12px"><span style="display:block;font-size:12px;font-weight:600;margin-bottom:5px">Activities that count</span>
+        <div class="chips">${CATEGORIES.map(k => `<label><input type="checkbox" name="cat" value="${esc(k)}" ${(c.categories || []).includes(k) ? "checked" : ""}>${esc(k)}</label>`).join("")}</div></div>
+      <label class="f"><span>Sponsor</span><select name="sponsor_id"><option value="">None (Performative)</option>
+        ${sponsors.map(s => `<option value="${s.id}" ${c.sponsor_id === s.id ? "selected" : ""}>${esc(s.name)}${s.is_sample ? " (sample)" : ""}</option>`).join("")}</select></label>
+      <div class="row2">
+        <label class="f"><span>Region <small>· e.g. HK, blank = worldwide</small></span><input type="text" name="region" value="${esc(c.region || "")}" maxlength="2" style="text-transform:uppercase"></label>
+        <label class="f"><span>Spots <small>· blank = no limit</small></span><input type="number" name="capacity" min="1" value="${esc(c.capacity ?? "")}"></label>
+      </div>
+      <label class="f"><span>How it works <small>· one step per line</small></span><textarea name="steps">${esc((c.steps || []).join("\n"))}</textarea></label>
+      <label class="f" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="featured" ${c.featured ? "checked" : ""}> <span style="margin:0">Featured (the big card at the top; only one at a time)</span></label>
+      <label class="f"><span>Status</span><select name="status">
+        <option value="draft" ${c.status === "draft" ? "selected" : ""}>Draft · only you see it</option>
+        <option value="live" ${c.status === "live" ? "selected" : ""}>Live · in everyone's app</option>
+        <option value="ended" ${c.status === "ended" ? "selected" : ""}>Ended · hidden from the app, report kept</option></select></label>
+      <input type="hidden" name="joined_base" value="${esc(c.joined_base ?? 0)}">
+      <div class="flex"><button class="btn" type="submit">${isNew ? "Create" : "Save"}</button>
+        ${isNew ? "" : `<button class="btn red" type="button" id="cDelete">Delete</button>`}
+        <span class="space"></span><button class="btn ghost" type="button" id="cCancel">Close</button></div>
+    </form>`;
+  const form = $("#cForm");
+  const read = () => {
+    const f = new FormData(form);
+    return {
+      id: (f.get("id") || slugify(f.get("title") || "")).trim(), title: f.get("title").trim(), rule: f.get("rule").trim(),
+      group_name: f.get("group_name"), categories: f.getAll("cat"), metric: f.get("metric"), daily_target: Number(f.get("daily_target")),
+      starts_on: f.get("starts_on"), ends_on: f.get("ends_on"), sponsor_id: f.get("sponsor_id") || null,
+      region: (f.get("region") || "").trim().toUpperCase() || null, capacity: f.get("capacity") ? Number(f.get("capacity")) : null,
+      featured: f.get("featured") === "on", steps: (f.get("steps") || "").split("\n").map(s => s.trim()).filter(Boolean),
+      status: f.get("status"), joined_base: Number(f.get("joined_base") || 0)
+    };
+  };
+  const preview = () => {
+    const v = read(); const s = sponsors.find(x => x.id === v.sponsor_id);
+    $("#cPreview").innerHTML = `<div class="preview" style="background:${esc(s?.color || "#0A0A0A")}">
+      <div class="w">${esc(s ? (s.wordmark || s.name) : "PERFORMATIVE")}</div>
+      <div><h3>${esc(v.title || "Challenge title")}</h3><div style="opacity:.85">${esc(v.rule || "The daily rule")} · ${day(v.starts_on)} – ${day(v.ends_on)}</div></div></div>`;
+  };
+  form.addEventListener("input", e => {
+    if (isNew && e.target.name === "title") form.id.value = slugify(e.target.value);
+    preview();
+  });
+  preview();
+  $("#cCancel").onclick = () => box.innerHTML = '<p class="muted">Pick a challenge to edit, or make a new one.</p>';
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const v = read();
+    if (!v.categories.length) return toast("Pick at least one activity that counts.", true);
+    if (v.ends_on < v.starts_on) return toast("The end date is before the start date.", true);
+    try {
+      if (v.featured) { const { error } = await sb.from("challenges").update({ featured: false }).neq("id", v.id).eq("featured", true); if (error) throw error; }
+      const { error } = isNew ? await sb.from("challenges").insert(v) : await sb.from("challenges").update(v).eq("id", v.id);
+      if (error) throw error;
+      toast(isNew ? "Challenge created" : "Saved"); await loadChallenges();
+      editChallenge(challenges.find(x => x.id === v.id));
+    } catch (err) { fail(err.code === "23505" ? { message: "A challenge with that id already exists." } : err); }
+  };
+  if (!isNew) $("#cDelete").onclick = async () => {
+    if (!confirm(`Delete "${c.title}"? Everyone in it leaves, and the sponsor's report for it goes too. To keep the numbers, set it to Ended instead.`)) return;
+    const { error } = await sb.from("challenges").delete().eq("id", c.id); if (error) return fail(error);
+    toast("Deleted"); loadChallenges();
+  };
+}
+
+// ---------- Sponsors ----------
+async function loadSponsors() {
+  const el = $("#tab-sponsors");
+  await fetchSponsors();
+  el.innerHTML = `<div class="split">
+    <div class="card">
+      <div class="flex" style="margin-bottom:8px"><h2>Sponsors</h2><span class="space"></span><button class="btn" id="newSponsor">New sponsor</button></div>
+      <table><thead><tr><th>Sponsor</th><th>Colour</th><th>Live challenges</th><th></th></tr></thead><tbody>
+      ${sponsors.map(s => `<tr class="click" data-id="${s.id}">
+        <td>${s.logo_path ? `<img class="thumb" style="width:34px;height:34px;vertical-align:middle;margin-right:8px" src="${logoURL(s.logo_path)}">` : ""}<b>${esc(s.name)}</b>${s.is_sample ? ' <span class="pill">sample</span>' : ""}</td>
+        <td><span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</td>
+        <td id="live-${s.id}" class="muted">…</td><td class="muted">Edit ›</td></tr>`).join("")}
+      </tbody></table>
+    </div>
+    <div class="card" id="sponsorEditor"><p class="muted">Pick a sponsor to edit, or add a new one.</p></div>
+  </div>`;
+  const { data: ch } = await sb.from("challenges").select("sponsor_id,status");
+  sponsors.forEach(s => { const n = (ch || []).filter(c => c.sponsor_id === s.id && c.status === "live").length; const td = $("#live-" + s.id); if (td) td.textContent = n; });
+  $("#newSponsor").onclick = () => editSponsor(null);
+  el.querySelectorAll("tr.click").forEach(tr => tr.onclick = () => editSponsor(sponsors.find(s => s.id === tr.dataset.id)));
+}
+function logoURL(path) { return sb.storage.from("brand").getPublicUrl(path).data.publicUrl + "?v=" + Date.now(); }
+function tintOf(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ""); if (!m) return "#F2F2F2";
+  const n = parseInt(m[1], 16), mix = c => Math.round(c * 0.12 + 255 * 0.88);
+  return "#" + [n >> 16 & 255, n >> 8 & 255, n & 255].map(mix).map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+async function editSponsor(s) {
+  const isNew = !s;
+  s = s || { slug:"", name:"", wordmark:"", color:"#0A0A0A", tint:"#F2F2F2", about:"", website:"", logo_path:null, is_sample:false };
+  let priv = null;
+  if (!isNew) { const { data } = await sb.from("sponsor_private").select("*").eq("sponsor_id", s.id).maybeSingle(); priv = data; }
+  const box = $("#sponsorEditor");
+  box.innerHTML = `
+    <h3>${isNew ? "New sponsor" : esc(s.name)}</h3>
+    <form id="sForm" style="margin-top:12px">
+      <label class="f"><span>Name</span><input type="text" name="name" value="${esc(s.name)}" required maxlength="40"></label>
+      <label class="f"><span>Id <small>· short, lowercase, can't change later</small></span>
+        <input type="text" name="slug" value="${esc(s.slug)}" ${isNew ? "" : "readonly"} pattern="[a-z0-9-]+" required></label>
+      <label class="f"><span>Wordmark <small>· how they write their name next to the logo</small></span><input type="text" name="wordmark" value="${esc(s.wordmark || "")}" maxlength="30"></label>
+      <div class="row2">
+        <label class="f"><span>Brand colour</span><input type="text" name="color" value="${esc(s.color)}" pattern="#[0-9A-Fa-f]{6}" required></label>
+        <label class="f"><span>Light tint <small>· auto</small></span><input type="text" name="tint" value="${esc(s.tint)}" pattern="#[0-9A-Fa-f]{6}" required></label>
+      </div>
+      <label class="f"><span>About <small>· shown when people tap "Sponsored"</small></span><textarea name="about" maxlength="400">${esc(s.about || "")}</textarea></label>
+      <label class="f"><span>Website</span><input type="url" name="website" value="${esc(s.website || "")}" placeholder="https://"></label>
+      <label class="f"><span>Logo <small>· square PNG, 512×512, transparent</small></span>
+        ${s.logo_path ? `<img class="thumb" src="${logoURL(s.logo_path)}" style="display:block;margin-bottom:6px">` : ""}
+        <input type="file" name="logo" accept="image/png,image/jpeg"></label>
+      ${isNew ? "" : `
+      <div class="tile" style="margin:6px 0 14px">
+        <div class="eyebrow" style="margin-bottom:6px">Private report link</div>
+        ${priv ? `<div class="copy" id="reportLink">${esc(REPORT_BASE + "?t=" + priv.report_token)}</div>
+        <div class="flex" style="margin-top:8px"><button class="btn small" type="button" id="copyLink">Copy link</button>
+          <button class="btn ghost small" type="button" id="newLink">Make a new link</button></div>
+        <label class="f" style="margin-top:10px"><span>Contact name</span><input type="text" name="contact_name" value="${esc(priv.contact_name || "")}"></label>
+        <label class="f"><span>Contact email</span><input type="email" name="contact_email" value="${esc(priv.contact_email || "")}"></label>
+        <label class="f"><span>Notes <small>· only admins see these</small></span><textarea name="notes">${esc(priv.notes || "")}</textarea></label>`
+        : '<p class="muted">No report link yet.</p>'}
+      </div>`}
+      <div class="flex"><button class="btn" type="submit">${isNew ? "Add sponsor" : "Save"}</button>
+        <span class="space"></span><button class="btn ghost" type="button" id="sCancel">Close</button></div>
+    </form>`;
+  const form = $("#sForm");
+  form.name.addEventListener("input", () => { if (isNew) form.slug.value = slugify(form.name.value); });
+  form.color.addEventListener("input", () => { form.tint.value = tintOf(form.color.value); });
+  $("#sCancel").onclick = () => box.innerHTML = '<p class="muted">Pick a sponsor to edit, or add a new one.</p>';
+  if (priv) {
+    $("#copyLink").onclick = async () => { await navigator.clipboard.writeText($("#reportLink").textContent); toast("Link copied"); };
+    $("#newLink").onclick = async () => {
+      if (!confirm("Make a new link? The old one stops working straight away.")) return;
+      const { error } = await sb.from("sponsor_private").update({ report_token: crypto.randomUUID() }).eq("sponsor_id", s.id);
+      if (error) return fail(error); toast("New link made"); editSponsor(s);
+    };
+  }
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const row = { slug: f.get("slug").trim(), name: f.get("name").trim(), wordmark: f.get("wordmark").trim() || null,
+                  color: f.get("color").toUpperCase(), tint: f.get("tint").toUpperCase(), about: f.get("about").trim() || null,
+                  website: f.get("website").trim() || null };
+    try {
+      const file = f.get("logo");
+      if (file && file.size) {
+        if (file.size > 2_000_000) return toast("The logo is over 2 MB. Use a smaller PNG.", true);
+        const ext = file.type === "image/png" ? "png" : "jpg";
+        const path = `${row.slug}.${ext}`;
+        const { error } = await sb.storage.from("brand").upload(path, file, { upsert: true, contentType: file.type });
+        if (error) throw error;
+        row.logo_path = path;
+      }
+      let saved;
+      if (isNew) { const r = await sb.from("sponsors").insert(row).select().single(); if (r.error) throw r.error; saved = r.data; }
+      else { const r = await sb.from("sponsors").update(row).eq("id", s.id).select().single(); if (r.error) throw r.error; saved = r.data; }
+      if (!isNew && priv) {
+        const { error } = await sb.from("sponsor_private").update({ contact_name: f.get("contact_name") || null,
+          contact_email: f.get("contact_email") || null, notes: f.get("notes") || null }).eq("sponsor_id", s.id);
+        if (error) throw error;
+      }
+      toast(isNew ? "Sponsor added" : "Saved"); await loadSponsors(); editSponsor(saved);
+    } catch (err) { fail(err.code === "23505" ? { message: "A sponsor with that id already exists." } : err); }
+  };
+}
+
+// ---------- Reports ----------
+async function photoURL(path) {
+  if (!path) return null;
+  const { data } = await sb.storage.from("photos").createSignedUrl(path, 600); return data?.signedUrl;
+}
+async function loadReports(showResolved = false) {
+  const el = $("#tab-reports");
+  const { data, error } = await sb.rpc("admin_reports", { include_resolved: showResolved }); if (error) throw error;
+  const open = data.filter(r => !r.outcome).length;
+  $("#reportCount").textContent = open ? `· ${open}` : "";
+  el.innerHTML = `<div class="card">
+    <div class="flex" style="margin-bottom:8px"><h2>Reports</h2><span class="space"></span>
+      <label class="flex"><input type="checkbox" id="showResolved" ${showResolved ? "checked" : ""}> Show resolved</label></div>
+    ${data.length ? "" : '<p class="muted">Nothing to review. 🎉</p>'}
+    <table><tbody>${data.map(r => `<tr>
+      <td style="width:76px">${r.image_path ? `<img class="thumb" data-path="${esc(r.image_path)}">` : ""}</td>
+      <td><div class="flex"><span class="pill red">${esc(r.reason)}</span><span class="pill">${esc(r.target_type)}</span>
+          <span class="muted">${when(r.created_at)}</span></div>
+        <div style="margin-top:6px">${r.content ? `“${esc(r.content)}”` : '<span class="muted">(no text)</span>'}</div>
+        ${r.note ? `<div class="muted" style="margin-top:4px">Note: ${esc(r.note)}</div>` : ""}
+        <div class="muted" style="margin-top:4px">Reported: <b>@${esc(r.reported || "?")}</b> · by @${esc(r.reporter || "?")}</div></td>
+      <td style="width:290px; text-align:right">${r.outcome
+        ? `<span class="pill">${esc(r.outcome)}</span><div class="muted">${when(r.resolved_at)}</div>`
+        : `<div class="flex" style="justify-content:flex-end">
+            ${["post", "comment"].includes(r.target_type) ? `<button class="btn red small" data-act="removed" data-id="${r.id}">Remove</button>` : ""}
+            ${r.reported_id ? `<button class="btn small" data-act="suspended" data-id="${r.id}">Suspend</button>` : ""}
+            <button class="btn ghost small" data-act="dismissed" data-id="${r.id}">Dismiss</button></div>`}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  $("#showResolved").onchange = e => loadReports(e.target.checked).catch(fail);
+  el.querySelectorAll("img[data-path]").forEach(async img => { img.src = await photoURL(img.dataset.path) || ""; });
+  el.querySelectorAll("button[data-act]").forEach(b => b.onclick = async () => {
+    const words = { removed: "Remove this content for everyone?", suspended: "Suspend this person? They won't be able to post, comment or message.", dismissed: "Dismiss this report?" };
+    if (!confirm(words[b.dataset.act])) return;
+    const { error } = await sb.rpc("resolve_report", { report: b.dataset.id, action: b.dataset.act });
+    if (error) return fail(error); toast("Done"); loadReports(showResolved).catch(fail);
+  });
+}
+
+// ---------- People ----------
+async function loadPeople(q = "") {
+  const el = $("#tab-people");
+  if (!$("#peopleSearch")) {
+    el.innerHTML = `<div class="card"><div class="flex" style="margin-bottom:10px"><h2>People</h2><span class="space"></span>
+      <input type="text" id="peopleSearch" placeholder="Name, username or email" style="max-width:320px"></div><div id="peopleList"></div></div>`;
+    let h; $("#peopleSearch").addEventListener("input", e => { clearTimeout(h); h = setTimeout(() => loadPeople(e.target.value).catch(fail), 250); });
+  }
+  const { data, error } = await sb.rpc("admin_people", { q }); if (error) throw error;
+  $("#peopleList").innerHTML = `<table><thead><tr><th>Person</th><th>Email</th><th>Joined</th><th>Posts</th><th>Friends</th><th>Last post</th><th></th></tr></thead><tbody>
+    ${data.map(p => `<tr>
+      <td><b>${esc(p.name)}</b><div class="muted">@${esc(p.handle)}</div>
+        ${p.suspended_at ? '<span class="pill red">Suspended</span>' : ""}${p.open_reports ? ` <span class="pill red">${p.open_reports} report${p.open_reports > 1 ? "s" : ""}</span>` : ""}</td>
+      <td>${esc(p.email || "")}</td><td>${day(p.created_at)}</td><td>${fmt(p.posts)}</td><td>${fmt(p.friends)}</td>
+      <td>${p.last_post ? when(p.last_post) : '<span class="muted">—</span>'}</td>
+      <td style="text-align:right">${p.suspended_at
+        ? `<button class="btn ghost small" data-id="${p.id}" data-s="0">Unsuspend</button>`
+        : `<button class="btn red small" data-id="${p.id}" data-s="1">Suspend</button>`}</td></tr>`).join("")}
+  </tbody></table>${data.length ? "" : '<p class="muted">No one found.</p>'}`;
+  $("#peopleList").querySelectorAll("button[data-id]").forEach(b => b.onclick = async () => {
+    const suspend = b.dataset.s === "1";
+    if (!confirm(suspend ? "Suspend this person? They can still open the app but can't post, comment or message." : "Lift the suspension?")) return;
+    const { error } = await sb.rpc("admin_set_suspended", { person: b.dataset.id, suspended: suspend });
+    if (error) return fail(error); toast(suspend ? "Suspended" : "Suspension lifted"); loadPeople($("#peopleSearch").value).catch(fail);
+  });
+}
+
+start().catch(fail);
+</script>
+</body>
+</html>
