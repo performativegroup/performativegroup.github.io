@@ -76,7 +76,7 @@
   .segs button { all:unset; padding:7px 12px; border-radius:9px; cursor:pointer; font-weight:600; font-size:13px; color:#555; }
   .segs button.on { background:#fff; color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08); }
   .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
-  .search { position:relative; } .search input { padding-left:34px; min-width:240px; }
+  .search { position:relative; } .search input, .search input[type=search] { padding-left:34px; min-width:240px; }
   .search::before { content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-52%); color:var(--muted); font-size:16px; }
   .space { flex:1; }
   .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
@@ -174,6 +174,14 @@
   .qgrid div { background:#1d1d1d; border-radius:12px; padding:10px 12px; } .qgrid b { display:block; font-size:18px; } .qgrid span { font-size:11px; color:#a8a8a8; }
   .breakdown td, .breakdown th { padding:8px 6px; font-size:13px; } .breakdown td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
   .formula { font-family: ui-monospace, Menlo, monospace; font-size:12px; background:var(--soft); border-radius:12px; padding:12px 14px; line-height:1.7; white-space:pre-wrap; }
+  .shelf { display:flex; gap:6px; overflow-x:auto; padding:6px 2px 12px; margin-bottom:6px; }
+  .brandchip { all:unset; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; width:84px; flex:none; transition:transform .2s, opacity .2s, filter .2s; }
+  .brandchip .disc { width:56px; height:56px; border-radius:50%; display:grid; place-items:center; overflow:hidden; }
+  .brandchip .disc img { width:30px; height:30px; object-fit:contain; } .brandchip .disc b { font-size:22px; font-family:"Instrument Serif", serif; font-weight:400; }
+  .brandchip .nm { font-size:12px; color:var(--muted); max-width:84px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .brandchip .ct { font-size:10px; color:var(--muted); margin-top:-4px; }
+  .brandchip.on { transform:scale(1.08); } .brandchip.on .nm { color:var(--ink); font-weight:600; }
+  .brandchip.dim { opacity:.5; filter:blur(.6px); } .brandchip:hover .disc { box-shadow:0 0 0 2px var(--hair); }
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 18px; border-radius:12px; font-weight:600; z-index:20; display:none; max-width:90vw; box-shadow:0 10px 30px rgba(0,0,0,.25); }
   .toast.err { background:var(--red); }
   .login { max-width:400px; margin:14vh auto; padding:0 16px; }
@@ -207,6 +215,7 @@
       <button data-tab="overview">◐ Overview</button>
       <button data-tab="challenges">◎ Challenges</button>
       <button data-tab="sponsors">◆ Sponsors</button>
+      <button data-tab="requests">✉ Requests <span class="badge hidden" id="requestCount"></span></button>
       <button data-tab="reports">⚑ Reports <span class="badge hidden" id="reportCount"></span></button>
       <button data-tab="people">◉ People</button>
       <button data-tab="pricing">＄ Sponsor pricing</button>
@@ -217,6 +226,7 @@
     <div id="tab-overview"></div>
     <div id="tab-challenges" class="hidden"></div>
     <div id="tab-sponsors" class="hidden"></div>
+    <div id="tab-requests" class="hidden"></div>
     <div id="tab-reports" class="hidden"></div>
     <div id="tab-people" class="hidden"></div>
     <div id="tab-pricing" class="hidden"></div>
@@ -283,7 +293,7 @@ $("#loginForm").addEventListener("submit", async e => {
 $("#signOut").onclick = async () => { await sb.auth.signOut(); showLogin(); };
 
 // ---------------- Tabs ----------------
-const loaders = { overview: loadOverview, challenges: () => loadChallenges(), sponsors: () => loadSponsors(), reports: () => loadReports(), people: () => loadPeople(), pricing: () => loadPricing() };
+const loaders = { overview: loadOverview, challenges: () => loadChallenges(), sponsors: () => loadSponsors(), requests: () => loadRequests(), reports: () => loadReports(), people: () => loadPeople(), pricing: () => loadPricing() };
 function openTab(name) {
   if (!loaders[name]) name = "overview";
   history.replaceState(null, "", "#" + name);
@@ -297,6 +307,8 @@ async function refreshReportBadge() {
   const { data } = await sb.rpc("admin_reports", { include_resolved: false });
   const n = (data || []).length, b = $("#reportCount");
   b.textContent = n; b.classList.toggle("hidden", !n);
+  const { count } = await sb.from("sponsor_requests").select("id", { count:"exact", head:true }).eq("status", "pending");
+  const rb = $("#requestCount"); rb.textContent = count || 0; rb.classList.toggle("hidden", !count);
 }
 
 // ---------------- Overview ----------------
@@ -350,7 +362,7 @@ function miniList(title, items, sub) {
 }
 
 // ---------------- Challenges ----------------
-let challenges = [], sponsors = [], counts = {}, chFilter = "all", chSearch = "";
+let challenges = [], sponsors = [], counts = {}, chFilter = "all", chSearch = "", chBrand = null;
 async function fetchSponsors() {
   const { data, error } = await sb.from("sponsors").select("*").order("name"); if (error) throw error;
   sponsors = data;
@@ -376,11 +388,19 @@ function renderChallengeList() {
   const el = $("#tab-challenges");
   const sp = id => sponsors.find(s => s.id === id);
   const byState = s => challenges.filter(c => stateOf(c) === s).length;
-  const rows = challenges.filter(c => (chFilter === "all" || stateOf(c) === chFilter)
+  const brandKey = c => c.sponsor_id || "performative";
+  const rows = challenges.filter(c => (chFilter === "all" || stateOf(c) === chFilter) && (!chBrand || brandKey(c) === chBrand)
     && (!chSearch || (c.title + " " + c.id + " " + (sp(c.sponsor_id)?.name || "")).toLowerCase().includes(chSearch.toLowerCase())));
   el.innerHTML = `
     <div class="pagehead"><div><h1>Challenges</h1><p>What everyone can join in the app. Changes reach phones within seconds.</p></div>
       <button class="btn" id="newChallenge">＋ New challenge</button></div>
+    <div class="shelf" id="chShelf">
+      ${[{ id:"performative", name:"Performative", color:"#0A0A0A", tint:"#EDEDEA" }, ...sponsors].filter(b => challenges.some(c => brandKey(c) === b.id)).map(b => {
+        const n = challenges.filter(c => brandKey(c) === b.id).length, on = chBrand === b.id, dim = chBrand && !on;
+        return `<button class="brandchip ${on ? "on" : ""} ${dim ? "dim" : ""}" data-brand="${esc(b.id)}" title="${esc(b.name)}">
+          <span class="disc" style="background:${esc(b.tint || "#EDEDEA")}; ${on ? `box-shadow:0 0 0 2px ${esc(b.color)}` : ""}">${b.logo_path ? `<img src="${logoURL(b.logo_path)}" alt="">` : `<b style="color:${esc(b.color)}">${esc((b.wordmark || b.name)[0])}</b>`}</span>
+          <span class="nm">${esc(b.name)}</span><span class="ct">${n}</span></button>`; }).join("")}
+    </div>
     <div class="toolbar">
       <div class="segs" id="chSegs">${["all","live","scheduled","draft","ended"].map(s => `<button data-s="${s}" class="${chFilter === s ? "on" : ""}">${s === "all" ? "All" : STATE_LABEL[s]} <span class="muted">${s === "all" ? challenges.length : byState(s)}</span></button>`).join("")}</div>
       <span class="space"></span>
@@ -396,11 +416,12 @@ function renderChallengeList() {
         <td>${s ? `<span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.name)}` : '<span class="muted">Performative</span>'}</td>
         <td>${fmt(counts[c.id])}${c.capacity ? `<span class="muted"> / ${fmt(c.capacity)}</span>` : ""}</td>
         <td><span class="pill ${st}">${STATE_LABEL[st]}</span></td></tr>`; }).join("")}
-      </tbody></table>` : `<div class="empty">No challenges here. <a href="#" id="emptyNew">Make one</a>.</div>`}
+      </tbody></table>` : `<div class="empty">No challenges here${chBrand ? " for this brand" : ""}. <a href="#" id="emptyNew">Make one</a>.</div>`}
     </div>`;
   $("#newChallenge").onclick = () => editChallenge(null);
   $("#emptyNew")?.addEventListener("click", e => { e.preventDefault(); editChallenge(null); });
   $$("#chSegs button").forEach(b => b.onclick = () => { chFilter = b.dataset.s; renderChallengeList(); });
+  $$("#chShelf [data-brand]").forEach(b => b.onclick = () => { chBrand = chBrand === b.dataset.brand ? null : b.dataset.brand; renderChallengeList(); });
   $("#chSearch").oninput = e => { chSearch = e.target.value; const pos = e.target.selectionStart; renderChallengeList(); const i = $("#chSearch"); i.focus(); i.setSelectionRange(pos, pos); };
   $$("tr.click", el).forEach(tr => tr.onclick = () => editChallenge(challenges.find(c => c.id === tr.dataset.id)));
 }
@@ -944,10 +965,100 @@ async function viewReport(s, id, kind) {
   } catch (e) { $("#modalBody").innerHTML = `<div class="empty" style="color:var(--red)">${esc(e.message)}</div>`; }
 }
 
+// ---------------- Requests from the public sponsor page ----------------
+let reqFilter = "pending";
+const REQ_LABEL = { pending:"To review", approved:"Approved", declined:"Declined", withdrawn:"Withdrawn" };
+async function reqFn(body) {
+  const { data, error } = await sb.functions.invoke("sponsor-requests", { body });
+  if (error) { let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch {} throw new Error(msg); }
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+async function loadRequests() {
+  const el = $("#tab-requests");
+  const { data, error } = await sb.from("sponsor_requests").select("*").order("created_at", { ascending:false }); if (error) throw error;
+  refreshReportBadge();
+  const rows = data.filter(r => reqFilter === "all" || r.status === reqFilter);
+  const count = s => data.filter(r => r.status === s).length;
+  el.innerHTML = `
+    <div class="pagehead"><div><h1>Requests</h1><p>Brands who built a challenge on the sponsor page. Review, then approve or decline. Approving makes the sponsor and a draft challenge; it goes live when you mark it paid.</p></div>
+      <a class="btn line" href="https://performativegroup.github.io/sponsor/" target="_blank">Open the sponsor page ↗</a></div>
+    <div class="toolbar"><div class="segs" id="reqSegs">${["pending", "approved", "declined", "all"].map(s => `<button data-s="${s}" class="${reqFilter === s ? "on" : ""}">${s === "all" ? "All" : REQ_LABEL[s]} <span class="muted">${s === "all" ? data.length : count(s)}</span></button>`).join("")}</div></div>
+    <div class="card" style="padding:6px 8px">${rows.length ? `<table><thead><tr><th>Brand</th><th>Challenge</th><th>Runs</th><th>Where</th><th>Price</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(r => `<tr class="click" data-id="${r.id}">
+        <td><div class="row" style="gap:10px; flex-wrap:nowrap">${r.logo_path ? `<img src="${logoURL(r.logo_path)}" class="logo" style="object-fit:contain;background:#fff;box-shadow:inset 0 0 0 1px var(--hair)">` : `<span class="logo" style="background:${esc(r.color)}">${esc(r.company[0])}</span>`}
+          <div><b>${esc(r.company)}</b><div class="muted small">${esc(r.contact_name)} · ${when(r.created_at)}</div></div></div></td>
+        <td><b>${esc(r.title)}</b>${r.featured ? ' <span class="pill dark">Featured</span>' : ""}<div class="muted small">${esc(r.rule)}</div></td>
+        <td>${dayLabel(r.starts_on)}<div class="muted small">${r.days} days</div></td>
+        <td>${r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"}</td>
+        <td><b>HK$${fmt(r.quote?.price)}</b></td>
+        <td><span class="pill ${r.status === "pending" ? "draft" : r.status === "approved" ? (r.paid_at ? "live" : "scheduled") : "ended"}">${r.status === "approved" ? (r.paid_at ? "Paid · live" : "Approved · unpaid") : REQ_LABEL[r.status]}</span></td></tr>`).join("")}
+      </tbody></table>` : `<div class="empty">${reqFilter === "pending" ? "Nothing waiting. New requests from the sponsor page land here, and you get an email." : "None here."}</div>`}</div>`;
+  $$("#reqSegs button").forEach(b => b.onclick = () => { reqFilter = b.dataset.s; loadRequests().catch(fail); });
+  $$("tr.click", el).forEach(tr => tr.onclick = () => openRequest(data.find(r => r.id === tr.dataset.id)));
+}
+async function openRequest(r) {
+  const el = $("#tab-requests");
+  const target = r.metric === "km" ? `${r.daily_target} km a day` : r.metric === "steps" ? `${fmt(r.daily_target)} steps a day` : `${r.daily_target} minutes a day`;
+  const ends = addDays(r.starts_on, r.days - 1);
+  const { data: now } = await sb.rpc("public_quote", { p_region: r.region, p_days: r.days, p_capacity: r.capacity, p_featured: r.featured, p_categories: r.categories });
+  const q = r.quote || {};
+  const lines = [["Company", esc(r.company) + (r.website ? ` · <a href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.website)}</a>` : "")],
+    ["Contact", `${esc(r.contact_name)} · <a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? " · " + esc(r.phone) : ""}`],
+    ["Challenge", `<b>${esc(r.title)}</b> · ${esc(r.rule)}`], ["Area and activities", `${esc(r.group_name)} · ${esc((r.categories || []).join(", "))}`],
+    ["Daily target", esc(target)], ["Dates", `${dayLabel(r.starts_on)} – ${dayLabel(ends)} (${r.days} days)`],
+    ["Who can join", r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"], ["Spots", r.capacity ? fmt(r.capacity) : "No limit"],
+    ["Placement", r.featured ? "Featured" : "Standard"], ["Prize or note", esc(r.cover_note || "—")], ["About the brand", esc(r.about || "—")], ["Their notes", esc(r.notes || "—")]];
+  el.innerHTML = `
+    <div class="pagehead"><div><a href="#" id="rBack" class="muted small" style="text-decoration:none">← All requests</a>
+      <h1 style="margin-top:6px">${esc(r.company)}: ${esc(r.title)}</h1>
+      <p>Sent ${when(r.created_at)} · reference ${r.id.slice(0, 8).toUpperCase()} · <span class="pill ${r.status === "pending" ? "draft" : "scheduled"}">${REQ_LABEL[r.status]}</span>${r.decided_at ? ` · decided ${when(r.decided_at)}` : ""}${r.paid_at ? ` · paid ${when(r.paid_at)}` : ""}</p></div></div>
+    <div class="editor" style="grid-template-columns: minmax(0,1fr) 330px">
+      <div>
+        <div class="card section"><h3>What they asked for</h3><p>Check the wording, dates and target are sensible and safe.</p>
+          <table class="breakdown"><tbody>${lines.map(([k, v]) => `<tr><td class="muted" style="width:170px">${k}</td><td style="text-align:left">${v}</td></tr>`).join("")}</tbody></table></div>
+        <div class="card section"><h3>Price</h3><p>What they were quoted when they sent it, and what the same challenge prices at today.</p>
+          <div class="grid kpis">
+            <div class="kpi"><span class="eyebrow">Quoted</span><b>HK$${fmt(q.price)}</b><div class="muted small">${fmt(q.reach_low)}–${fmt(q.reach_high)} people</div></div>
+            <div class="kpi"><span class="eyebrow">Today</span><b>HK$${fmt(now?.price)}</b><div class="muted small">${fmt(now?.reach_low)}–${fmt(now?.reach_high)} people</div></div>
+            <div class="kpi"><span class="eyebrow">Activity match</span><b>${q.affinity ?? "—"}×</b><div class="muted small">How popular their activities are</div></div>
+          </div>
+          <p class="help" style="margin-top:10px">Invoice the quoted price: it's what they agreed to.</p></div>
+        ${r.status === "pending" ? `<div class="card section"><h3>Decide</h3><p>They get an email either way. A note is optional for approvals and helps for declines.</p>
+          <label class="f"><span>Note to the brand <small>· optional</small></span><textarea id="rNote" placeholder="e.g. We've shortened the rule to fit the card."></textarea></label>
+          <div class="row"><button class="btn green" id="rApprove">Approve</button><button class="btn ghost" id="rDecline">Decline</button>
+            <span class="space"></span><span class="muted small">Approving makes the sponsor (${esc(r.company)}) and a draft challenge.</span></div></div>` : ""}
+        ${r.status === "approved" ? `<div class="card section"><h3>${r.paid_at ? "Live" : "Waiting for payment"}</h3>
+          <p>${r.paid_at ? "It's paid and live on its start date. The sponsor has their report link." : `Send the invoice for HK$${fmt(q.price)} to ${esc(r.email)}. When it's paid, mark it here: the challenge goes live and they get their report link.`}</p>
+          <div class="row">${r.challenge_id ? `<button class="btn line" id="rOpen">Open the challenge</button>` : ""}${r.sponsor_id ? `<button class="btn line" id="rSponsor">Open the sponsor</button>` : ""}
+            <span class="space"></span>${r.paid_at ? "" : `<button class="btn" id="rPaid">Mark paid and go live</button>`}</div></div>` : ""}
+        ${r.admin_note ? `<div class="card section"><h3>Your note</h3><p>${esc(r.admin_note)}</p></div>` : ""}
+      </div>
+      <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">How it would look</div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+          <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
+          <div class="pcard" style="background:${esc(r.color)}"><div class="wm">${r.logo_path ? `<img src="${logoURL(r.logo_path)}">` : ""}${esc(r.company.toUpperCase())}${r.featured ? " · FEATURED" : ""}</div>
+            <div><h4>${esc(r.title)}</h4><div class="meta">${esc(r.rule)} · ${r.days} days · ${r.region ? esc(countryName(r.region)) : "Worldwide"}</div></div><span class="join">Join</span></div>
+          ${r.cover_note ? `<div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}; font-size:12px"><b>${esc(r.cover_note)}</b></div>` : ""}
+          <div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}"><b style="font-size:13px">About ${esc(r.company)}</b><div style="font-size:12px; margin-top:6px; color:#333">${esc(r.about || "No about text.")}</div></div>
+        </div></div></div>
+        <div class="muted small" style="text-align:center; margin-top:10px">White text on their colour: ${contrastWhite(r.color) >= 3 ? "reads well" : "<b style='color:var(--amber)'>hard to read</b>"}</div>
+      </div>
+    </div>`;
+  $("#rBack").onclick = e => { e.preventDefault(); loadRequests().catch(fail); };
+  const act = async (body, msg) => { try { await reqFn(body); toast(msg); const { data } = await sb.from("sponsor_requests").select("*").eq("id", r.id).single(); openRequest(data); refreshReportBadge(); } catch (e) { fail(e); } };
+  $("#rApprove")?.addEventListener("click", () => { if (confirm(`Approve ${r.company}'s challenge? They'll get an email saying an invoice is coming.`)) act({ action:"decide", id:r.id, decision:"approve", note:$("#rNote").value }, "Approved. Sponsor and draft challenge created."); });
+  $("#rDecline")?.addEventListener("click", () => { if (confirm(`Decline ${r.company}'s request? They'll get an email${$("#rNote").value ? " with your note" : ""}.`)) act({ action:"decide", id:r.id, decision:"decline", note:$("#rNote").value }, "Declined"); });
+  $("#rPaid")?.addEventListener("click", () => { if (confirm("Mark it paid? The challenge goes live on its start date and they get their report link.")) act({ action:"publish", id:r.id }, "Paid and live"); });
+  $("#rOpen")?.addEventListener("click", async () => { await loadChallenges(); openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === r.challenge_id)), 300); });
+  $("#rSponsor")?.addEventListener("click", async () => { openTab("sponsors"); setTimeout(async () => { await fetchSponsors(); editSponsor(sponsors.find(s => s.id === r.sponsor_id)); }, 300); });
+  window.scrollTo(0, 0);
+}
+
 // ---------------- Sponsor pricing ----------------
 // Price = set-up + featured fee + (expected participants × active days each × rate) × country premium, never below the minimum.
 const PRICE_DEFAULTS = { baseJoin: 8, featuredBoost: 1.6, lengthDrag: 0.3, halfLife: 10, rate: 1.2, setup: 2500, featuredFee: 3000, countryPremium: 1.2, minimum: 5000, round: 500 };
-let priceAssume = (() => { try { return { ...PRICE_DEFAULTS, ...JSON.parse(localStorage.getItem("priceAssume") || "{}") }; } catch { return { ...PRICE_DEFAULTS }; } })();
+let priceAssume = { ...PRICE_DEFAULTS };
 let audience = null;
 const pq = { from:"", region:null, basis:"all", growth:0, days:14, cap:"", featured:false };
 const HKD_PER_USD = 7.8;
@@ -986,6 +1097,8 @@ function measuredJoinRate() {
 async function loadPricing() {
   const el = $("#tab-pricing");
   const { data, error } = await sb.rpc("admin_audience"); if (error) throw error;
+  const ps = await sb.from("pricing_settings").select("settings").eq("id", 1).maybeSingle();
+  if (ps.data?.settings) priceAssume = { ...PRICE_DEFAULTS, ...ps.data.settings };
   audience = data;
   if (!challenges.length) { const r = await sb.from("challenges").select("*"); challenges = r.data || []; }
   const regionsWithPeople = [...audience.regions].sort((a, b) => b.people - a.people);
@@ -1014,7 +1127,7 @@ async function loadPricing() {
           <div class="help" id="pqAudienceLine"></div>
         </div>
         <div class="card section"><div class="row"><h3>Assumptions</h3><span class="space"></span><button type="button" class="btn ghost small" id="pqReset">Reset</button></div>
-          <p>The levers behind the price. Saved in this browser. Start with these and adjust them as real challenges show what people actually do.</p>
+          <p>The levers behind the price. They're shared with the public sponsor page, so a change here changes what brands are quoted. Saved automatically.</p>
           <div class="three">
             ${[["baseJoin", "Join rate %", "Share of the audience who join a standard challenge", 0.5],
                ["featuredBoost", "Featured boost ×", "How many more join when it's the big card", 0.1],
@@ -1093,7 +1206,13 @@ Every figure we share is a total: Performative never shares names, photos, posts
       await navigator.clipboard.writeText(text); toast("Quote copied");
     };
   };
-  const saveAssume = () => { try { localStorage.setItem("priceAssume", JSON.stringify(priceAssume)); } catch {} };
+  const saveAssume = () => {
+    clearTimeout(saveAssume.t);
+    saveAssume.t = setTimeout(async () => {
+      const { error } = await sb.from("pricing_settings").update({ settings: priceAssume, updated_at: new Date().toISOString() }).eq("id", 1);
+      if (error) fail(error); else toast("Pricing saved. The sponsor page uses it now.");
+    }, 700);
+  };
 
   $("#pqDays").value = pq.days; $("#pqCap").value = pq.cap; $("#pqFeat").checked = pq.featured; $("#pqGrowth").value = pq.growth;
   if (pq.region) $("#pqRegion").value = pq.region;
