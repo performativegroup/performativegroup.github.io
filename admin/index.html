@@ -265,7 +265,7 @@
 // Public by design (they ship in the app). Every change is checked on the server: only admins can do anything here.
 const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
-const REPORT_BASE = "https://performativegroup.github.io/reports/";
+const REPORT_BASE = "https://performativegroup.com/reports/";
 
 const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY);
 const $ = (s, el = document) => el.querySelector(s);
@@ -1021,7 +1021,7 @@ async function loadRequests() {
   const count = s => data.filter(r => r.status === s).length;
   el.innerHTML = `
     <div class="pagehead"><div><h1>Requests</h1><p>Brands who built a challenge on the sponsor page. Review, then approve or decline. Approving makes the sponsor and a draft challenge; it goes live when you mark it paid.</p></div>
-      <a class="btn line" href="https://performativegroup.github.io/sponsor/" target="_blank">Open the sponsor page ↗</a></div>
+      <a class="btn line" href="https://performativegroup.com/sponsor/" target="_blank">Open the sponsor page ↗</a></div>
     <div class="toolbar"><div class="segs" id="reqSegs">${["pending", "approved", "declined", "all"].map(s => `<button data-s="${s}" class="${reqFilter === s ? "on" : ""}">${s === "all" ? "All" : REQ_LABEL[s]} <span class="muted">${s === "all" ? data.length : count(s)}</span></button>`).join("")}</div></div>
     <div class="card" style="padding:6px 8px">${rows.length ? `<table><thead><tr><th>Brand</th><th>Challenge</th><th>Runs</th><th>Where</th><th>Price</th><th>Status</th></tr></thead><tbody>
       ${rows.map(r => `<tr class="click" data-id="${r.id}">
