@@ -128,6 +128,13 @@
   .drop img { width:56px; height:56px; object-fit:contain; border-radius:12px; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
   .drop .ph { width:56px; height:56px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
 
+  .slots { display:grid; gap:10px; }
+  .slot { all:unset; box-sizing:border-box; cursor:pointer; display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:var(--bg); border:1.5px solid transparent; transition:border-color .15s, background .15s; }
+  .slot:hover { background:var(--soft); } .slot.on { border-color:var(--ink); background:#fff; }
+  .slot .dot { width:20px; height:20px; border-radius:50%; border:2px solid #bdbdb8; flex:none; display:grid; place-items:center; } .slot.on .dot { border-color:var(--ink); } .slot.on .dot::after { content:""; width:10px; height:10px; border-radius:50%; background:var(--ink); }
+  .slot .t { flex:1; } .slot .t b { display:block; font-size:15px; } .slot .t span { font-size:13px; color:var(--muted); }
+  .slot .pr { font-weight:700; font-size:15px; white-space:nowrap; } .slot .tag { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:var(--ink); color:#fff; border-radius:99px; padding:3px 8px; margin-left:6px; vertical-align:2px; }
+  .slot.taken { opacity:.45; cursor:not-allowed; } .slot.taken .pr { font-weight:500; font-size:13px; }
   /* Estimate */
   .estimate { position:sticky; top:84px; }
   .est { background:var(--ink); color:#fff; border-radius:26px; padding:24px; }
@@ -250,13 +257,14 @@
         <div class="field hidden" id="countryField"><span class="label">Country</span><select id="country"></select></div>
         <div class="field"><label class="switch"><div class="t"><b>Limit the number of spots</b><span>Useful if there's a prize or a product for each person.</span></div><input type="checkbox" id="capOn"></label>
           <div id="capBox" class="hidden" style="margin-top:10px"><input type="range" id="cap" min="50" max="20000" step="50"><div class="rangeval"><span>50</span><b id="capVal"></b><span>20,000</span></div></div></div>
-        <div class="field" style="margin-bottom:0"><label class="switch"><div class="t"><b>Featured placement</b><span>The big card at the top of Challenges. More people see it and join.</span></div><input type="checkbox" id="featured"></label></div>
+        <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label">Placement</span>
+          <div class="slots" id="slots"></div><div class="err" data-e="featured_on"></div></div>
       </div>
 
       <div class="panel"><h3><span class="n">4</span>Your brand</h3><p class="sub">How your challenge looks in the app.</p>
         <div class="two">
           <div class="field" data-f="company"><span class="label">Company or brand name</span><input type="text" id="company" maxlength="60" autocomplete="organization"><div class="err" data-e="company"></div></div>
-          <div class="field"><span class="label">Website <small>· optional</small></span><input type="url" id="website" placeholder="https://"></div>
+          <div class="field"><span class="label">Website <small>· optional, shown as a link in the app</small></span><input type="url" id="website" placeholder="https://"></div>
         </div>
         <div class="field" data-f="logo"><span class="label">Logo <small>· square PNG or JPEG, under 1.5 MB</small></span>
           <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div><b id="logoName">Choose a file or drop it here</b><div class="small muted">A transparent PNG looks best.</div></div>
@@ -305,7 +313,7 @@
           <li>Start, reminder and results notifications to everyone in it</li>
           <li>Live report link from day one</li>
           <li>Halftime and final reports by email</li>
-          <li id="incFeat" class="hidden">Featured placement at the top</li>
+          <li id="incFeat" class="hidden"></li>
         </ul>
       </div>
       <div class="preview-wrap"><div class="pcard" id="pv" style="min-height:180px"><div class="wm" id="pvWm">YOUR BRAND</div><div><h4 id="pvTitle">Your challenge</h4><div class="meta" id="pvMeta"></div></div><span class="join">Join</span></div>
@@ -372,7 +380,8 @@ const hkToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 1
 const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const nice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", timeZone:"UTC" });
 
-const st = { group:"Exercise", cats:["Running"], metric:"km", target:3, start: addDays(hkToday(), 14), days:14, region:null, cap:null, featured:false, color:"#2340FF", logo:null };
+const st = { group:"Exercise", cats:["Running"], metric:"km", target:3, start: addDays(hkToday(), 14), days:14, region:null, cap:null, slot:null, color:"#2340FF", logo:null };
+let taken = [], slotPrices = {};
 
 // ---------- nav shadow, hero card rotation ----------
 addEventListener("scroll", () => $("#nav").classList.toggle("scrolled", scrollY > 8), { passive:true });
@@ -387,7 +396,7 @@ setInterval(() => { heroI = (heroI + 1) % HERO.length; const [c, w, t, m] = HERO
 // ---------- builder ----------
 function drawGroups() {
   $("#groups").innerHTML = Object.keys(GROUPS).map(g => `<button type="button" class="chip ${st.group === g ? "on" : ""}" data-g="${g}">${g}</button>`).join("");
-  $$("#groups .chip").forEach(b => b.onclick = () => { st.group = b.dataset.g; st.cats = [GROUPS[st.group][0]]; autoMetric(); drawAll(); });
+  $$("#groups .chip").forEach(b => b.onclick = () => { st.group = b.dataset.g; st.cats = [GROUPS[st.group][0]]; if (st.slot && st.slot !== "all") st.slot = st.group; autoMetric(); drawAll(); });
   $("#cats").innerHTML = GROUPS[st.group].map(c => `<button type="button" class="chip ${st.cats.includes(c) ? "on" : ""}" data-c="${c}">${c}</button>`).join("");
   $$("#cats .chip").forEach(b => b.onclick = () => { const c = b.dataset.c; st.cats = st.cats.includes(c) ? st.cats.filter(x => x !== c) : [...st.cats, c]; autoMetric(); drawAll(); });
 }
@@ -416,7 +425,21 @@ function drawWhere() {
   $("#countryField").classList.toggle("hidden", !st.region);
   $("#capBox").classList.toggle("hidden", !st.cap); $("#capOn").checked = !!st.cap;
   if (st.cap) { $("#cap").value = st.cap; $("#capVal").textContent = whole(st.cap) + " spots"; }
-  $("#featured").checked = st.featured; $("#incFeat").classList.toggle("hidden", !st.featured);
+  drawSlots();
+}
+// Placement: standard, featured on this activity's page, or featured on the main page (the premium spot).
+function drawSlots() {
+  const opts = [[null, "Standard", "Listed with the other challenges"],
+    [st.group, `Featured on the ${st.group} page`, `The big card when people tap ${st.group}`],
+    ["all", "Featured on the main page", "The big card at the top of Challenges, seen by everyone"]];
+  if (st.slot && taken.includes(st.slot)) st.slot = null;
+  $("#slots").innerHTML = opts.map(([k, t, d]) => { const isTaken = k && taken.includes(k), on = st.slot === k;
+    return `<button type="button" class="slot ${on ? "on" : ""} ${isTaken ? "taken" : ""}" data-k="${k ?? ""}" ${isTaken ? "disabled" : ""}><span class="dot"></span>
+      <span class="t"><b>${esc(t)}${k === "all" ? '<span class="tag">Premium</span>' : ""}</b><span>${isTaken ? "Already booked for these dates" : esc(d)}</span></span>
+      <span class="pr">${isTaken ? "Booked" : slotPrices[k ?? "none"] ? money(slotPrices[k ?? "none"]) : ""}</span></button>`; }).join("");
+  $$("#slots .slot:not(.taken)").forEach(b => b.onclick = () => { st.slot = b.dataset.k || null; $("[data-e=featured_on]").textContent = ""; drawSlots(); drawPreview(); quote(); });
+  $("#incFeat").classList.toggle("hidden", !st.slot);
+  $("#incFeat").textContent = st.slot === "all" ? "Featured on the main Challenges page" : st.slot ? `Featured on the ${st.slot} page` : "";
 }
 function suggestRule() {
   const act = st.cats[0] || "it";
@@ -428,7 +451,7 @@ function drawPreview() {
   const c = /^#[0-9A-F]{6}$/i.test(st.color) ? st.color : "#2340FF";
   $("#pv").style.background = c;
   const name = $("#company").value.trim() || "Your brand";
-  $("#pvWm").innerHTML = (st.logo ? `<img src="${st.logo.url}" alt="">` : "") + esc(name.toUpperCase()) + (st.featured ? " · FEATURED" : "");
+  $("#pvWm").innerHTML = (st.logo ? `<img src="${st.logo.url}" alt="">` : "") + esc(name.toUpperCase()) + (st.slot ? " · FEATURED" : "");
   $("#pvTitle").textContent = $("#title").value.trim() || "Your challenge";
   if (!ruleTouched) $("#rule").value = suggestRule();
   $("#pvMeta").textContent = `${$("#rule").value || suggestRule()} · ${st.days} days · ${st.region ? countryName(st.region) : "Worldwide"}`;
@@ -445,8 +468,17 @@ function quote() {
   clearTimeout(qTimer); $("#est").classList.add("shimmer");
   qTimer = setTimeout(async () => {
     const seq = ++qSeq;
-    const { data, error } = await sb.rpc("public_quote", { p_region: st.region, p_days: st.days, p_capacity: st.cap, p_featured: st.featured, p_categories: st.cats });
+    const args = { p_region: st.region, p_days: st.days, p_capacity: st.cap, p_categories: st.cats };
+    // The chosen option, plus the price of each placement and which spots are booked for these dates.
+    const [main, ...others] = await Promise.all([
+      sb.rpc("public_quote", { ...args, p_featured: st.slot }),
+      sb.rpc("public_quote", { ...args, p_featured: null }), sb.rpc("public_quote", { ...args, p_featured: st.group }), sb.rpc("public_quote", { ...args, p_featured: "all" }),
+      sb.rpc("featured_slots_taken", { p_start: st.start, p_days: st.days })]);
     if (seq !== qSeq) return;
+    const { data, error } = main;
+    slotPrices = { none: others[0].data?.price, [st.group]: others[1].data?.price, all: others[2].data?.price };
+    taken = others[3].data || [];
+    drawSlots();
     $("#est").classList.remove("shimmer");
     if (error || !data) { $("#reach").textContent = "—"; $("#price").textContent = "—"; $("#priceNote").textContent = "Couldn't load the estimate. Check your connection."; return; }
     const early = data.reach_high < 30;
@@ -465,7 +497,7 @@ function quote() {
 
 // ---------- inputs ----------
 $("#target").oninput = e => { st.target = Number(e.target.value) || 0; drawPreview(); };
-$("#start").onchange = e => { st.start = e.target.value || st.start; drawWhen(); };
+$("#start").onchange = e => { st.start = e.target.value || st.start; drawWhen(); quote(); };
 $("#days").oninput = e => { st.days = Number(e.target.value); drawWhen(); drawPreview(); quote(); };
 $$("#where button").forEach(b => b.onclick = () => { st.region = b.dataset.w === "country" ? ($("#country").value || "HK") : null; drawWhere(); drawPreview(); quote(); });
 $("#country").innerHTML = COUNTRY_CODES.map(c => ({ c, n: countryName(c) })).sort((a, b) => a.n.localeCompare(b.n)).map(x => `<option value="${x.c}">${flag(x.c)} ${esc(x.n)}</option>`).join("");
@@ -473,7 +505,7 @@ $("#country").value = "HK";
 $("#country").onchange = e => { st.region = e.target.value; drawPreview(); quote(); };
 $("#capOn").onchange = e => { st.cap = e.target.checked ? 500 : null; drawWhere(); quote(); };
 $("#cap").oninput = e => { st.cap = Number(e.target.value); $("#capVal").textContent = whole(st.cap) + " spots"; quote(); };
-$("#featured").onchange = e => { st.featured = e.target.checked; drawWhere(); drawPreview(); quote(); };
+
 ["company", "title"].forEach(id => $("#" + id).addEventListener("input", drawPreview));
 $("#rule").addEventListener("input", () => { ruleTouched = true; drawPreview(); });
 const setColor = hex => { hex = hex.toUpperCase(); if (!/^#[0-9A-F]{6}$/.test(hex)) return; st.color = hex; $("#color").value = hex; $("#colorPick").value = hex; drawPreview(); };
@@ -519,7 +551,7 @@ $("#form").onsubmit = async e => {
   e.preventDefault(); $("#formErr").textContent = "";
   const req = { company: $("#company").value, contact_name: $("#cname").value, email: $("#email").value, phone: $("#phone").value, website: $("#website").value,
     about: $("#about").value, color: st.color, tint: tintOf(st.color), title: $("#title").value, rule: $("#rule").value, group_name: st.group, categories: st.cats,
-    metric: st.metric, daily_target: st.target, starts_on: st.start, days: st.days, region: st.region, capacity: st.cap, featured: st.featured,
+    metric: st.metric, daily_target: st.target, starts_on: st.start, days: st.days, region: st.region, capacity: st.cap, featured_on: st.slot,
     cover_note: $("#cover").value, notes: $("#notes").value, agree: $("#agree").checked };
   // Quick checks here; the server checks everything again.
   const errs = {};
