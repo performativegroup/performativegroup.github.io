@@ -57,8 +57,8 @@
   .sw { display:flex; gap:6px; } .sw button { all:unset; cursor:pointer; width:30px; height:30px; border-radius:9px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
   .drop { border:1.5px dashed #cfcfca; border-radius:16px; padding:18px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:border-color .15s, background .15s; }
   .drop:hover, .drop.over { border-color:var(--ink); background:var(--bg); }
-  .drop img { width:56px; height:56px; object-fit:cover; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
-  .drop .ph { width:56px; height:56px; border-radius:50%; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
+  .drop img { width:56px; height:56px; flex:none; aspect-ratio:1; object-fit:cover; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
+  .drop .ph { width:56px; height:56px; flex:none; aspect-ratio:1; border-radius:50%; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
 
   .slots { display:grid; gap:10px; }
   .slot { all:unset; box-sizing:border-box; cursor:pointer; display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:var(--bg); border:1.5px solid transparent; transition:border-color .15s, background .15s; }
@@ -182,7 +182,7 @@
           <div class="field"><span class="label">Website <small>· optional, shown as a link in the app</small></span><input type="url" id="website" placeholder="https://"></div>
         </div>
         <div class="field" data-f="logo"><span class="label">Logo <small>· PNG or JPEG, under 1.5 MB · shown in a circle</small></span>
-          <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div><b id="logoName">Choose a file or drop it here</b><div class="small muted">It's cropped to a circle, so keep it centred with a little space around it.</div></div>
+          <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div style="min-width:0"><b id="logoName" style="overflow-wrap:anywhere">Choose a file or drop it here</b><div class="small muted">It's cropped to a circle, so keep it centred with a little space around it.</div></div>
             <input type="file" id="logo" accept="image/png,image/jpeg" hidden></label><div class="err" data-e="logo"></div></div>
         <div class="field" data-f="color"><span class="label">Brand colour</span>
           <div class="colorrow"><input type="color" id="colorPick" value="#2340FF" aria-label="Pick a colour"><input type="text" id="color" value="#2340FF" maxlength="7"><div class="sw" id="swatches"></div></div>

@@ -299,14 +299,27 @@ function toast(msg, err = false) {
   const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); t.style.display = "block";
   clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", err ? 5000 : 2400);
 }
-function fail(e) { console.error(e); toast(e?.message || String(e), true); }
+function fail(e) {
+  console.error(e);
+  // A dead sign-in (signed out on another device, or expired) shows up as "permission denied" or a JWT error:
+  // send them back to sign in with a clear message instead.
+  const m = String(e?.message || e || "");
+  if (/permission denied|JWT|not authenticated|invalid claim/i.test(m)) { signedOutElsewhere(); return; }
+  toast(m, true);
+}
+async function signedOutElsewhere() {
+  await sb.auth.signOut({ scope: "local" });
+  showLogin("You were signed out (for example, by signing out of the app). Sign in again to carry on.");
+}
+// If the sign-in ends while the page is open, show the sign-in screen straight away.
+sb.auth.onAuthStateChange(event => { if (event === "SIGNED_OUT" && !$("#app").classList.contains("hidden")) showLogin("You were signed out. Sign in again to carry on."); });
 
 // ---------------- Sign in ----------------
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return showLogin();
   const { data: admin, error } = await sb.rpc("am_admin");
-  if (error || !admin) { await sb.auth.signOut(); return showLogin("This account isn't an admin."); }
+  if (error || !admin) { await sb.auth.signOut({ scope: "local" }); return showLogin(error ? "Your sign-in has ended. Sign in again." : "This account isn't an admin."); }
   $("#who").textContent = session.user.email;
   $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
   openTab(location.hash.slice(1).split("/")[0] || "overview");
@@ -319,7 +332,8 @@ $("#loginForm").addEventListener("submit", async e => {
   if (error) { $("#loginErr").textContent = "That email and password don't match."; return; }
   $("#password").value = ""; start();
 });
-$("#signOut").onclick = async () => { await sb.auth.signOut(); showLogin(); };
+// Only this browser: signing out here doesn't sign you out of the app or other devices.
+$("#signOut").onclick = async () => { await sb.auth.signOut({ scope: "local" }); showLogin(); };
 
 // ---------------- Tabs ----------------
 const loaders = { overview: loadOverview, challenges: () => loadChallenges(), sponsors: () => loadSponsors(), requests: () => loadRequests(), reports: () => loadReports(), people: () => loadPeople(), early: () => loadEarly(), pricing: () => loadPricing() };
@@ -996,7 +1010,7 @@ async function editSponsor(orig) {
           ${isNew ? "" : `<button type="button" class="btn ghost" id="newForSponsor">＋ Challenge for ${esc(s.name)}</button>`}
           <button type="submit" class="btn white">${isNew ? "Add sponsor" : "Save"}</button></div>
       </form>
-      <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">Preview</div><div id="sPreview"></div></div>
+      <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">Preview</div><div id="sPreview"></div><p class="muted small" style="text-align:center; margin-top:10px">Shows the brand's colours and logo. The challenge's name is set when you add a challenge for them.</p></div>
     </div>`;
   const form = $("#sForm");
   const preview = () => {
@@ -1006,7 +1020,7 @@ async function editSponsor(orig) {
     $("#sPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
       <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${logoPreview}">` : ""}${esc(wm.toUpperCase())}</div>
-        <div><h4>Run Week</h4><div class="meta">Run 3 km a day · 7 days · 🌍 Worldwide</div></div><span class="join">Join</span></div>
+        <div><h4>Example challenge</h4><div class="meta">Name and rules come from the challenge you add next</div></div><span class="join">Join</span></div>
       <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${logoPreview}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
         <b style="font-size:13px">About ${esc(name)}</b></div><div style="font-size:12px; margin-top:8px; color:#333">${esc(form.about.value || "Their two sentences show here.")}</div></div>
     </div></div></div>`;

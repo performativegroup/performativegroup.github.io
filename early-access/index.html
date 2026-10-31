@@ -14,36 +14,37 @@
 <meta property="og:title" content="Get early access to Performative">
 <meta property="og:description" content="Do something productive. Every day. Be one of the first in on iPhone.">
 <style>
-  .ea { min-height:calc(100vh - 64px); display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding-block:48px 72px; }
-  @media (max-width:900px) { .ea { grid-template-columns:1fr; gap:28px; padding-block:28px 56px; min-height:0; } }
-  .ea h1 { font-size:clamp(44px, 6.5vw, 84px); line-height:.96; margin:16px 0 18px; }
-  .ea .lead { font-size:19px; line-height:1.55; color:var(--muted); max-width:480px; margin:0 0 26px; }
-  .perks { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
-  .perks li { display:flex; gap:12px; align-items:flex-start; line-height:1.45; }
-  .perks li::before { content:""; width:18px; height:18px; border-radius:5px; background:var(--ink); flex:none; margin-top:2px; }
-  .perks li.t::before { box-shadow:0 0 0 1.5px #fff, 0 0 0 3px var(--ink); }
-
-  .card { background:var(--bg); border-radius:22px; padding:28px; }
-  .card h2 { font-size:26px; letter-spacing:-.03em; margin:0 0 4px; }
-  .card .sub { color:var(--muted); margin:0 0 20px; font-size:15px; }
-  .field { display:grid; gap:6px; margin-bottom:14px; min-width:0; }
-  .field label, .lbl { font-size:13px; font-weight:600; }
-  .field small, .lbl small { color:var(--muted); font-weight:400; }
-  input[type=email], input[type=text] { width:100%; border:0; background:#fff; border-radius:14px; padding:14px 16px; font-size:16px; outline:none; }
+  /* The first screen is just the sign-up: a line, email, name, the button. What it is comes underneath. */
+  .ea { max-width:560px; margin:0 auto; }
+  .ea-hero { min-height:calc(100svh - 64px); display:flex; flex-direction:column; justify-content:center; padding-block:24px 40px; }
+  .ea-top { text-align:center; margin-bottom:22px; }
+  .ea h1 { font-size:clamp(44px, 9vw, 76px); line-height:.95; margin:10px 0 0; }
+  .card { background:var(--bg); border-radius:24px; padding:22px; }
+  /* Phones: no centring, the form starts just under the heading at the top of the screen. */
+  @media (max-width:620px) { .card { padding:16px; border-radius:20px; } .ea-hero { min-height:0; justify-content:flex-start; padding-block:10px 20px; } .ea-top { margin-bottom:14px; } .ea h1 { font-size:44px; } }
+  .field { display:grid; gap:6px; margin-bottom:12px; min-width:0; }
+  .field label { font-size:13px; font-weight:600; }
+  .field small { color:var(--muted); font-weight:400; }
+  input[type=email], input[type=text] { width:100%; border:0; background:#fff; border-radius:14px; padding:16px; font-size:17px; outline:none; min-width:0; }
   input:focus { box-shadow:0 0 0 2px var(--ink); }
   .bad input { box-shadow:0 0 0 2px var(--red); }
-  .two { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; } @media (max-width:520px) { .two { grid-template-columns:minmax(0,1fr); } }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 18px; }
-  .chip { border:0; cursor:pointer; padding:10px 15px; border-radius:999px; background:#fff; font-size:14px; font-weight:600; }
-  .chip.on { background:var(--ink); color:#fff; }
-  .err { color:var(--red); font-size:13px; font-weight:600; min-height:1em; }
+  .err { color:var(--red); font-size:13px; font-weight:600; min-height:1em; margin-bottom:6px; }
   button.go { width:100%; padding:17px; font-size:16px; }
   .fine { font-size:12px; color:var(--muted); text-align:center; margin:12px 0 0; line-height:1.5; }
+  .more { text-align:center; margin-top:18px; font-size:14px; color:var(--muted); }
+  .more a { color:inherit; }
   .done { text-align:center; padding:12px 4px; }
   .done .num { font-family:var(--serif); font-size:96px; line-height:1; -webkit-text-stroke:.6px currentColor; }
   .done h2 { font-size:30px; margin:10px 0 8px; }
   .done p { color:var(--muted); margin:0 auto 18px; max-width:340px; }
   .share { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+
+  .about { padding-block:8px 72px; }
+  .about p.lead { font-size:18px; line-height:1.55; color:var(--muted); text-align:center; margin:0 auto 22px; max-width:480px; }
+  .perks { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; }
+  .perks li { background:var(--bg); border-radius:16px; padding:14px; font-size:14px; line-height:1.4; }
+  .perks b { display:block; font-size:15px; margin-bottom:4px; }
+  @media (max-width:620px) { .perks { grid-template-columns:minmax(0,1fr); } }
 </style>
 </head>
 <body>
@@ -55,40 +56,38 @@
   <div class="sheet"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="/">Home</a></div>
 </div></nav>
 <main class="wrap ea">
-  <div>
-    <div class="eyebrow">Early access · iPhone</div>
-    <h1>Be first in. <em>Every day.</em></h1>
-    <p class="lead">Performative is for doing the things you mean to do: start a timer, snap a live photo when you're done, and watch your days fill up with your friends. We're letting people in a few at a time.</p>
-    <ul class="perks">
-      <li>Try it before it's on the App Store.</li>
-      <li>Your username, before anyone else can take it.</li>
-      <li class="t">Help shape it: early users get a direct line to us.</li>
-    </ul>
-  </div>
-
-  <div class="card" id="card">
-    <form id="f" novalidate>
-      <h2>Get early access</h2>
-      <p class="sub">We'll email you when it's your turn. No spam, ever.</p>
-      <div class="field" id="emailField"><label for="email">Email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required></div>
-      <div class="two">
-        <div class="field"><label for="name">First name <small>· optional</small></label><input type="text" id="name" autocomplete="given-name" maxlength="80"></div>
-        <div class="field"><label for="ig">Instagram <small>· optional</small></label><input type="text" id="ig" maxlength="40" placeholder="@"></div>
-      </div>
-      <span class="lbl">What do you want to do more of? <small>· pick any</small></span>
-      <div class="chips" id="chips"></div>
-      <div class="err" id="err" role="alert"></div>
-      <button class="btn go" type="submit" id="go">Get early access</button>
-      <p class="fine">By signing up you agree we can email you about Performative. See our <a href="/privacy/">privacy policy</a>.</p>
-    </form>
-    <div class="done hidden" id="done">
-      <div class="num" id="place">1</div>
-      <h2 id="doneTitle">You're on the list.</h2>
-      <p id="doneText">We've emailed you a confirmation. When it's your turn, you'll get a link to install it.</p>
-      <div class="share"><button class="btn soft" type="button" id="share">Share with a friend</button><a class="btn soft" href="/">Back to the home page</a></div>
-      <p class="fine" id="shareMsg"></p>
+  <section class="ea-hero">
+    <div class="ea-top">
+      <div class="eyebrow">Early access · iPhone</div>
+      <h1>Be first in.</h1>
     </div>
-  </div>
+    <div class="card" id="card">
+      <form id="f" novalidate>
+        <div class="field" id="emailField"><label for="email">Email</label><input type="email" id="email" autocomplete="email" placeholder="you@example.com" required></div>
+        <div class="field"><label for="name">First name <small>· optional</small></label><input type="text" id="name" autocomplete="given-name" maxlength="80" placeholder="Your name"></div>
+        <div class="err" id="err" role="alert"></div>
+        <button class="btn go" type="submit" id="go">Get early access</button>
+        <p class="fine">We'll email you when it's your turn. No spam. <a href="/privacy/">Privacy</a></p>
+      </form>
+      <div class="done hidden" id="done">
+        <div class="num" id="place">1</div>
+        <h2 id="doneTitle">You're on the list.</h2>
+        <p id="doneText">We've emailed you a confirmation. When it's your turn, you'll get a link to install it.</p>
+        <div class="share"><button class="btn soft" type="button" id="share">Share with a friend</button><a class="btn soft" href="/">Back to the home page</a></div>
+        <p class="fine" id="shareMsg"></p>
+      </div>
+    </div>
+    <p class="more"><a href="#about">What is Performative? ↓</a></p>
+  </section>
+
+  <section class="about" id="about">
+    <p class="lead">Performative is for doing the things you mean to do. Start a timer, snap a live photo when you're done, and watch your days fill up alongside your friends. We're letting people in a few at a time.</p>
+    <ul class="perks">
+      <li><b>Try it first</b>Use it before it's on the App Store.</li>
+      <li><b>Claim your name</b>Get your username before anyone else.</li>
+      <li><b>Shape it</b>Early users get a direct line to us.</li>
+    </ul>
+  </section>
 </main>
 <footer class="site"><div class="wrap">
   <div class="cols">
@@ -106,11 +105,6 @@
   const ENDPOINT = "https://rwyopnhqcnwsxcgpwgtr.supabase.co/functions/v1/early-access";
   const KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
   const $ = s => document.querySelector(s);
-  const AREAS = [["Exercise", "🏃"], ["Learning", "📖"], ["Work", "💻"], ["Arts", "🎹"], ["Mind", "🧘"], ["Home", "🍳"]];
-  const picked = new Set();
-  $("#chips").innerHTML = AREAS.map(([a, e]) => `<button type="button" class="chip" data-a="${a}">${e} ${a}</button>`).join("");
-  $("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return;
-    const a = b.dataset.a; picked.has(a) ? picked.delete(a) : picked.add(a); b.classList.toggle("on", picked.has(a)); });
 
   // Where they came from: the link's utm tags (e.g. ?utm_source=ig from your Instagram bio), or the site that sent them.
   const q = new URLSearchParams(location.search), utm = {};
@@ -129,7 +123,7 @@
     const go = $("#go"); go.disabled = true; go.textContent = "Adding you…"; $("#err").textContent = "";
     try {
       const res = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", apikey: KEY, Authorization: "Bearer " + KEY },
-        body: JSON.stringify({ action: "join", email, name: $("#name").value.trim(), instagram: $("#ig").value.trim(), interests: [...picked], country: region, source, utm }) });
+        body: JSON.stringify({ action: "join", email, name: $("#name").value.trim(), country: region, source, utm }) });
       const out = await res.json().catch(() => ({}));
       if (!res.ok || !out.ok) throw new Error(out.error || "Couldn't add you just now. Please try again.");
       $("#f").classList.add("hidden"); $("#done").classList.remove("hidden");
