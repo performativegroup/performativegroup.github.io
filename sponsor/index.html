@@ -82,6 +82,26 @@
   .need b { display:block; font-family:var(--display); font-weight:700; font-size:17px; letter-spacing:-.02em; margin-bottom:6px; } .need p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
   @media (max-width:900px) { .need { grid-template-columns:1fr 1fr; } } @media (max-width:520px) { .need { grid-template-columns:1fr; } }
 
+
+  /* Example report */
+  .reports { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:48px; align-items:start; }
+  @media (max-width:900px) { .reports { grid-template-columns:minmax(0,1fr); gap:28px; } }
+  .reports h2 { font-size:clamp(30px, 3.9vw, 49px); line-height:1.04; margin:12px 0 14px; }
+  .reports .lead { color:var(--muted); font-size:18px; line-height:1.55; margin:0 0 22px; }
+  .rlist { list-style:none; padding:0; margin:0 0 24px; display:grid; gap:14px; }
+  .rlist li { display:grid; grid-template-columns:28px 1fr; gap:12px; line-height:1.45; }
+  .rlist b { display:block; font-family:var(--display); font-weight:700; letter-spacing:-.01em; }
+  .rlist span { color:var(--muted); font-size:15px; }
+  .rlist i { width:28px; height:28px; border-radius:50%; background:var(--ink); color:#fff; display:grid; place-items:center; font-style:normal; font-size:13px; font-weight:700; }
+  .rtabs { display:inline-flex; background:var(--bg); border-radius:999px; padding:4px; gap:2px; margin-bottom:14px; }
+  .rtabs button { border:0; background:none; cursor:pointer; padding:9px 16px; border-radius:999px; font-weight:600; font-size:14px; color:var(--muted); }
+  .rtabs button.on { background:var(--ink); color:#fff; }
+  .rframe { position:relative; background:#EDEDEA; border-radius:22px; padding:18px 18px 0; max-height:720px; overflow:hidden; transition:max-height .5s ease; }
+  .rframe.open { max-height:3400px; padding-bottom:18px; }
+  .rframe img { display:block; width:100%; height:auto; border-radius:14px; box-shadow:0 20px 50px rgba(0,0,0,.12); }
+  .rframe .fade { position:absolute; left:0; right:0; bottom:0; height:180px; background:linear-gradient(rgba(237,237,234,0), #EDEDEA 75%); display:flex; align-items:flex-end; justify-content:center; padding-bottom:22px; }
+  .rframe.open .fade { display:none; }
+  .rnote { font-size:13px; color:var(--muted); margin-top:10px; }
   .final { text-align:center; padding:100px 0; }
   .final h2 { font-size:clamp(34px, 5vw, 60px); margin:14px 0 14px; } .final p { color:#A3A3A3; font-size:18px; max-width:540px; margin:0 auto 28px; }
   .terms { font-size:15px; color:#444; line-height:1.6; } .terms ol { padding-left:20px; } .terms li { margin-bottom:8px; }
@@ -143,7 +163,29 @@
       <h3>Proof, not claims</h3><p>Every day counts only when it's real: timed in the app or read from Apple Health, with a live photo. No typing in numbers.</p></div>
     <div class="rv"><div class="vis"><div class="rep"><div class="k"><div><b>1,240</b><span>joined</span></div><div><b>72%</b><span>took part</span></div><div><b>8,930</b><span>km covered</span></div><div><b>3,410</b><span>live photos</span></div></div>
         <div class="bars"><i style="height:90%"></i><i style="height:84%"></i><i style="height:80%"></i><i style="height:76%"></i><i style="height:78%"></i><i style="height:72%"></i><i style="height:70%"></i></div></div></div>
-      <h3>Numbers you can share</h3><p>A live report link from day one, a halftime report and a final report by email. Totals only, so your participants' privacy is protected.</p></div>
+      <h3>Numbers you can share</h3><p>A live report link from day one, a halftime report and a final report by email. Totals only, so your participants' privacy is protected. <a href="#reports">See an example</a></p></div>
+  </div>
+</div></section>
+
+<section class="block" id="reports" style="padding-top:24px"><div class="wrap reports">
+  <div class="rv">
+    <div class="eyebrow">Your reports</div>
+    <h2>Real numbers, <em>in your colours.</em></h2>
+    <p class="lead">Every sponsored challenge comes with reports you can forward straight to your team. They're branded with your logo and colours, and every number comes from real, timed activity.</p>
+    <ul class="rlist">
+      <li><i>1</i><div><b>A live report link from day one</b><span>Check sign-ups and daily activity whenever you like.</span></div></li>
+      <li><i>2</i><div><b>A halftime report by email</b><span>The morning after the middle day: who's joined, who's on track, and how many are on course for your reward.</span></div></li>
+      <li><i>3</i><div><b>A final report by email</b><span>The morning after it ends: totals, daily completions, where people are, and how many earned your code.</span></div></li>
+    </ul>
+    <p class="muted small" style="margin:0">Totals only. We never share names, photos, posts or messages, and countries with fewer than 5 people are grouped together.</p>
+  </div>
+  <div class="rv">
+    <div class="rtabs" role="tablist"><button type="button" class="on" data-r="final" role="tab" aria-selected="true">Final report</button><button type="button" data-r="halftime" role="tab" aria-selected="false">Halftime report</button></div>
+    <div class="rframe" id="rframe">
+      <img id="rimg" src="/assets/report-final.jpg" width="640" height="1657" alt="An example final report email for Fernhill 3K a Day, in the brand's green, with totals, a daily chart and where participants are." loading="lazy">
+      <div class="fade"><button class="btn" type="button" id="rmore">See the whole report</button></div>
+    </div>
+    <p class="rnote">Example report for a made-up brand, with sample numbers.</p>
   </div>
 </div></section>
 
@@ -213,7 +255,7 @@
   <div class="cols">
     <div><a class="logo" href="/" style="font-size:26px; padding:0">Performative.</a>
       <p style="margin:14px 0 0; max-width:280px">Do something productive, every day, and prove it with a live photo. Made in Hong Kong.</p></div>
-    <div><h5>The app</h5><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#challenges">Challenges</a><a href="/#faq">FAQ</a></div>
+    <div><h5>The app</h5><a href="/early-access/">Early access</a><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#challenges">Challenges</a><a href="/#faq">FAQ</a></div>
     <div><h5>Brands</h5><a href="/sponsor/">Sponsor a challenge</a><a href="/sponsor/quote/">See quotes</a><a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a></div>
     <div><h5>Help</h5><a href="/support/">Support</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/guidelines/">Community Guidelines</a></div>
   </div>
@@ -221,6 +263,18 @@
 </div></footer>
 <script src="/assets/site.js?v=3" defer></script>
 <script>
+// The example report: switch between halftime and final, and open it to full length.
+(() => {
+  const f = document.getElementById("rframe"), img = document.getElementById("rimg");
+  if (!f) return;
+  const H = { final: [1657, "final"], halftime: [1570, "halftime"] };
+  document.querySelectorAll(".rtabs button").forEach(b => b.addEventListener("click", () => {
+    document.querySelectorAll(".rtabs button").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-selected", x === b); });
+    img.src = `/assets/report-${b.dataset.r}.jpg`; img.height = H[b.dataset.r][0];
+    img.alt = `An example ${b.dataset.r} report email for Fernhill 3K a Day, in the brand's colours.`;
+  }));
+  document.getElementById("rmore").addEventListener("click", () => f.classList.add("open"));
+})();
 // Old links to the builder (/sponsor/#build) now go to the quote page.
 if (location.hash === "#build") location.replace("/sponsor/quote/");
 // The hero card cycles through example brands.
