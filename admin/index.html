@@ -95,7 +95,7 @@
   .space { flex:1; }
   .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .swatch { width:14px; height:14px; border-radius:4px; display:inline-block; vertical-align:-2px; }
-  .logo { width:38px; height:38px; border-radius:12px; object-fit:cover; background:var(--card); display:inline-grid; place-items:center; font-weight:700; color:#fff; vertical-align:middle; flex:none; }
+  .logo { width:38px; height:38px; border-radius:50%; object-fit:cover; background:var(--card); display:inline-grid; place-items:center; font-weight:700; color:#fff; vertical-align:middle; flex:none; }
 
   /* Fields: soft grey, no outline, like the app */
   input[type=text], input[type=number], input[type=date], input[type=time], input[type=email], input[type=password], input[type=url], input[type=search], select, textarea {
@@ -154,7 +154,7 @@
   .screen .scroll > div:first-child[style*="font-size:26px"] { font-family:var(--display) !important; font-weight:700; letter-spacing:-.03em; text-align:center; font-size:22px !important; }
   .pcard { border-radius:22px; padding:16px; color:#fff; min-height:176px; display:flex; flex-direction:column; justify-content:space-between; }
   .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:10.5px; display:flex; align-items:center; gap:7px; }
-  .pcard .wm img { width:18px; height:18px; border-radius:5px; background:#fff; object-fit:contain; }
+  .pcard .wm img { width:18px; height:18px; border-radius:50%; background:#fff; object-fit:cover; }
   .pcard h4 { font-family:var(--display); font-weight:700; letter-spacing:-.03em; font-size:25px; line-height:1.02; margin:14px 0 6px; }
   .pcard .meta { font-size:12px; opacity:.88; }
   .pcard .join { align-self:flex-start; margin-top:12px; background:#fff; color:#111; border-radius:99px; padding:7px 14px; font-weight:700; font-size:12px; }
@@ -211,7 +211,7 @@
   .shelf { display:flex; gap:6px; overflow-x:auto; padding:6px 2px 14px; margin-bottom:4px; }
   .brandchip { all:unset; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; width:80px; flex:none; transition:transform .2s, opacity .2s, filter .2s; }
   .brandchip .disc { width:56px; height:56px; border-radius:50%; display:grid; place-items:center; overflow:hidden; }
-  .brandchip .disc img { width:28px; height:28px; object-fit:contain; } .brandchip .disc b { font-family:var(--display); font-size:21px; font-weight:700; }
+  .brandchip .disc img { width:100%; height:100%; object-fit:cover; } .brandchip .disc b { font-family:var(--display); font-size:21px; font-weight:700; }
   .brandchip .nm { font-size:11px; color:var(--muted); max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .brandchip .ct { font-size:10px; color:var(--muted2); margin-top:-4px; }
   .brandchip.on { transform:scale(1.1); } .brandchip.on .nm { color:var(--ink); font-weight:600; }
@@ -461,9 +461,10 @@ function editChallenge(orig) {
   let c = orig ? structuredClone(orig) : { id:"", title:"", rule:"", group_name:"Exercise", categories:["Running"], metric:"time", daily_target:20,
     starts_on: addDays(t, 1), ends_on: addDays(t, 7), sponsor_id:null, region:null, capacity:null, featured_on:null,
     steps:["Do it every day.", "Post a live photo when you're done.", "Ranked by total."], status:"draft", joined_base:0,
-    notify_start:true, reminder_time:"18:00:00", notify_ending:true, notify_results:true, announcement:"", cover_note:"" };
+    notify_start:true, reminder_time:"18:00:00", notify_ending:true, notify_results:true, announcement:"", cover_note:"", reward_min_days:null, reward_details:"" };
+  let rewardCode = "";
   const el = $("#tab-challenges");
-  const sections = [["basics","Basics"],["schedule","When"],["goal","Daily target"],["audience","Who can join"],["look","Sponsor & look"],["how","How it works"],["notify","Notifications"]];
+  const sections = [["basics","Basics"],["schedule","When"],["goal","Daily target"],["audience","Who can join"],["look","Sponsor & look"],["reward","Reward & emails"],["how","How it works"],["notify","Notifications"]];
   el.innerHTML = `
     <div class="pagehead"><div><a href="#" id="back" class="muted small" style="text-decoration:none">← All challenges</a>
       <h1 style="margin-top:6px">${isNew ? "New challenge" : esc(c.title)}</h1>
@@ -517,6 +518,19 @@ function editChallenge(orig) {
           <label class="f"><span>Featured spot <small>· the big card at the top of a page; one challenge per spot at a time</small></span>
             <select name="featured_on" id="featSel"></select><div class="help" id="featHelp"></div><div class="err" data-err="featured"></div></label>
           <label class="f" style="margin-top:12px"><span>Note under the card <small>· optional, e.g. a prize</small></span><input type="text" name="cover_note" maxlength="200" placeholder="e.g. Top 3 win a pair of Northline runners" value="${esc(c.cover_note || "")}"></label>
+        </div>
+
+        <div class="card section" id="sec-reward"><h3>Reward & emails</h3><p>Everyone who does it on at least this many days gets the code by email the morning after it ends. Leave the days empty for no reward.</p>
+          <div class="grid2" style="display:grid; grid-template-columns:minmax(0,160px) minmax(0,1fr); gap:12px">
+            <label class="f"><span>Days needed</span><input type="number" name="reward_min_days" min="1" placeholder="e.g. 10" value="${esc(c.reward_min_days ?? "")}"><div class="err" data-err="reward_days"></div></label>
+            <label class="f"><span>What they get <small>· shown in the app and emails</small></span><input type="text" name="reward_details" maxlength="200" placeholder="e.g. 15% off all Fernhill gear" value="${esc(c.reward_details || "")}"><div class="err" data-err="reward_details"></div></label>
+          </div>
+          <label class="f" style="margin-top:12px"><span>Discount code <small>· private: only sent to people who earn it</small></span><input type="text" name="reward_code" id="rewardCode" maxlength="60" placeholder="e.g. FERNHILL15" style="font-family:ui-monospace,Menlo,monospace; text-transform:uppercase"><div class="err" data-err="reward_code"></div></label>
+          <div class="help" style="margin-top:8px">Rewards and prizes come from the sponsor; the emails say Performative isn't responsible for fulfilling them. Prizes in the note under the card are claimed by replying to the results email (it goes to sponsors@).</div>
+          <div class="row" style="gap:8px; margin-top:14px; flex-wrap:wrap">
+            ${isNew ? `<span class="help">Save it first to preview the emails.</span>` : `<button type="button" class="btn line small" data-preview="joined">Email me the welcome email</button><button type="button" class="btn line small" data-preview="ended">Email me a results email</button>`}
+          </div>
+          <div class="help">People get a welcome email when they join, and their results the morning after it ends (nothing if they did no days). They can turn these off in the app's Settings.</div>
         </div>
 
         <div class="card section" id="sec-how"><h3>How it works</h3><p>Short steps on the challenge page. Drag isn't needed: use the arrows.</p>
@@ -616,6 +630,9 @@ function editChallenge(orig) {
     c.cover_note = (f.get("cover_note") || "").trim(); c.announcement = (f.get("announcement") || "").trim();
     c.notify_start = f.get("notify_start") === "on"; c.notify_ending = f.get("notify_ending") === "on"; c.notify_results = f.get("notify_results") === "on";
     c.reminder_time = f.get("reminder_time") ? f.get("reminder_time") + ":00" : null;
+    c.reward_min_days = f.get("reward_min_days") ? Number(f.get("reward_min_days")) : null;
+    c.reward_details = (f.get("reward_details") || "").trim();
+    rewardCode = (f.get("reward_code") || "").trim().toUpperCase();
   }
   function problems() {
     const p = {};
@@ -626,9 +643,15 @@ function editChallenge(orig) {
     if (!c.categories.length) p.categories = "Pick at least one activity.";
     if (!c.starts_on || !c.ends_on || c.ends_on < c.starts_on) p.dates = "The end has to be on or after the start.";
     if (!(c.daily_target > 0)) p.target = "Set a target above 0.";
+    if (c.reward_min_days) {
+      const len = c.starts_on && c.ends_on ? Math.round((Date.parse(c.ends_on) - Date.parse(c.starts_on)) / 864e5) + 1 : 0;
+      if (len && c.reward_min_days > len) p.reward_days = `It only runs for ${len} days.`;
+      if (!c.reward_details) p.reward_details = "Say what they get.";
+      if (!rewardCode) p.reward_code = "Add the code they'll be sent.";
+    } else if (c.reward_details || rewardCode) p.reward_days = "Set how many days earn it, or clear the reward.";
     return p;
   }
-  const sectionOf = { title:"basics", rule:"basics", id:"basics", categories:"basics", dates:"schedule", target:"goal" };
+  const sectionOf = { title:"basics", rule:"basics", id:"basics", categories:"basics", dates:"schedule", target:"goal", reward_days:"reward", reward_details:"reward", reward_code:"reward" };
   function refresh(redrawSteps = true) {
     read();
     const p = problems();
@@ -693,12 +716,18 @@ function editChallenge(orig) {
   async function save(status) {
     read(); form._tried = true; const p = problems(); refresh();
     if (Object.keys(p).length) { const k = Object.keys(p)[0]; $("#sec-" + sectionOf[k]).scrollIntoView({ behavior:"smooth" }); return toast("Fix the highlighted bits first.", true); }
-    const row = { ...c, status, steps: c.steps.map(s => s.trim()).filter(Boolean), cover_note: c.cover_note || null, announcement: c.announcement || null };
+    const row = { ...c, status, steps: c.steps.map(s => s.trim()).filter(Boolean), cover_note: c.cover_note || null, announcement: c.announcement || null,
+      reward_min_days: c.reward_min_days || null, reward_details: c.reward_min_days ? c.reward_details : null };
     delete row.updated_at; delete row.created_at;
     try {
       delete row.featured;   // the database sets it from featured_on
       const { error } = isNew ? await sb.from("challenges").insert(row) : await sb.from("challenges").update(row).eq("id", row.id);
       if (error) throw error;
+      // The code lives in an admin-only table, apart from the challenge everyone can read.
+      const r = row.reward_min_days && rewardCode
+        ? await sb.from("challenge_rewards").upsert({ challenge_id: row.id, code: rewardCode, updated_at: new Date().toISOString() })
+        : await sb.from("challenge_rewards").delete().eq("challenge_id", row.id);
+      if (r.error) throw r.error;
       toast(status === "live" ? (isNew || orig?.status !== "live" ? "Published. It's in the app now." : "Saved. Phones update within seconds.") : status === "ended" ? "Ended." : "Saved as a draft.");
       await loadChallenges(); editChallenge(challenges.find(x => x.id === row.id));
     } catch (err) { if (String(err.message).includes("featured spot")) { $("[data-err=featured]").textContent = err.message; $("#sec-look").scrollIntoView({ behavior:"smooth" }); }
@@ -715,6 +744,18 @@ function editChallenge(orig) {
 
   drawCats(); drawSteps(); drawMetric(); drawWhere(); drawSchedule(); refresh();
   window.scrollTo(0, 0);
+  if (!isNew) sb.from("challenge_rewards").select("code").eq("challenge_id", c.id).maybeSingle().then(({ data }) => {
+    if (data?.code && !$("#rewardCode").value) { $("#rewardCode").value = data.code; rewardCode = data.code; refresh(); }
+  });
+  $$("[data-preview]").forEach(b => b.onclick = async () => {
+    b.disabled = true; const label = b.textContent; b.textContent = "Sending…";
+    try {
+      const { data, error } = await sb.functions.invoke("challenge-emails", { body: { action: "preview", challenge_id: c.id, kind: b.dataset.preview } });
+      let out = data; if (error) { try { out = await error.context.json(); } catch { out = { error: error.message }; } }
+      if (!out?.ok) throw new Error(out?.error || "Couldn't send");
+      toast(`Sent to ${out.to}. Save first if you've changed anything.`);
+    } catch (err) { fail(err); } finally { b.disabled = false; b.textContent = label; }
+  });
 }
 
 // ---------------- Sponsors ----------------
@@ -729,7 +770,7 @@ async function loadSponsors() {
       <button class="btn" id="newSponsor">＋ New sponsor</button></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
       ${sponsors.map(s => `<div class="card scard" data-id="${s.id}">
-        <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${logoURL(s.logo_path)}" style="width:26px;height:26px;border-radius:7px;background:#fff;object-fit:contain;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
+        <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${logoURL(s.logo_path)}" style="width:26px;height:26px;border-radius:50%;background:#fff;object-fit:cover;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
         <div class="row"><b>${esc(s.name)}</b>${s.is_sample ? '<span class="pill">sample</span>' : ""}<span class="space"></span></div>
         <div class="muted small" style="margin-top:4px">${live(s.id)} live challenge${live(s.id) === 1 ? "" : "s"} · <span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</div>
       </div>`).join("")}
@@ -812,9 +853,9 @@ async function editSponsor(orig) {
             <label class="f"><span>Wordmark <small>· how they write it on the card</small></span><input type="text" name="wordmark" maxlength="30" value="${esc(s.wordmark || "")}" placeholder="e.g. NORTHLINE"></label>
           </div>
           <label class="f"><span>Id <small>· ${isNew ? "made from the name" : "fixed"}</small></span><input type="text" name="slug" value="${esc(s.slug)}" ${isNew ? "" : "readonly"}><div class="err" data-err="slug"></div></label>
-          <div class="flabel">Logo <small>· square PNG, transparent, at least 512 × 512</small></div>
+          <div class="flabel">Logo <small>· PNG, at least 512 × 512, shown in a circle, so keep it centred</small></div>
           <div class="row" style="gap:14px; margin-bottom:14px">
-            <img id="logoImg" class="thumb ${logoPreview ? "" : "hidden"}" style="object-fit:contain; background:#fff; box-shadow:inset 0 0 0 1px var(--hair)" ${logoPreview ? `src="${logoPreview}"` : ""} crossorigin="anonymous">
+            <img id="logoImg" class="thumb ${logoPreview ? "" : "hidden"}" style="border-radius:50%; object-fit:cover; background:#fff; box-shadow:inset 0 0 0 1px var(--hair)" ${logoPreview ? `src="${logoPreview}"` : ""} crossorigin="anonymous">
             <label class="btn line small" style="cursor:pointer">${logoPreview ? "Replace logo" : "Upload logo"}<input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml" hidden></label>
           </div>
           <label class="f"><span>About <small>· shown when people tap "Sponsored"</small></span><textarea name="about" maxlength="400" placeholder="Two sentences about who they are.">${esc(s.about || "")}</textarea></label>
@@ -853,7 +894,7 @@ async function editSponsor(orig) {
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
       <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${logoPreview}">` : ""}${esc(wm.toUpperCase())}</div>
         <div><h4>Run Week</h4><div class="meta">Run 3 km a day · 7 days · 🌍 Worldwide</div></div><span class="join">Join</span></div>
-      <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${logoPreview}" style="width:30px;height:30px;border-radius:8px;object-fit:contain;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
+      <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${logoPreview}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
         <b style="font-size:13px">About ${esc(name)}</b></div><div style="font-size:12px; margin-top:8px; color:#333">${esc(form.about.value || "Their two sentences show here.")}</div></div>
     </div></div></div>`;
   };
@@ -1025,7 +1066,7 @@ async function loadRequests() {
     <div class="toolbar"><div class="segs" id="reqSegs">${["pending", "approved", "declined", "all"].map(s => `<button data-s="${s}" class="${reqFilter === s ? "on" : ""}">${s === "all" ? "All" : REQ_LABEL[s]} <span class="muted">${s === "all" ? data.length : count(s)}</span></button>`).join("")}</div></div>
     <div class="card" style="padding:6px 8px">${rows.length ? `<table><thead><tr><th>Brand</th><th>Challenge</th><th>Runs</th><th>Where</th><th>Price</th><th>Status</th></tr></thead><tbody>
       ${rows.map(r => `<tr class="click" data-id="${r.id}">
-        <td><div class="row" style="gap:10px; flex-wrap:nowrap">${r.logo_path ? `<img src="${logoURL(r.logo_path)}" class="logo" style="object-fit:contain;background:#fff;box-shadow:inset 0 0 0 1px var(--hair)">` : `<span class="logo" style="background:${esc(r.color)}">${esc(r.company[0])}</span>`}
+        <td><div class="row" style="gap:10px; flex-wrap:nowrap">${r.logo_path ? `<img src="${logoURL(r.logo_path)}" class="logo" style="object-fit:cover;background:#fff;box-shadow:inset 0 0 0 1px var(--hair)">` : `<span class="logo" style="background:${esc(r.color)}">${esc(r.company[0])}</span>`}
           <div><b>${esc(r.company)}</b><div class="muted small">${esc(r.contact_name)} · ${when(r.created_at)}</div></div></div></td>
         <td><b>${esc(r.title)}</b>${(r.featured_on || r.featured) ? ` <span class="pill dark">${slotLabel(r.featured_on || "all")}</span>` : ""}<div class="muted small">${esc(r.rule)}</div></td>
         <td>${dayLabel(r.starts_on)}<div class="muted small">${r.days} days</div></td>

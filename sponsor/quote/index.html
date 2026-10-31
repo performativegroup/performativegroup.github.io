@@ -15,7 +15,7 @@
 <style>
   .pcard { border-radius:22px; padding:18px; color:#fff; min-height:200px; display:flex; flex-direction:column; justify-content:space-between; transition:background .6s ease; background:var(--brand); }
   .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:11px; display:flex; gap:8px; align-items:center; }
-  .pcard .wm img { width:20px; height:20px; border-radius:6px; background:#fff; object-fit:contain; }
+  .pcard .wm img { width:20px; height:20px; border-radius:50%; background:#fff; object-fit:cover; }
   .pcard h4 { font-family:"Instrument Serif", serif; font-weight:400; font-size:31px; line-height:1.02; margin:16px 0 8px; }
   .pcard .meta { font-size:12px; opacity:.9; }
   .pcard .bar { height:5px; background:rgba(255,255,255,.28); border-radius:9px; margin-top:12px; overflow:hidden; } .pcard .bar i { display:block; height:100%; background:#fff; border-radius:9px; width:62%; }
@@ -57,8 +57,8 @@
   .sw { display:flex; gap:6px; } .sw button { all:unset; cursor:pointer; width:30px; height:30px; border-radius:9px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
   .drop { border:1.5px dashed #cfcfca; border-radius:16px; padding:18px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:border-color .15s, background .15s; }
   .drop:hover, .drop.over { border-color:var(--ink); background:var(--bg); }
-  .drop img { width:56px; height:56px; object-fit:contain; border-radius:12px; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
-  .drop .ph { width:56px; height:56px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
+  .drop img { width:56px; height:56px; object-fit:cover; border-radius:50%; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
+  .drop .ph { width:56px; height:56px; border-radius:50%; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
 
   .slots { display:grid; gap:10px; }
   .slot { all:unset; box-sizing:border-box; cursor:pointer; display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:var(--bg); border:1.5px solid transparent; transition:border-color .15s, background .15s; }
@@ -105,7 +105,7 @@
   .slot { background:#fff; border:0; border-radius:14px; } .slot:hover { background:#fff; box-shadow:0 0 0 1px var(--hair); } .slot.on { box-shadow:0 0 0 2px var(--ink); }
   .slot .tag { font-size:10px; letter-spacing:.08em; }
   .drop { background:#fff; border:0; border-radius:14px; } .drop:hover, .drop.over { background:#fff; box-shadow:0 0 0 2px var(--ink); }
-  .drop .ph, .drop img { border-radius:12px; } .drop .ph { background:var(--bg); }
+  .drop .ph, .drop img { border-radius:50%; } .drop .ph { background:var(--bg); }
   .colorrow input[type=color]::-webkit-color-swatch { border-radius:14px; box-shadow:none; }
   .est { border-radius:22px; } .est .reach, .est .price { font-family:var(--display); letter-spacing:-.035em; }
   .done h2 { font-size:40px; }
@@ -181,8 +181,8 @@
           <div class="field" data-f="company"><span class="label">Company or brand name</span><input type="text" id="company" maxlength="60" autocomplete="organization"><div class="err" data-e="company"></div></div>
           <div class="field"><span class="label">Website <small>· optional, shown as a link in the app</small></span><input type="url" id="website" placeholder="https://"></div>
         </div>
-        <div class="field" data-f="logo"><span class="label">Logo <small>· square PNG or JPEG, under 1.5 MB</small></span>
-          <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div><b id="logoName">Choose a file or drop it here</b><div class="small muted">A transparent PNG looks best.</div></div>
+        <div class="field" data-f="logo"><span class="label">Logo <small>· PNG or JPEG, under 1.5 MB · shown in a circle</small></span>
+          <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div><b id="logoName">Choose a file or drop it here</b><div class="small muted">It's cropped to a circle, so keep it centred with a little space around it.</div></div>
             <input type="file" id="logo" accept="image/png,image/jpeg" hidden></label><div class="err" data-e="logo"></div></div>
         <div class="field" data-f="color"><span class="label">Brand colour</span>
           <div class="colorrow"><input type="color" id="colorPick" value="#2340FF" aria-label="Pick a colour"><input type="text" id="color" value="#2340FF" maxlength="7"><div class="sw" id="swatches"></div></div>
