@@ -2,180 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sponsor a Challenge · Performative</title>
-<meta name="description" content="Put your brand inside people's daily habits. Build a sponsored challenge on Performative, see your estimated reach and price, and send it for review.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<title>Sponsor a Challenge · Performative</title>
+<meta name="description" content="Put your brand inside people's daily habits. Sponsor a challenge on Performative: people join, do it every day and prove it with a live photo. See prices and build yours online.">
+<meta property="og:title" content="Sponsor a Challenge · Performative">
+<meta property="og:description" content="Put your brand inside people's daily habits.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-  :root { --ink:#0A0A0A; --paper:#FFFFFF; --bg:#F6F6F4; --soft:#EFEFEC; --muted:#6F6F73; --hair:#E4E4E0; --red:#D6281F; --green:#16834A; --brand:#2340FF; --tint:#E9ECFF; }
-  * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  body { margin:0; background:var(--paper); color:var(--ink); font-family:"Inter Tight", system-ui, sans-serif; font-size:16px; -webkit-font-smoothing:antialiased; }
-  h1, h2, h3 { font-family:"Instrument Serif", serif; font-weight:400; margin:0; letter-spacing:-.015em; }
-  em { font-family:"Instrument Serif", serif; font-style:italic; font-weight:400; }
-  a { color:inherit; }
-  button, input, select, textarea { font:inherit; color:inherit; }
-  .wrap { max-width:1160px; margin:0 auto; padding:0 24px; }
-  .eyebrow { font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
-  .muted { color:var(--muted); } .small { font-size:13px; } .hidden { display:none !important; }
-
-  /* Nav */
-  nav.top { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.86); backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid transparent; transition:border-color .2s; }
-  nav.top.scrolled { border-color:var(--hair); }
-  nav.top .wrap { display:flex; align-items:center; height:64px; gap:28px; }
-  .logo { font-family:"Instrument Serif", serif; font-size:26px; text-decoration:none; }
-  nav.top .links { display:flex; gap:22px; margin-left:auto; font-size:14px; }
-  nav.top .links a { text-decoration:none; color:var(--muted); } nav.top .links a:hover { color:var(--ink); }
-  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; cursor:pointer; background:var(--ink); color:#fff; font-weight:600; padding:13px 22px; border-radius:999px; text-decoration:none; font-size:15px; transition:transform .15s, background .15s; white-space:nowrap; }
-  .btn:hover { transform:translateY(-1px); background:#262626; } .btn.light { background:#fff; color:var(--ink); } .btn.line { background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1px var(--hair); }
-  .btn:disabled { opacity:.45; cursor:default; transform:none; }
-  @media (max-width:760px) { nav.top .links { display:none; } nav.top .btn { margin-left:auto; padding:10px 16px; } }
-
-  /* Hero */
-  .hero { padding:72px 0 64px; overflow:hidden; }
+  .hero { padding:64px 0 80px; overflow:hidden; }
   .hero .wrap { display:grid; grid-template-columns:1.15fr .85fr; gap:48px; align-items:center; }
-  .hero h1 { font-size:clamp(46px, 6.4vw, 84px); line-height:.98; margin:16px 0 22px; }
-  .hero p.lead { font-size:19px; line-height:1.55; color:#333; max-width:540px; margin:0 0 30px; }
+  .hero h1 { font-size:clamp(40px, 5.6vw, 72px); line-height:1; margin:16px 0 22px; }
+  .hero .lead { font-size:19px; line-height:1.55; color:var(--muted); max-width:540px; margin:0 0 30px; }
   .hero .ctas { display:flex; gap:12px; flex-wrap:wrap; }
   .hero .facts { display:flex; gap:28px; margin-top:38px; flex-wrap:wrap; }
-  .hero .facts b { display:block; font-size:24px; letter-spacing:-.02em; } .hero .facts span { font-size:13px; color:var(--muted); }
-  @media (max-width:900px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:40px; } }
-
-  /* Phone */
-  .phone { width:310px; margin:0 auto; background:#0A0A0A; border-radius:48px; padding:11px; box-shadow:0 40px 80px rgba(0,0,0,.18), 0 8px 20px rgba(0,0,0,.12); }
-  .screen { background:#fff; border-radius:38px; overflow:hidden; height:610px; display:flex; flex-direction:column; }
-  .screen .status { height:38px; display:flex; justify-content:space-between; align-items:center; padding:0 28px; font-size:13px; font-weight:600; }
+  .hero .facts b { display:block; font-family:var(--display); font-weight:var(--title-weight); font-size:22px; letter-spacing:-.03em; } .hero .facts span { font-size:13px; color:var(--muted); }
+  @media (max-width:900px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:32px; } }
+  .phone { margin:0 auto; }
   .screen .body { padding:4px 16px 16px; flex:1; overflow:hidden; }
-  .screen .ttl { font-family:"Instrument Serif", serif; font-size:28px; text-align:center; margin:2px 0 12px; }
-  .shelfs { display:flex; gap:10px; margin-bottom:12px; }
-  .shelfs i { width:42px; height:42px; border-radius:50%; background:var(--soft); display:block; flex:none; }
-  .pcard { border-radius:22px; padding:18px; color:#fff; min-height:200px; display:flex; flex-direction:column; justify-content:space-between; transition:background .6s ease; background:var(--brand); }
-  .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:11px; display:flex; gap:8px; align-items:center; }
-  .pcard .wm img { width:20px; height:20px; border-radius:6px; background:#fff; object-fit:contain; }
-  .pcard h4 { font-family:"Instrument Serif", serif; font-weight:400; font-size:31px; line-height:1.02; margin:16px 0 8px; }
+  .screen .ttl { font-family:var(--display); font-weight:var(--title-weight); letter-spacing:-.035em; font-size:24px; text-align:center; margin:2px 0 12px; }
+  .shelfs { display:flex; gap:10px; margin-bottom:12px; } .shelfs i { width:42px; height:42px; border-radius:50%; background:var(--soft); display:block; flex:none; }
+  .pcard { border-radius:20px; padding:18px; color:#fff; min-height:200px; display:flex; flex-direction:column; justify-content:space-between; transition:background .6s ease; background:var(--brand); }
+  .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:11px; }
+  .pcard h4 { font-size:27px; line-height:1.02; margin:16px 0 8px; }
   .pcard .meta { font-size:12px; opacity:.9; }
   .pcard .bar { height:5px; background:rgba(255,255,255,.28); border-radius:9px; margin-top:12px; overflow:hidden; } .pcard .bar i { display:block; height:100%; background:#fff; border-radius:9px; width:62%; }
   .pcard .join { align-self:flex-start; margin-top:14px; background:#fff; color:#111; border-radius:99px; padding:8px 16px; font-weight:700; font-size:12px; }
   .row-lite { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--soft); }
   .row-lite i { width:44px; height:44px; border-radius:12px; background:var(--soft); flex:none; }
   .row-lite b { display:block; font-size:13px; } .row-lite span { font-size:11px; color:var(--muted); }
+  @media (max-width:520px) { .phone { transform:scale(.92); transform-origin:top center; margin-bottom:-48px; } }
 
-  /* Sections */
-  section.block { padding:96px 0; }
-  section.block.alt { background:var(--bg); }
-  .shead { max-width:720px; margin-bottom:46px; }
-  .shead h2 { font-size:clamp(38px, 4.6vw, 58px); line-height:1.02; margin:12px 0 14px; }
-  .shead p { font-size:18px; line-height:1.55; color:#444; margin:0; }
   .steps4 { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; counter-reset:s; }
-  .steps4 div { background:#fff; border-radius:22px; padding:24px; border:1px solid var(--hair); }
+  .steps4 div { background:#fff; border-radius:14px; padding:24px; }
   .steps4 div::before { counter-increment:s; content:counter(s); display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:var(--ink); color:#fff; font-weight:700; font-size:14px; margin-bottom:18px; }
-  .steps4 b { display:block; font-size:18px; margin-bottom:6px; } .steps4 p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
+  .steps4 b { display:block; font-family:var(--display); font-weight:700; letter-spacing:-.02em; font-size:18px; margin-bottom:6px; } .steps4 p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
+  @media (max-width:900px) { .steps4 { grid-template-columns:1fr 1fr; } } @media (max-width:520px) { .steps4 { grid-template-columns:1fr; } }
+
   .show3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
-  .show3 > div { background:var(--bg); border-radius:26px; padding:26px; display:flex; flex-direction:column; gap:18px; min-height:380px; }
-  .show3 h3 { font-size:30px; line-height:1.05; } .show3 p { margin:0; color:#444; font-size:15px; line-height:1.55; }
+  .show3 > div { background:var(--bg); border-radius:14px; padding:26px; display:flex; flex-direction:column; gap:18px; min-height:380px; }
+  .show3 h3 { font-size:24px; line-height:1.05; } .show3 p { margin:0; color:var(--muted); font-size:15px; line-height:1.55; }
   .show3 .vis { flex:1; display:grid; place-items:center; }
-  .mini-card { width:100%; border-radius:18px; padding:16px; color:#fff; background:var(--brand); }
-  .mini-card .wm { font-size:10px; letter-spacing:.16em; font-weight:700; } .mini-card h5 { font-family:"Instrument Serif", serif; font-size:24px; font-weight:400; margin:12px 0 4px; } .mini-card span { font-size:11px; opacity:.9; }
-  .proof { width:100%; aspect-ratio:4/3; border-radius:18px; background:linear-gradient(135deg, #2b2b2b, #575757); position:relative; overflow:hidden; color:#fff; }
+  .mini-card { width:100%; border-radius:14px; padding:16px; color:#fff; background:var(--brand); }
+  .mini-card .wm { font-size:10px; letter-spacing:.16em; font-weight:700; } .mini-card h5 { font-family:var(--display); font-weight:var(--title-weight); letter-spacing:-.035em; font-size:21px; margin:12px 0 4px; } .mini-card span { font-size:11px; opacity:.9; }
+  .proof { width:100%; aspect-ratio:4/3; border-radius:14px; background:linear-gradient(135deg, #2b2b2b, #575757); position:relative; overflow:hidden; color:#fff; }
   .proof .tag { position:absolute; left:12px; top:12px; background:rgba(0,0,0,.55); padding:6px 10px; border-radius:99px; font-size:11px; font-weight:600; }
-  .proof .t { position:absolute; right:12px; bottom:12px; font-size:30px; font-weight:700; letter-spacing:-.02em; }
+  .proof .t { position:absolute; right:12px; bottom:12px; font-family:var(--display); font-size:30px; font-weight:800; letter-spacing:-.03em; }
   .proof .h { position:absolute; left:12px; bottom:14px; font-size:11px; opacity:.85; }
-  .rep { width:100%; background:#fff; border-radius:18px; padding:14px; }
+  .rep { width:100%; background:#fff; border-radius:14px; padding:14px; }
   .rep .k { display:grid; grid-template-columns:1fr 1fr; gap:8px; } .rep .k div { background:var(--bg); border-radius:10px; padding:10px; } .rep .k b { display:block; font-size:18px; } .rep .k span { font-size:10px; color:var(--muted); }
   .rep .bars { display:flex; align-items:flex-end; gap:5px; height:60px; margin-top:12px; } .rep .bars i { flex:1; background:var(--brand); border-radius:3px 3px 0 0; }
-  @media (max-width:900px) { .steps4 { grid-template-columns:1fr 1fr; } .show3 { grid-template-columns:1fr; } section.block { padding:64px 0; } }
-  @media (max-width:520px) { .steps4 { grid-template-columns:1fr; } }
+  @media (max-width:900px) { .show3 { grid-template-columns:1fr; } .show3 > div { min-height:0; } .show3 .vis { min-height:200px; } }
 
-  /* Builder */
-  .builder { display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:28px; align-items:start; }
-  @media (max-width:980px) { .builder { grid-template-columns:1fr; } }
-  .panel { background:#fff; border-radius:24px; border:1px solid var(--hair); padding:26px; margin-bottom:16px; }
-  .panel h3 { font-size:28px; margin-bottom:4px; display:flex; align-items:center; gap:12px; }
-  .panel h3 .n { font-family:"Inter Tight"; font-size:13px; font-weight:700; width:28px; height:28px; border-radius:50%; background:var(--ink); color:#fff; display:inline-grid; place-items:center; }
-  .panel > p.sub { color:var(--muted); margin:0 0 20px; font-size:14px; }
-  .label { display:block; font-size:13px; font-weight:600; margin:0 0 8px; } .label small { color:var(--muted); font-weight:400; }
-  .field { margin-bottom:18px; }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { all:unset; cursor:pointer; padding:9px 15px; border-radius:99px; background:var(--soft); font-size:14px; font-weight:500; transition:background .15s, color .15s; }
-  .chip:hover { background:#e4e4df; } .chip.on { background:var(--ink); color:#fff; }
-  .segs { display:inline-flex; background:var(--soft); border-radius:14px; padding:4px; gap:2px; flex-wrap:wrap; }
-  .segs button { all:unset; cursor:pointer; padding:9px 15px; border-radius:11px; font-size:14px; font-weight:600; color:#555; }
-  .segs button.on { background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.1); }
-  input[type=text], input[type=email], input[type=url], input[type=tel], input[type=number], input[type=date], select, textarea {
-    width:100%; border:1px solid var(--hair); background:#fff; border-radius:12px; padding:12px 14px; outline:none; transition:border-color .15s, box-shadow .15s; }
-  input:focus, select:focus, textarea:focus { border-color:var(--ink); box-shadow:0 0 0 3px rgba(10,10,10,.07); }
-  textarea { min-height:90px; resize:vertical; }
-  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } @media (max-width:600px) { .two { grid-template-columns:1fr; } }
-  input[type=range] { width:100%; accent-color:var(--ink); }
-  .rangeval { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:4px; }
-  .switch { display:flex; align-items:center; gap:14px; cursor:pointer; padding:6px 0; }
-  .switch .t { flex:1; } .switch .t b { display:block; font-size:15px; } .switch .t span { color:var(--muted); font-size:13px; }
-  .switch input { appearance:none; width:46px; height:28px; background:#d6d6d1; border-radius:99px; position:relative; cursor:pointer; transition:background .2s; flex:none; margin:0; }
-  .switch input::after { content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
-  .switch input:checked { background:var(--ink); } .switch input:checked::after { left:21px; }
-  .err { color:var(--red); font-size:13px; font-weight:600; margin-top:6px; }
-  .bad input, .bad select, .bad textarea { border-color:var(--red); }
-  .colorrow { display:flex; gap:10px; align-items:center; }
-  .colorrow input[type=color] { appearance:none; -webkit-appearance:none; width:50px; height:46px; border:0; padding:0; background:none; cursor:pointer; flex:none; }
-  .colorrow input[type=color]::-webkit-color-swatch-wrapper { padding:0; } .colorrow input[type=color]::-webkit-color-swatch { border:none; border-radius:12px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
-  .colorrow input[type=color]::-moz-color-swatch { border:none; border-radius:12px; }
-  .colorrow input[type=text] { font-family:ui-monospace, Menlo, monospace; text-transform:uppercase; max-width:140px; }
-  .sw { display:flex; gap:6px; } .sw button { all:unset; cursor:pointer; width:30px; height:30px; border-radius:9px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
-  .drop { border:1.5px dashed #cfcfca; border-radius:16px; padding:18px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:border-color .15s, background .15s; }
-  .drop:hover, .drop.over { border-color:var(--ink); background:var(--bg); }
-  .drop img { width:56px; height:56px; object-fit:contain; border-radius:12px; background:#fff; box-shadow:inset 0 0 0 1px var(--hair); }
-  .drop .ph { width:56px; height:56px; border-radius:12px; background:var(--soft); display:grid; place-items:center; font-size:22px; color:var(--muted); }
+  /* Placements */
+  .place3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; align-items:stretch; }
+  .place { background:#fff; border-radius:22px; padding:26px; display:flex; flex-direction:column; }
+  .place.dark { background:var(--ink); color:#fff; }
+  .place .tag { align-self:flex-start; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:#fff; border-radius:99px; padding:4px 10px; margin-bottom:16px; }
+  .place.dark .tag { background:#fff; color:var(--ink); }
+  .place h3 { font-size:26px; } .place .d { color:var(--muted); margin:8px 0 18px; line-height:1.5; } .place.dark .d { color:#A3A3A3; }
+  .place .from { font-size:13px; color:var(--muted); } .place.dark .from { color:#A3A3A3; }
+  .place .pr { font-family:var(--display); font-weight:800; font-size:34px; letter-spacing:-.04em; line-height:1.1; margin-bottom:18px; }
+  .place ul { list-style:none; padding:0; margin:0 0 4px; font-size:14px; } .place li { padding:7px 0 7px 24px; position:relative; } .place li::before { content:"✓"; position:absolute; left:0; font-weight:700; }
+  .place .slotviz { height:120px; border-radius:14px; background:var(--bg); margin-bottom:20px; padding:12px; display:flex; flex-direction:column; gap:6px; }
+  .place.dark .slotviz { background:#1c1c1c; }
+  .slotviz i { display:block; border-radius:8px; background:var(--soft2); flex:none; height:16px; } .place.dark .slotviz i { background:#2c2c2c; }
+  .slotviz i.big { height:52px; background:var(--brand) !important; } .slotviz i.mid { height:26px; background:var(--brand) !important; }
+  @media (max-width:900px) { .place3 { grid-template-columns:1fr; } }
+  .example { margin-top:16px; font-size:13px; color:var(--muted); text-align:center; }
 
-  .slots { display:grid; gap:10px; }
-  .slot { all:unset; box-sizing:border-box; cursor:pointer; display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:var(--bg); border:1.5px solid transparent; transition:border-color .15s, background .15s; }
-  .slot:hover { background:var(--soft); } .slot.on { border-color:var(--ink); background:#fff; }
-  .slot .dot { width:20px; height:20px; border-radius:50%; border:2px solid #bdbdb8; flex:none; display:grid; place-items:center; } .slot.on .dot { border-color:var(--ink); } .slot.on .dot::after { content:""; width:10px; height:10px; border-radius:50%; background:var(--ink); }
-  .slot .t { flex:1; } .slot .t b { display:block; font-size:15px; } .slot .t span { font-size:13px; color:var(--muted); }
-  .slot .pr { font-weight:700; font-size:15px; white-space:nowrap; } .slot .tag { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:var(--ink); color:#fff; border-radius:99px; padding:3px 8px; margin-left:6px; vertical-align:2px; }
-  .slot.taken { opacity:.45; cursor:not-allowed; } .slot.taken .pr { font-weight:500; font-size:13px; }
-  /* Estimate */
-  .estimate { position:sticky; top:84px; }
-  .est { background:var(--ink); color:#fff; border-radius:26px; padding:24px; }
-  .est .lbl { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#9a9a9a; font-weight:600; }
-  .est .reach { font-size:40px; font-weight:700; letter-spacing:-.03em; margin:8px 0 2px; line-height:1.05; }
-  .est .price { font-size:30px; font-weight:700; letter-spacing:-.02em; margin-top:6px; }
-  .est .note { color:#a6a6a6; font-size:13px; line-height:1.5; }
-  .est hr { border:0; border-top:1px solid #262626; margin:18px 0; }
-  .est ul { margin:0; padding:0; list-style:none; font-size:14px; } .est li { padding:6px 0 6px 24px; position:relative; color:#ddd; } .est li::before { content:"✓"; position:absolute; left:0; color:#fff; font-weight:700; }
-  .meter { height:8px; background:#262626; border-radius:9px; overflow:hidden; margin-top:12px; position:relative; }
-  .meter i { position:absolute; top:0; bottom:0; background:#fff; border-radius:9px; transition:left .4s, width .4s; }
-  .preview-wrap { margin-top:16px; }
-  .shimmer { animation:pulse 1.2s ease-in-out infinite; } @keyframes pulse { 50% { opacity:.55; } }
+  /* You'll need */
+  .need { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+  .need div { background:var(--bg); border-radius:14px; padding:20px; }
+  .need b { display:block; font-family:var(--display); font-weight:700; font-size:17px; letter-spacing:-.02em; margin-bottom:6px; } .need p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
+  @media (max-width:900px) { .need { grid-template-columns:1fr 1fr; } } @media (max-width:520px) { .need { grid-template-columns:1fr; } }
 
-  .mbar { display:none; }
-  @media (max-width:980px) {
-    .estimate { position:static; }
-    .mbar { position:fixed; left:12px; right:12px; bottom:12px; z-index:9; background:var(--ink); color:#fff; border-radius:18px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 12px 30px rgba(0,0,0,.25); transform:translateY(140%); transition:transform .25s; }
-    .mbar.show { transform:none; } .mbar b { font-size:17px; } .mbar span { font-size:12px; color:#a6a6a6; display:block; }
-    .mbar button { all:unset; margin-left:auto; background:#fff; color:var(--ink); font-weight:700; font-size:13px; padding:9px 14px; border-radius:99px; cursor:pointer; }
-  }
-  /* Done */
-  .done { text-align:center; padding:60px 24px; }
-  .done .tick { width:72px; height:72px; border-radius:50%; background:var(--ink); color:#fff; display:inline-grid; place-items:center; font-size:34px; margin-bottom:20px; }
-  .done h2 { font-size:46px; margin-bottom:10px; } .done p { color:#444; max-width:520px; margin:0 auto 10px; line-height:1.55; }
-
-  /* FAQ */
-  details { border-bottom:1px solid var(--hair); padding:20px 0; } details summary { cursor:pointer; font-size:19px; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:12px; }
-  details summary::after { content:"+"; font-weight:400; font-size:24px; line-height:1; } details[open] summary::after { content:"–"; }
-  details p { color:#444; line-height:1.6; margin:12px 0 0; max-width:760px; }
-  footer { padding:40px 0 60px; border-top:1px solid var(--hair); font-size:14px; color:var(--muted); }
-  footer .wrap { display:flex; gap:20px; flex-wrap:wrap; align-items:center; }
-  .terms { font-size:14px; color:#444; line-height:1.6; } .terms ol { padding-left:20px; } .terms li { margin-bottom:8px; }
+  .final { text-align:center; padding:100px 0; }
+  .final h2 { font-size:clamp(34px, 5vw, 60px); margin:14px 0 14px; } .final p { color:#A3A3A3; font-size:18px; max-width:540px; margin:0 auto 28px; }
+  .terms { font-size:15px; color:#444; line-height:1.6; } .terms ol { padding-left:20px; } .terms li { margin-bottom:8px; }
 </style>
 </head>
 <body>
-
 <nav class="top" id="nav"><div class="wrap">
-  <a class="logo" href="#">Performative.</a>
-  <div class="links"><a href="#how">How it works</a><a href="#showcase">What you get</a><a href="#build">Pricing</a><a href="#faq">FAQ</a></div>
-  <a class="btn" href="#build">Build your challenge</a>
+  <a class="logo" href="/">Performative.</a>
+  <div class="links"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/" class=on>For brands</a><a href="/support/">Support</a></div>
+  <a class="btn cta" href="/sponsor/quote/">See quotes</a>
+  <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span></button>
+  <div class="sheet"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="/sponsor/quote/">See quotes</a></div>
 </div></nav>
 
 <header class="hero"><div class="wrap">
@@ -183,7 +101,7 @@
     <div class="eyebrow">For brands</div>
     <h1>Put your brand inside people's <em>daily habits.</em></h1>
     <p class="lead">Sponsor a challenge on Performative. People join, do it every day, and prove it with a live photo or their Apple Health workout. You get your colours in front of them every day, and real numbers at the end.</p>
-    <div class="ctas"><a class="btn" href="#build">Build your challenge →</a><a class="btn line" href="#showcase">See what you get</a></div>
+    <div class="ctas"><a class="btn big" href="/sponsor/quote/">See quotes →</a><a class="btn soft big" href="#how">How it works</a></div>
     <div class="facts">
       <div><b>Real activity</b><span>Timed in the app or from Apple Health</span></div>
       <div><b>Every day</b><span>Your brand, each time they check in</span></div>
@@ -191,7 +109,7 @@
     </div>
   </div>
   <div>
-    <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="body">
+    <div class="phone"><div class="screen"><div class="island"></div><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="body">
       <div class="ttl">Challenges</div>
       <div class="shelfs"><i></i><i></i><i></i><i></i><i></i></div>
       <div class="pcard" id="heroCard"><div class="wm" id="heroWm">NORTHLINE · FEATURED</div>
@@ -205,144 +123,75 @@
 </div></header>
 
 <section class="block alt" id="how"><div class="wrap">
-  <div class="shead"><div class="eyebrow">How it works</div><h2>From idea to live in a few days.</h2>
-    <p>Build it below and see your estimated reach and price as you go. Nothing is charged until we've reviewed it with you.</p></div>
+  <div class="shead rv"><div class="eyebrow">How it works</div><h2>From idea to live in a few days.</h2>
+    <p>Build your challenge online and see your estimated reach and price as you go. Nothing is charged until we've reviewed it with you.</p></div>
   <div class="steps4">
-    <div><b>Build it here</b><p>Pick the activity, length, audience and number of spots. Add your logo and colours.</p></div>
-    <div><b>We review it</b><p>A person checks every request within two working days, and may suggest tweaks.</p></div>
-    <div><b>Pay the invoice</b><p>Once approved, you get an invoice. Pay it and your challenge is scheduled.</p></div>
-    <div><b>Go live, get reports</b><p>It opens on your start date. You get a live report link, a halftime report and a final report.</p></div>
+    <div class="rv"><b>Build it online</b><p>Pick the activity, length, audience and number of spots. Add your logo and colours.</p></div>
+    <div class="rv"><b>We review it</b><p>A person checks every request within two working days, and may suggest tweaks.</p></div>
+    <div class="rv"><b>Pay the invoice</b><p>Once approved, you get an invoice. Pay it and your challenge is scheduled.</p></div>
+    <div class="rv"><b>Go live, get reports</b><p>It opens on your start date. You get a live report link, a halftime report and a final report.</p></div>
   </div>
 </div></section>
 
 <section class="block" id="showcase"><div class="wrap">
-  <div class="shead"><div class="eyebrow">What you get</div><h2>Not a banner. <em>A habit with your name on it.</em></h2>
+  <div class="shead rv"><div class="eyebrow">What you get</div><h2>Not a banner. <em>A habit with your name on it.</em></h2>
     <p>People choose to join, and they come back every day to keep their streak. Here's what that looks like for you.</p></div>
   <div class="show3">
-    <div><div class="vis"><div class="mini-card"><div class="wm">YOUR BRAND</div><h5>Your challenge</h5><span>Your rule · your dates · your colours</span></div></div>
-      <h3>Your card, your colours</h3><p>A branded card on the Challenges page, with your logo and colours. Go featured to take the big card at the top.</p></div>
-    <div><div class="vis"><div class="proof"><span class="tag">● Live photo</span><span class="h">Apple Health · 5.2 km</span><span class="t">28:14</span></div></div>
+    <div class="rv"><div class="vis"><div class="mini-card"><div class="wm">YOUR BRAND</div><h5>Your challenge</h5><span>Your rule · your dates · your colours</span></div></div>
+      <h3>Your card, your colours</h3><p>A branded card on the Challenges page with your logo and colours, a link to your website, and a label on every post made for it.</p></div>
+    <div class="rv"><div class="vis"><div class="proof"><span class="tag">● Live photo</span><span class="h">Apple Health · 5.2 km</span><span class="t">28:14</span></div></div>
       <h3>Proof, not claims</h3><p>Every day counts only when it's real: timed in the app or read from Apple Health, with a live photo. No typing in numbers.</p></div>
-    <div><div class="vis"><div class="rep"><div class="k"><div><b>1,240</b><span>joined</span></div><div><b>72%</b><span>took part</span></div><div><b>8,930</b><span>km covered</span></div><div><b>3,410</b><span>live photos</span></div></div>
+    <div class="rv"><div class="vis"><div class="rep"><div class="k"><div><b>1,240</b><span>joined</span></div><div><b>72%</b><span>took part</span></div><div><b>8,930</b><span>km covered</span></div><div><b>3,410</b><span>live photos</span></div></div>
         <div class="bars"><i style="height:90%"></i><i style="height:84%"></i><i style="height:80%"></i><i style="height:76%"></i><i style="height:78%"></i><i style="height:72%"></i><i style="height:70%"></i></div></div></div>
       <h3>Numbers you can share</h3><p>A live report link from day one, a halftime report and a final report by email. Totals only, so your participants' privacy is protected.</p></div>
   </div>
 </div></section>
 
-<section class="block alt" id="build"><div class="wrap">
-  <div class="shead"><div class="eyebrow">Build and price</div><h2>Build your challenge.</h2>
-    <p>Change anything and the estimate updates. Reach is based on how many people are on Performative where you choose, and how popular your activity is with them right now.</p></div>
-
-  <div id="builderArea" class="builder">
-    <form id="form" novalidate>
-      <div class="panel"><h3><span class="n">1</span>The activity</h3><p class="sub">What people do each day to count.</p>
-        <div class="field"><span class="label">Area</span><div class="chips" id="groups"></div></div>
-        <div class="field" data-f="categories"><span class="label">Activities that count <small>· pick one or more</small></span><div class="chips" id="cats"></div><div class="err" data-e="categories"></div></div>
-        <div class="field"><span class="label">Measured by</span><div class="segs" id="metric"></div><div class="small muted" id="metricHelp" style="margin-top:8px"></div></div>
-        <div class="field" data-f="daily_target"><span class="label" id="targetLabel">Daily target</span>
-          <div style="display:flex; gap:10px; align-items:center"><input type="number" id="target" min="1" style="max-width:160px"><span class="muted" id="targetUnit"></span></div><div class="err" data-e="daily_target"></div></div>
-      </div>
-
-      <div class="panel"><h3><span class="n">2</span>When and how long</h3><p class="sub">Days run midnight to midnight, Hong Kong time.</p>
-        <div class="two">
-          <div class="field" data-f="starts_on"><span class="label">Start date</span><input type="date" id="start"><div class="err" data-e="starts_on"></div></div>
-          <div class="field"><span class="label">Ends</span><input type="text" id="endText" readonly tabindex="-1" style="background:var(--bg)"></div>
-        </div>
-        <div class="field"><span class="label">Length</span><div class="segs" id="lens"></div>
-          <input type="range" id="days" min="3" max="60" step="1" style="margin-top:14px"><div class="rangeval"><span>3 days</span><b id="daysVal"></b><span>60 days</span></div></div>
-      </div>
-
-      <div class="panel"><h3><span class="n">3</span>Who and how many</h3><p class="sub">Open it to everyone, or to people in one country.</p>
-        <div class="field"><div class="segs" id="where"><button type="button" data-w="world">🌍 Worldwide</button><button type="button" data-w="country">One country</button></div></div>
-        <div class="field hidden" id="countryField"><span class="label">Country</span><select id="country"></select></div>
-        <div class="field"><label class="switch"><div class="t"><b>Limit the number of spots</b><span>Useful if there's a prize or a product for each person.</span></div><input type="checkbox" id="capOn"></label>
-          <div id="capBox" class="hidden" style="margin-top:10px"><input type="range" id="cap" min="50" max="20000" step="50"><div class="rangeval"><span>50</span><b id="capVal"></b><span>20,000</span></div></div></div>
-        <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label">Placement</span>
-          <div class="slots" id="slots"></div><div class="err" data-e="featured_on"></div></div>
-      </div>
-
-      <div class="panel"><h3><span class="n">4</span>Your brand</h3><p class="sub">How your challenge looks in the app.</p>
-        <div class="two">
-          <div class="field" data-f="company"><span class="label">Company or brand name</span><input type="text" id="company" maxlength="60" autocomplete="organization"><div class="err" data-e="company"></div></div>
-          <div class="field"><span class="label">Website <small>· optional, shown as a link in the app</small></span><input type="url" id="website" placeholder="https://"></div>
-        </div>
-        <div class="field" data-f="logo"><span class="label">Logo <small>· square PNG or JPEG, under 1.5 MB</small></span>
-          <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div><b id="logoName">Choose a file or drop it here</b><div class="small muted">A transparent PNG looks best.</div></div>
-            <input type="file" id="logo" accept="image/png,image/jpeg" hidden></label><div class="err" data-e="logo"></div></div>
-        <div class="field" data-f="color"><span class="label">Brand colour</span>
-          <div class="colorrow"><input type="color" id="colorPick" value="#2340FF" aria-label="Pick a colour"><input type="text" id="color" value="#2340FF" maxlength="7"><div class="sw" id="swatches"></div></div>
-          <div class="small" id="contrast" style="margin-top:8px"></div><div class="err" data-e="color"></div></div>
-        <div class="field" style="margin-bottom:0"><span class="label">About your brand <small>· shown when people tap "Sponsored", optional</small></span><textarea id="about" maxlength="400" placeholder="Two sentences about who you are."></textarea></div>
-      </div>
-
-      <div class="panel"><h3><span class="n">5</span>The challenge card</h3><p class="sub">The words people see. We may suggest edits when we review it.</p>
-        <div class="two">
-          <div class="field" data-f="title"><span class="label">Challenge name</span><input type="text" id="title" maxlength="40" placeholder="e.g. Run Week"><div class="err" data-e="title"></div></div>
-          <div class="field" data-f="rule"><span class="label">The rule <small>· one line</small></span><input type="text" id="rule" maxlength="60"><div class="err" data-e="rule"></div></div>
-        </div>
-        <div class="field" style="margin-bottom:0"><span class="label">Prize or note <small>· optional</small></span><input type="text" id="cover" maxlength="200" placeholder="e.g. Everyone who finishes gets 20% off. Top 3 win a pair of runners."></div>
-      </div>
-
-      <div class="panel"><h3><span class="n">6</span>Your details</h3><p class="sub">So we can reply and send your invoice.</p>
-        <div class="two">
-          <div class="field" data-f="contact_name"><span class="label">Your name</span><input type="text" id="cname" autocomplete="name"><div class="err" data-e="contact_name"></div></div>
-          <div class="field" data-f="email"><span class="label">Work email</span><input type="email" id="email" autocomplete="email"><div class="err" data-e="email"></div></div>
-        </div>
-        <div class="field"><span class="label">Phone <small>· optional</small></span><input type="tel" id="phone" autocomplete="tel"></div>
-        <div class="field"><span class="label">Anything else? <small>· optional</small></span><textarea id="notes" maxlength="1000" placeholder="Goals, timing, a product launch it ties into…"></textarea></div>
-        <div class="field" data-f="agree" style="margin-bottom:0"><label class="switch"><div class="t"><b>I agree to the <a href="#terms">sponsor terms</a></b><span>Nothing is charged now. You pay only after we approve it.</span></div><input type="checkbox" id="agree"></label><div class="err" data-e="agree"></div></div>
-      </div>
-      <div class="err" id="formErr" style="margin:0 0 12px"></div>
-      <button type="submit" class="btn" id="submit" style="width:100%; padding:17px">Send for review</button>
-      <p class="small muted" style="text-align:center">We reply within two working days.</p>
-    </form>
-
-    <aside class="estimate">
-      <div class="est" id="est">
-        <div class="lbl">Estimated participants</div>
-        <div class="reach" id="reach">…</div>
-        <div class="note" id="reachNote"></div>
-        <div class="meter" id="meter"><i></i></div>
-        <hr>
-        <div class="lbl">Your price</div>
-        <div class="price" id="price">…</div>
-        <div class="note" id="priceNote"></div>
-        <hr>
-        <ul>
-          <li>Your branded card for <span id="incDays">14</span> days</li>
-          <li>Start, reminder and results notifications to everyone in it</li>
-          <li>Live report link from day one</li>
-          <li>Halftime and final reports by email</li>
-          <li id="incFeat" class="hidden"></li>
-        </ul>
-      </div>
-      <div class="preview-wrap"><div class="pcard" id="pv" style="min-height:180px"><div class="wm" id="pvWm">YOUR BRAND</div><div><h4 id="pvTitle">Your challenge</h4><div class="meta" id="pvMeta"></div></div><span class="join">Join</span></div>
-        <p class="small muted" style="text-align:center; margin-top:10px">How your card looks in the app</p></div>
-    </aside>
+<section class="block alt" id="placements"><div class="wrap">
+  <div class="shead rv"><div class="eyebrow">Placements and pricing</div><h2>Choose how much you stand out.</h2>
+    <p>Every challenge gets a branded card. Featured spots put you in the big card at the top of a page, and there's only one of each for any dates, so they're first come, first served.</p></div>
+  <div class="place3">
+    <div class="place rv"><span class="tag" style="background:var(--soft2); color:var(--ink)">Standard</span>
+      <div class="slotviz"><i></i><i class="mid"></i><i></i><i></i></div>
+      <h3>Listed</h3><p class="d">Your branded card in the list on the Challenges page and its area page.</p>
+      <span class="from">14 days worldwide, from</span><div class="pr" data-p="none">…</div>
+      <ul><li>Your card, logo and colours</li><li>Start, reminder and results notifications</li><li>Live, halftime and final reports</li></ul></div>
+    <div class="place rv"><span class="tag">Area featured</span>
+      <div class="slotviz"><i class="big"></i><i></i><i></i></div>
+      <h3>Featured on an area page</h3><p class="d">The big card on one area, such as Exercise or Learning, seen by everyone who taps it.</p>
+      <span class="from">14 days worldwide, from</span><div class="pr" data-p="Exercise">…</div>
+      <ul><li>Everything in Standard</li><li>The top spot on that area's page</li><li>One brand per area at a time</li></ul></div>
+    <div class="place dark rv"><span class="tag">Main page · Premium</span>
+      <div class="slotviz"><i class="big"></i><i></i><i></i></div>
+      <h3>Featured on the main page</h3><p class="d">The big card at the top of Challenges, the first thing everyone sees.</p>
+      <span class="from">14 days worldwide, from</span><div class="pr" data-p="all">…</div>
+      <ul><li>Everything in Standard</li><li>The top spot for everyone</li><li>One brand at a time, across the app</li></ul></div>
   </div>
+  <p class="example">Live prices for a 14-day running challenge open worldwide. Your price depends on the length, the country and how many spots you offer. Prices in Hong Kong dollars.</p>
+  <div style="text-align:center; margin-top:26px"><a class="btn big" href="/sponsor/quote/">Get your exact quote →</a></div>
+</div></section>
 
-  <div id="doneArea" class="done hidden">
-    <div class="tick">✓</div>
-    <h2>Thanks, it's with us.</h2>
-    <p>We've emailed a copy to <b id="doneEmail"></b>. Your reference is <b id="doneRef"></b>.</p>
-    <p>We'll review it within two working days. If it's approved, you'll get an invoice, and your challenge goes live on its start date once it's paid.</p>
-    <p style="margin-top:22px"><a class="btn line" href="#build" id="another">Build another</a></p>
+<section class="block"><div class="wrap">
+  <div class="shead rv"><div class="eyebrow">Before you start</div><h2>What you'll need.</h2><p>It takes about five minutes. You can see prices without filling anything in.</p></div>
+  <div class="need">
+    <div class="rv"><b>An idea</b><p>What people do each day, like running 3 km, reading 20 minutes or 8,000 steps.</p></div>
+    <div class="rv"><b>Your dates</b><p>How long it runs, from 3 to 60 days, starting at least 5 days from now.</p></div>
+    <div class="rv"><b>Your brand</b><p>A square logo (PNG or JPEG) and your brand colour. We'll check it reads well.</p></div>
+    <div class="rv"><b>A prize, if you like</b><p>Optional, but it helps sign-ups: a discount for finishers, or a prize for the top three.</p></div>
   </div>
 </div></section>
 
-<div class="mbar" id="mbar"><div><b id="mPrice">…</b><span id="mReach"></span></div><button type="button" id="mSee">See estimate</button></div>
-
-<section class="block" id="faq"><div class="wrap">
-  <div class="shead"><div class="eyebrow">Questions</div><h2>Good to know.</h2></div>
-  <details><summary>How is the estimate worked out?</summary><p>We start from how many people are on Performative where your challenge is open, and how many typically join a challenge. We adjust for how long it runs (longer challenges get fewer sign-ups but more days of activity), featured placement, and how popular your chosen activities are with those people right now. It's an estimate, so we show a range.</p></details>
-  <details><summary>What do I pay for?</summary><p>The price covers setting up your challenge and the expected activity: roughly how many people take part, and for how many days. There's a minimum price, and spots you limit are never charged beyond the limit.</p></details>
+<section class="block alt" id="faq"><div class="wrap" style="max-width:860px">
+  <div class="shead rv"><div class="eyebrow">Questions</div><h2>Good to know.</h2></div>
+  <details><summary>Is this page just for brands?</summary><p>Yes. Sponsoring is for companies and organisations that want to run a branded challenge. If you just want to use Performative, <a href="/">head to the main site</a>.</p></details>
+  <details><summary>How is the price worked out?</summary><p>We start from how many people are on Performative where your challenge is open, and how many typically join a challenge. We adjust for how long it runs (longer challenges get fewer sign-ups but more days of activity), featured placement, and how popular your chosen activities are with those people right now. There's a minimum price, and spots you limit are never charged beyond the limit.</p></details>
   <details><summary>What data do I get about participants?</summary><p>Totals only: how many joined, took part, stayed on track, the total activity, live photos posted and which countries people are in. We never share names, photos, posts, messages or contact details. Countries with fewer than 5 people are grouped together.</p></details>
   <details><summary>Can I change it after sending?</summary><p>Yes. Reply to our email before you pay and we'll update it. After it's live, the wording and dates are fixed so it's fair to everyone taking part.</p></details>
-  <details><summary>Can I give a prize?</summary><p>Yes, and it helps sign-ups. Tell us in the prize or note field. Prizes are handled with you during the review, so winners can choose to share their details with you.</p></details>
+  <details><summary>Can I give a prize?</summary><p>Yes, and it helps sign-ups. Tell us when you build it. Prizes are handled with you during the review, so winners can choose to share their details with you.</p></details>
   <details><summary>What won't you run?</summary><p>Challenges for alcohol, tobacco or vaping, gambling, weight-loss products or medical claims, anything unsafe (for example extreme fasting or distances without preparation), and anything misleading. We may decline any request.</p></details>
 </div></section>
 
-<section class="block alt" id="terms"><div class="wrap terms">
+<section class="block" id="terms"><div class="wrap terms" style="max-width:860px">
   <div class="shead" style="margin-bottom:20px"><div class="eyebrow">Sponsor terms</div><h2>The short version.</h2></div>
   <ol>
     <li>Sending a request doesn't commit you to anything, and nothing is charged until we approve it and you pay our invoice.</li>
@@ -353,239 +202,47 @@
   </ol>
 </div></section>
 
-<footer><div class="wrap"><span class="logo" style="font-size:22px; color:var(--ink)">Performative.</span><span>Questions? <a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a></span><span style="margin-left:auto">© Performative Group</span></div></footer>
+<section class="block ink final"><div class="wrap">
+  <div class="eyebrow">Ready when you are</div>
+  <h2>See what yours would cost.</h2>
+  <p>Build it, watch the estimate update as you go, and send it for review. Questions first? Email <a href="mailto:sponsors@performativegroup.com" style="color:#fff">sponsors@performativegroup.com</a>.</p>
+  <a class="btn light big" href="/sponsor/quote/">See quotes →</a>
+</div></section>
 
+<footer class="site"><div class="wrap">
+  <div class="cols">
+    <div><a class="logo" href="/" style="font-size:26px; padding:0">Performative.</a>
+      <p style="margin:14px 0 0; max-width:280px">Do something productive, every day, and prove it with a live photo. Made in Hong Kong.</p></div>
+    <div><h5>The app</h5><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#challenges">Challenges</a><a href="/#faq">FAQ</a></div>
+    <div><h5>Brands</h5><a href="/sponsor/">Sponsor a challenge</a><a href="/sponsor/quote/">See quotes</a><a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a></div>
+    <div><h5>Help</h5><a href="/support/">Support</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/guidelines/">Community Guidelines</a></div>
+  </div>
+  <div class="base"><span>© <span id="year">2026</span> Performative Group</span><a href="mailto:support@performativegroup.com" style="display:inline">support@performativegroup.com</a></div>
+</div></footer>
+<script src="/assets/site.js?v=3" defer></script>
 <script>
-// Public by design: the publishable key only reaches the price estimate and the request form, which the server checks.
-const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
-const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
-const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY, { auth: { persistSession: false } });
-const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-const whole = x => Math.round(Number(x) || 0).toLocaleString("en-GB");
-const money = x => "HK$" + whole(x);
-
-const GROUPS = { Exercise:["Running","Walking","Workout","Gym","Cycling","Swimming","Yoga","Sport"], Learning:["Reading","Studying","Language","Coding"],
-  Mind:["Meditation","Journaling","Yoga"], Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Home:["Cooking","Cleaning"] };
-const METRICS = { time:{ label:"Time", unit:"minutes a day", def:20, help:"Timed in the app with a live photo at the end." },
-  km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout. Can't be typed in." },
-  steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count." } };
-const DISTANCE = new Set(["Running","Walking","Cycling","Swimming"]);
-const COUNTRY_CODES = "AE AR AT AU BE BR CA CH CL CN CO CZ DE DK EG ES FI FR GB GR HK HU ID IE IL IN IT JP KR KW MO MX MY NG NL NO NZ PH PK PL PT QA RO SA SE SG TH TR TW UA US VN ZA".split(" ");
-const regionNames = new Intl.DisplayNames(["en"], { type:"region" });
-const countryName = c => c === "HK" ? "Hong Kong" : c === "MO" ? "Macau" : (regionNames.of(c) || c);
-const flag = c => String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0)));
-
-const hkToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
-const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-const nice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", timeZone:"UTC" });
-
-const st = { group:"Exercise", cats:["Running"], metric:"km", target:3, start: addDays(hkToday(), 14), days:14, region:null, cap:null, slot:null, color:"#2340FF", logo:null };
-let taken = [], slotPrices = {};
-
-// ---------- nav shadow, hero card rotation ----------
-addEventListener("scroll", () => $("#nav").classList.toggle("scrolled", scrollY > 8), { passive:true });
-const HERO = [["#2340FF", "NORTHLINE · FEATURED", "Run Week", "Run 3 km a day · 7 days · Hong Kong"],
-  ["#0F7B5F", "LEAFNOTE", "Read 30", "Read 20 min a day · 30 days · Worldwide"],
-  ["#C2410C", "HALCYON", "Morning Calm", "Meditate 10 min a day · 10 days · Singapore"],
-  ["#111111", "BRIGHTWATER", "Step Up", "8,000 steps a day · 14 days · Worldwide"]];
-let heroI = 0;
-setInterval(() => { heroI = (heroI + 1) % HERO.length; const [c, w, t, m] = HERO[heroI];
-  $("#heroCard").style.background = c; $("#heroWm").textContent = w; $("#heroTitle").textContent = t; $("#heroMeta").textContent = m; }, 3200);
-
-// ---------- builder ----------
-function drawGroups() {
-  $("#groups").innerHTML = Object.keys(GROUPS).map(g => `<button type="button" class="chip ${st.group === g ? "on" : ""}" data-g="${g}">${g}</button>`).join("");
-  $$("#groups .chip").forEach(b => b.onclick = () => { st.group = b.dataset.g; st.cats = [GROUPS[st.group][0]]; if (st.slot && st.slot !== "all") st.slot = st.group; autoMetric(); drawAll(); });
-  $("#cats").innerHTML = GROUPS[st.group].map(c => `<button type="button" class="chip ${st.cats.includes(c) ? "on" : ""}" data-c="${c}">${c}</button>`).join("");
-  $$("#cats .chip").forEach(b => b.onclick = () => { const c = b.dataset.c; st.cats = st.cats.includes(c) ? st.cats.filter(x => x !== c) : [...st.cats, c]; autoMetric(); drawAll(); });
-}
-function availableMetrics() {
-  if (st.cats.length && st.cats.every(c => c === "Walking")) return ["steps", "km", "time"];
-  if (st.cats.length && st.cats.every(c => DISTANCE.has(c))) return ["km", "time"];
-  return ["time"];
-}
-function autoMetric() { const m = availableMetrics(); if (!m.includes(st.metric)) { st.metric = m[0]; st.target = METRICS[st.metric].def; } }
-function drawMetric() {
-  const m = availableMetrics();
-  $("#metric").innerHTML = m.map(k => `<button type="button" data-m="${k}" class="${st.metric === k ? "on" : ""}">${METRICS[k].label}</button>`).join("");
-  $$("#metric button").forEach(b => b.onclick = () => { st.metric = b.dataset.m; st.target = METRICS[st.metric].def; drawAll(); });
-  $("#metricHelp").textContent = METRICS[st.metric].help;
-  $("#targetUnit").textContent = METRICS[st.metric].unit; $("#target").value = st.target;
-}
-function drawWhen() {
-  $("#start").min = addDays(hkToday(), 5); $("#start").value = st.start;
-  $("#lens").innerHTML = [7, 14, 21, 30].map(n => `<button type="button" data-l="${n}" class="${st.days === n ? "on" : ""}">${n} days</button>`).join("");
-  $$("#lens button").forEach(b => b.onclick = () => { st.days = Number(b.dataset.l); drawAll(); });
-  $("#days").value = st.days; $("#daysVal").textContent = st.days + " days";
-  $("#endText").value = nice(addDays(st.start, st.days - 1));
-}
-function drawWhere() {
-  $$("#where button").forEach(b => b.classList.toggle("on", (b.dataset.w === "country") === !!st.region));
-  $("#countryField").classList.toggle("hidden", !st.region);
-  $("#capBox").classList.toggle("hidden", !st.cap); $("#capOn").checked = !!st.cap;
-  if (st.cap) { $("#cap").value = st.cap; $("#capVal").textContent = whole(st.cap) + " spots"; }
-  drawSlots();
-}
-// Placement: standard, featured on this activity's page, or featured on the main page (the premium spot).
-function drawSlots() {
-  const opts = [[null, "Standard", "Listed with the other challenges"],
-    [st.group, `Featured on the ${st.group} page`, `The big card when people tap ${st.group}`],
-    ["all", "Featured on the main page", "The big card at the top of Challenges, seen by everyone"]];
-  if (st.slot && taken.includes(st.slot)) st.slot = null;
-  $("#slots").innerHTML = opts.map(([k, t, d]) => { const isTaken = k && taken.includes(k), on = st.slot === k;
-    return `<button type="button" class="slot ${on ? "on" : ""} ${isTaken ? "taken" : ""}" data-k="${k ?? ""}" ${isTaken ? "disabled" : ""}><span class="dot"></span>
-      <span class="t"><b>${esc(t)}${k === "all" ? '<span class="tag">Premium</span>' : ""}</b><span>${isTaken ? "Already booked for these dates" : esc(d)}</span></span>
-      <span class="pr">${isTaken ? "Booked" : slotPrices[k ?? "none"] ? money(slotPrices[k ?? "none"]) : ""}</span></button>`; }).join("");
-  $$("#slots .slot:not(.taken)").forEach(b => b.onclick = () => { st.slot = b.dataset.k || null; $("[data-e=featured_on]").textContent = ""; drawSlots(); drawPreview(); quote(); });
-  $("#incFeat").classList.toggle("hidden", !st.slot);
-  $("#incFeat").textContent = st.slot === "all" ? "Featured on the main Challenges page" : st.slot ? `Featured on the ${st.slot} page` : "";
-}
-function suggestRule() {
-  const act = st.cats[0] || "it";
-  const verb = { Running:"Run", Walking:"Walk", Cycling:"Ride", Swimming:"Swim", Reading:"Read", Meditation:"Meditate", Yoga:"Do yoga", Studying:"Study", Journaling:"Journal", Cooking:"Cook", Workout:"Work out", Gym:"Train", Writing:"Write", Language:"Practise a language", Coding:"Code", "Music practice":"Practise music", Art:"Make art", Cleaning:"Tidy up", Work:"Focus", Sport:"Play sport" }[act] || "Do it";
-  return st.metric === "km" ? `${verb} ${st.target} km a day` : st.metric === "steps" ? `${whole(st.target)} steps a day` : `${verb} ${st.target} min a day`;
-}
-let ruleTouched = false;
-function drawPreview() {
-  const c = /^#[0-9A-F]{6}$/i.test(st.color) ? st.color : "#2340FF";
-  $("#pv").style.background = c;
-  const name = $("#company").value.trim() || "Your brand";
-  $("#pvWm").innerHTML = (st.logo ? `<img src="${st.logo.url}" alt="">` : "") + esc(name.toUpperCase()) + (st.slot ? " · FEATURED" : "");
-  $("#pvTitle").textContent = $("#title").value.trim() || "Your challenge";
-  if (!ruleTouched) $("#rule").value = suggestRule();
-  $("#pvMeta").textContent = `${$("#rule").value || suggestRule()} · ${st.days} days · ${st.region ? countryName(st.region) : "Worldwide"}`;
-  $("#incDays").textContent = st.days;
-  const lum = (() => { const n = parseInt(c.slice(1), 16), v = [n >> 16 & 255, n >> 8 & 255, n & 255].map(x => { x /= 255; return x <= .03928 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4; }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; })();
-  const ratio = 1.05 / (lum + .05);
-  $("#contrast").innerHTML = ratio >= 3 ? `<span style="color:var(--green)">✓ White text reads well on this colour</span>` : `<span style="color:#A86B00">⚠ White text is hard to read on this colour. A darker shade works better.</span>`;
-}
-function drawAll() { drawGroups(); drawMetric(); drawWhen(); drawWhere(); drawPreview(); quote(); }
-
-// ---------- live estimate ----------
-let qTimer, qSeq = 0;
-function quote() {
-  clearTimeout(qTimer); $("#est").classList.add("shimmer");
-  qTimer = setTimeout(async () => {
-    const seq = ++qSeq;
-    const args = { p_region: st.region, p_days: st.days, p_capacity: st.cap, p_categories: st.cats };
-    // The chosen option, plus the price of each placement and which spots are booked for these dates.
-    const [main, ...others] = await Promise.all([
-      sb.rpc("public_quote", { ...args, p_featured: st.slot }),
-      sb.rpc("public_quote", { ...args, p_featured: null }), sb.rpc("public_quote", { ...args, p_featured: st.group }), sb.rpc("public_quote", { ...args, p_featured: "all" }),
-      sb.rpc("featured_slots_taken", { p_start: st.start, p_days: st.days })]);
-    if (seq !== qSeq) return;
-    const { data, error } = main;
-    slotPrices = { none: others[0].data?.price, [st.group]: others[1].data?.price, all: others[2].data?.price };
-    taken = others[3].data || [];
-    drawSlots();
-    $("#est").classList.remove("shimmer");
-    if (error || !data) { $("#reach").textContent = "—"; $("#price").textContent = "—"; $("#priceNote").textContent = "Couldn't load the estimate. Check your connection."; return; }
-    const early = data.reach_high < 30;
-    $("#reach").textContent = early ? "Early access" : `${whole(data.reach_low)}–${whole(data.reach_high)}`;
-    $("#reachNote").innerHTML = early
-      ? "Performative is just launching, so there aren't enough people here yet to estimate. Early sponsors pay the minimum price."
-      : `Most likely about <b style="color:#fff">${whole(data.reach)}</b> people, active on about ${data.active_days} of the ${data.days} days.${data.affinity > 1.05 ? " Your activity is popular here right now." : data.affinity < .95 ? " Your activity is less common here, which lowers the estimate." : ""}${st.cap && data.reach_high >= st.cap ? " Your spot limit caps it." : ""}`;
-    const max = Math.max(st.cap || 0, data.reach_high * 1.25, 1);
-    const i = $("#meter i"); i.style.left = (data.reach_low / max * 100) + "%"; i.style.width = Math.max(2, (data.reach_high - data.reach_low) / max * 100) + "%";
-    $("#meter").classList.toggle("hidden", early);
-    $("#price").textContent = money(data.price);
-    $("#mPrice").textContent = money(data.price); $("#mReach").textContent = early ? "Early access pricing" : `${whole(data.reach_low)}–${whole(data.reach_high)} people`;
-    $("#priceNote").innerHTML = `≈ US$${whole(data.price / 7.8)} · paid by invoice after approval${!early && data.reach ? ` · about ${money(data.price / Math.max(data.reach, 1))} per participant` : ""}`;
-  }, 220);
-}
-
-// ---------- inputs ----------
-$("#target").oninput = e => { st.target = Number(e.target.value) || 0; drawPreview(); };
-$("#start").onchange = e => { st.start = e.target.value || st.start; drawWhen(); quote(); };
-$("#days").oninput = e => { st.days = Number(e.target.value); drawWhen(); drawPreview(); quote(); };
-$$("#where button").forEach(b => b.onclick = () => { st.region = b.dataset.w === "country" ? ($("#country").value || "HK") : null; drawWhere(); drawPreview(); quote(); });
-$("#country").innerHTML = COUNTRY_CODES.map(c => ({ c, n: countryName(c) })).sort((a, b) => a.n.localeCompare(b.n)).map(x => `<option value="${x.c}">${flag(x.c)} ${esc(x.n)}</option>`).join("");
-$("#country").value = "HK";
-$("#country").onchange = e => { st.region = e.target.value; drawPreview(); quote(); };
-$("#capOn").onchange = e => { st.cap = e.target.checked ? 500 : null; drawWhere(); quote(); };
-$("#cap").oninput = e => { st.cap = Number(e.target.value); $("#capVal").textContent = whole(st.cap) + " spots"; quote(); };
-
-["company", "title"].forEach(id => $("#" + id).addEventListener("input", drawPreview));
-$("#rule").addEventListener("input", () => { ruleTouched = true; drawPreview(); });
-const setColor = hex => { hex = hex.toUpperCase(); if (!/^#[0-9A-F]{6}$/.test(hex)) return; st.color = hex; $("#color").value = hex; $("#colorPick").value = hex; drawPreview(); };
-$("#colorPick").oninput = e => setColor(e.target.value);
-$("#color").oninput = e => { const v = e.target.value.startsWith("#") ? e.target.value : "#" + e.target.value; if (/^#[0-9A-Fa-f]{6}$/.test(v)) setColor(v); };
-
-// Logo: preview, keep as base64, and offer its main colours as swatches.
-function logoColours(img) {
-  const c = document.createElement("canvas"), n = 48; c.width = n; c.height = n; const x = c.getContext("2d"); x.drawImage(img, 0, 0, n, n);
-  const d = x.getImageData(0, 0, n, n).data, buckets = {};
-  for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 128) continue; const [r, g, b] = [d[i], d[i + 1], d[i + 2]], l = (r + g + b) / 3; if (l > 235 || l < 20) continue;
-    const k = [r, g, b].map(v => Math.round(v / 32)).join(","); const q = (buckets[k] ||= { n:0, r:0, g:0, b:0 }); q.n++; q.r += r; q.g += g; q.b += b; }
-  return Object.values(buckets).sort((a, b) => b.n - a.n).slice(0, 5).map(q => "#" + [q.r, q.g, q.b].map(v => Math.round(v / q.n).toString(16).padStart(2, "0")).join("").toUpperCase());
-}
-function takeLogo(file) {
-  $("[data-e=logo]").textContent = "";
-  if (!file) return;
-  if (!["image/png", "image/jpeg"].includes(file.type)) { $("[data-e=logo]").textContent = "Use a PNG or JPEG."; return; }
-  if (file.size > 1_500_000) { $("[data-e=logo]").textContent = "That file is over 1.5 MB. Try a smaller version."; return; }
-  const reader = new FileReader();
-  reader.onload = () => {
-    const url = reader.result; st.logo = { url, type: file.type, data: String(url).split(",")[1] };
-    const img = $("#logoImg"); img.src = url; img.classList.remove("hidden"); $("#logoPh").classList.add("hidden"); $("#logoName").textContent = file.name;
-    img.onload = () => { const cols = logoColours(img); $("#swatches").innerHTML = cols.map(c => `<button type="button" style="background:${c}" title="Use ${c}" data-hex="${c}"></button>`).join("");
-      $$("#swatches button").forEach(b => b.onclick = () => setColor(b.dataset.hex)); if (cols[0]) setColor(cols[0]); };
-    drawPreview();
-  };
-  reader.readAsDataURL(file);
-}
-$("#logo").onchange = e => takeLogo(e.target.files[0]);
-const drop = $("#drop");
-["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
-["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", e => takeLogo(e.dataTransfer.files[0]));
-
-// ---------- send ----------
-const tintOf = hex => { const n = parseInt(hex.slice(1), 16); return "#" + [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => Math.round(v * .12 + 255 * .88).toString(16).padStart(2, "0")).join("").toUpperCase(); };
-function showErrors(errors) {
-  $$("[data-e]").forEach(e => e.textContent = errors[e.dataset.e] || ""); $$("[data-f]").forEach(f => f.classList.toggle("bad", !!errors[f.dataset.f]));
-  const first = Object.keys(errors)[0]; if (first) $(`[data-f=${first}]`)?.scrollIntoView({ behavior:"smooth", block:"center" });
-}
-$("#form").onsubmit = async e => {
-  e.preventDefault(); $("#formErr").textContent = "";
-  const req = { company: $("#company").value, contact_name: $("#cname").value, email: $("#email").value, phone: $("#phone").value, website: $("#website").value,
-    about: $("#about").value, color: st.color, tint: tintOf(st.color), title: $("#title").value, rule: $("#rule").value, group_name: st.group, categories: st.cats,
-    metric: st.metric, daily_target: st.target, starts_on: st.start, days: st.days, region: st.region, capacity: st.cap, featured_on: st.slot,
-    cover_note: $("#cover").value, notes: $("#notes").value, agree: $("#agree").checked };
-  // Quick checks here; the server checks everything again.
-  const errs = {};
-  if (!req.company.trim()) errs.company = "Add your company or brand name.";
-  if (!req.title.trim()) errs.title = "Name the challenge.";
-  if (!req.rule.trim()) errs.rule = "Add the one-line rule.";
-  if (!st.cats.length) errs.categories = "Pick at least one activity.";
-  if (!(st.target > 0)) errs.daily_target = "Set a daily target.";
-  if (!req.contact_name.trim()) errs.contact_name = "Add your name.";
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(req.email.trim())) errs.email = "Add a work email we can reply to.";
-  if (st.start < addDays(hkToday(), 5)) errs.starts_on = "Start at least 5 days from today, so there's time to review it.";
-  if (!req.agree) errs.agree = "Please accept the sponsor terms.";
-  showErrors(errs); if (Object.keys(errs).length) return;
-  const btn = $("#submit"); btn.disabled = true; btn.textContent = "Sending…";
+// Old links to the builder (/sponsor/#build) now go to the quote page.
+if (location.hash === "#build") location.replace("/sponsor/quote/");
+// The hero card cycles through example brands.
+(() => {
+  const HERO = [["#2340FF", "NORTHLINE · FEATURED", "Run Week", "Run 3 km a day · 7 days · Hong Kong"],
+    ["#0F7B5F", "LEAFNOTE", "Read 30", "Read 20 min a day · 30 days · Worldwide"],
+    ["#C2410C", "HALCYON", "Morning Calm", "Meditate 10 min a day · 10 days · Singapore"],
+    ["#111111", "BRIGHTWATER", "Step Up", "8,000 steps a day · 14 days · Worldwide"]];
+  let i = 0; const $ = s => document.querySelector(s);
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  setInterval(() => { i = (i + 1) % HERO.length; const [c, w, t, m] = HERO[i];
+    $("#heroCard").style.background = c; $("#heroWm").textContent = w; $("#heroTitle").textContent = t; $("#heroMeta").textContent = m; }, 3200);
+})();
+// Live "from" prices: the same calculation the quote page uses.
+(async () => {
   try {
-    const { data, error } = await sb.functions.invoke("sponsor-requests", { body: { action: "submit", request: req, logo: st.logo ? { type: st.logo.type, data: st.logo.data } : null } });
-    let out = data;
-    if (error) { try { out = await error.context.json(); } catch { out = { error: "Couldn't send. Please try again." }; } }
-    if (!out?.ok) { if (out?.errors) showErrors(out.errors); $("#formErr").textContent = out?.error || "Couldn't send. Please try again."; return; }
-    $("#doneEmail").textContent = req.email; $("#doneRef").textContent = out.reference;
-    $("#builderArea").classList.add("hidden"); $("#doneArea").classList.remove("hidden"); $("#build").scrollIntoView({ behavior:"smooth" });
-  } catch { $("#formErr").textContent = "Couldn't send. Check your connection and try again."; }
-  finally { btn.disabled = false; btn.textContent = "Send for review"; }
-};
-// Phones: a bar with the price stays at the bottom while you build.
-const formObs = new IntersectionObserver(([e]) => $("#mbar").classList.toggle("show", e.isIntersecting && !$("#builderArea").classList.contains("hidden")), { threshold: 0 });
-formObs.observe($("#form"));
-$("#mSee").onclick = () => $(".estimate").scrollIntoView({ behavior:"smooth", block:"start" });
-// Fixing a field clears its message.
-$("#form").addEventListener("input", e => { const f = e.target.closest("[data-f]"); if (f) { f.classList.remove("bad"); const m = $(`[data-e=${f.dataset.f}]`); if (m) m.textContent = ""; } });
-$("#form").addEventListener("click", e => { const f = e.target.closest("[data-f=categories]"); if (f) { f.classList.remove("bad"); $("[data-e=categories]").textContent = ""; } });
-$("#another").onclick = e => { e.preventDefault(); $("#doneArea").classList.add("hidden"); $("#builderArea").classList.remove("hidden"); };
-
-drawAll();
+    const sb = supabase.createClient("https://rwyopnhqcnwsxcgpwgtr.supabase.co", "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji", { auth: { persistSession: false } });
+    const els = [...document.querySelectorAll("[data-p]")];
+    const res = await Promise.all(els.map(el => sb.rpc("public_quote", { p_region: null, p_days: 14, p_capacity: null, p_categories: ["Running"], p_featured: el.dataset.p === "none" ? null : el.dataset.p })));
+    res.forEach(({ data }, k) => { els[k].textContent = data?.price ? "HK$" + Math.round(data.price).toLocaleString("en-GB") : "On request"; });
+  } catch { document.querySelectorAll("[data-p]").forEach(el => el.textContent = "On request"); }
+})();
 </script>
 </body>
 </html>
