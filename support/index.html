@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -11,6 +13,7 @@
 <link rel="stylesheet" href="/assets/site.css?v=3">
 <title>Support · Performative</title>
 <meta name="description" content="Help with Performative: common questions, your account, and how to reach us.">
+<style>.doc h2[id], .doc details[id] { scroll-margin-top:80px; }</style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="wrap">
@@ -26,20 +29,23 @@
   <h1>Support</h1>
   <p class="lead">Answers to common questions, and a real person when you need one.</p>
   <div class="card"><b>Email us:</b> <a href="mailto:support@performativegroup.com">support@performativegroup.com</a><br><span class="small muted">We usually reply within one working day (Hong Kong time).</span></div>
-  <h2>Using the app</h2>
-  <details><summary>Why can't I post a photo from my camera roll?</summary><p>Every post is a live photo taken at the end of what you did, so a post always means you actually did it.</p></details>
-  <details><summary>My streak broke on a rest day</summary><p>Rest days never break your streak. Check your rest days in Goals; days you've marked as rest show as dim squares.</p></details>
-  <details><summary>My run or steps didn't come through</summary><p>Make sure Apple Health access is on: open the iPhone's Settings › Health › Data Access &amp; Devices › Performative, and allow workouts and steps. Then pull down to refresh in the app.</p></details>
-  <details><summary>I'm not getting notifications</summary><p>Open the iPhone's Settings › Notifications › Performative and turn on Allow Notifications. In the app's Settings, you can choose exactly which reminders you get.</p></details>
-  <h2>Your account</h2>
-  <details><summary>How do I make my account private?</summary><p>Go to Profile › Settings › Privacy and turn on Private account. Only people you approve will see your posts.</p></details>
-  <details><summary>How do I reset my password?</summary><p>On the sign-in screen, tap Forgot password and enter your email. We'll send you a 6-digit code.</p></details>
-  <details><summary>How do I delete my account?</summary><p>Go to Profile › Settings and tap Delete account at the bottom. Your account, posts and everything in it are removed from our servers and can't be recovered.</p></details>
-  <details><summary>How do I cancel Plus?</summary><p>Plus is managed by Apple. Open the iPhone's Settings, tap your name, then Subscriptions › Performative, and cancel. You keep Plus until the end of the period you've paid for.</p></details>
-  <h2>Safety</h2>
-  <details><summary>How do I report a post or person?</summary><p>Tap ••• on the post or profile and choose Report. We review every report within 24 hours. You can also block someone from the same menu.</p></details>
-  <details><summary>Someone might be in danger</summary><p>Report it in the app straight away. In an emergency in Hong Kong, call 999.</p></details>
-  <h2>For brands</h2>
+  <h2 id="using">Using the app</h2>
+  <details id="camera-roll"><summary>Why can't I post a photo from my camera roll?</summary><p>Every post is a live photo taken at the end of what you did, so a post always means you actually did it.</p></details>
+  <details id="rest-days"><summary>My streak broke on a rest day</summary><p>Rest days never break your streak. Check your rest days in Goals; days you've marked as rest show as dim squares.</p></details>
+  <details id="apple-health"><summary>My run or steps didn't come through</summary><p>Make sure Apple Health access is on: open the iPhone's Settings › Health › Data Access &amp; Devices › Performative, and allow workouts and steps. Then pull down to refresh in the app.</p></details>
+  <details id="notifications"><summary>I'm not getting notifications</summary><p>Open the iPhone's Settings › Notifications › Performative and turn on Allow Notifications. In the app's Settings, you can choose exactly which reminders you get.</p></details>
+  <h2 id="account">Your account</h2>
+  <details id="private-account"><summary>How do I make my account private?</summary><p>Go to Profile › Settings › Privacy and turn on Private account. Only people you approve will see your posts.</p></details>
+  <details id="reset-password"><summary>How do I reset my password?</summary><p>On the sign-in screen, tap Forgot password and enter your email. We'll send you a 6-digit code.</p></details>
+  <details id="delete"><summary>How do I delete my account?</summary><p>Go to Profile › Settings and tap Delete account at the bottom. <a href="#delete-account">More about deleting your account</a>.</p></details>
+  <h2 id="safety">Safety</h2>
+  <details id="report"><summary>How do I report a post, message or person?</summary><p>Tap ••• on the post or profile and choose Report. You can report a single chat message too. We review every report within 24 hours. You can also block someone from the same menu.</p></details>
+  <details id="danger"><summary>Someone might be in danger</summary><p>Report it in the app straight away. In an emergency in Hong Kong, call 999.</p></details>
+  <h2 id="delete-account">Delete your account</h2>
+  <p><b>In the app:</b> go to Profile › Settings › Delete account (at the bottom). Your account, posts, photos, chats, goals and challenge entries are removed from our servers straight away and can't be recovered.</p>
+  <p><b>Can't open the app?</b> Email <a href="mailto:support@performativegroup.com?subject=Delete%20my%20account">support@performativegroup.com</a> from the email address on your account, and we'll delete it within 7 days.</p>
+  <p>Copies in our backups are deleted automatically within 30 days. Sponsors only ever get counts and totals, so nothing they have is about you. See our <a href="/privacy/#keep">Privacy Policy</a> for how long we keep things.</p>
+  <h2 id="brands">For brands</h2>
   <p>Want to sponsor a challenge? See <a href="/sponsor/">how it works</a> or email <a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a>.</p>
 
 </main>

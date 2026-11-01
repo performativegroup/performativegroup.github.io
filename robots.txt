@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://performativegroup.com/sitemap.xml

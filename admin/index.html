@@ -2,12 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Clickjacking guard: the page stays hidden if another site puts it in a frame. (GitHub Pages can't send X-Frame-Options.) -->
+<style id="antiClickjack">html{display:none!important}</style>
+<script>
+  if (window.top === window.self) document.getElementById("antiClickjack").remove();
+  else window.top.location = window.self.location.href;
+</script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://rwyopnhqcnwsxcgpwgtr.supabase.co; connect-src https://rwyopnhqcnwsxcgpwgtr.supabase.co wss://rwyopnhqcnwsxcgpwgtr.supabase.co; base-uri 'none'; object-src 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Performative Admin</title>
-<meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <style>
   /* The app's look: black on white, one soft grey surface (no outlines), Inter Tight Bold titles,
      the system font for everything else, capsules and 14px corners. Colour only from sponsors. */
@@ -269,10 +277,13 @@ const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
 const REPORT_BASE = "https://performativegroup.com/reports/";
 
-const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY);
+// The sign-in lives in this tab only (sessionStorage), so it ends when the tab closes and other pages on the site can't read it.
+const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+// Only http(s) links ever become clickable. Anything else (javascript:, data:, …) gives null.
+const safeUrl = u => { try { const x = new URL(String(u ?? "")); return /^https?:$/.test(x.protocol) && x.hostname ? x.href : null; } catch { return null; } };
 const fmt = n => Number(n || 0).toLocaleString("en-GB");
 const dayLabel = d => d ? new Date(String(d).length <= 10 ? d + "T00:00:00" : d).toLocaleDateString("en-GB", { day:"numeric", month:"short" }) : "";
 const when = d => d ? new Date(d).toLocaleString("en-GB", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) : "";
@@ -289,9 +300,10 @@ const METRICS = { time:{ label:"Time", unit:"minutes a day", eg:"e.g. 20", step:
 // Every country (ISO 3166 two-letter codes); names come from the browser in your language.
 const COUNTRY_CODES = "AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
 const regionNames = new Intl.DisplayNames(["en"], { type:"region" });
-const flag = c => c ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : "🌍";
+const flag = c => /^[A-Z]{2}$/.test(c || "") ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : "🌍";
 const SHORT_NAMES = { HK:"Hong Kong", MO:"Macau" };
-const countryName = c => c ? (SHORT_NAMES[c] || regionNames.of(c) || c) : "Worldwide";
+// Never throws: an odd value (e.g. "Other" or a bad code) just shows as itself.
+const countryName = c => { if (!c) return "Worldwide"; try { return SHORT_NAMES[c] || regionNames.of(c) || String(c); } catch { return String(c); } };
 const COUNTRIES = COUNTRY_CODES.map(c => ({ code:c, name:countryName(c) })).sort((a, b) => a.name.localeCompare(b.name));
 const POPULAR = ["HK","SG","GB","US","AU","CA","TW","JP","KR","MY","AE","FR","DE","CN"];
 
@@ -300,7 +312,7 @@ function toast(msg, err = false) {
   clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", err ? 5000 : 2400);
 }
 function fail(e) {
-  console.error(e);
+  console.error(String(e?.message || e));
   // A dead sign-in (signed out on another device, or expired) shows up as "permission denied" or a JWT error:
   // send them back to sign in with a clear message instead.
   const m = String(e?.message || e || "");
@@ -376,7 +388,7 @@ async function loadEarly() {
   let link = ""; try { link = localStorage.getItem("earlyLink") || ""; } catch {}
   el.innerHTML = `
     <div class="pagehead"><div><h1>Early access</h1><p>Everyone who signed up at performativegroup.com/early-access. When the app is ready, pick people and send them the install link. They get an email from no-reply@ and move to Invited.</p></div>
-      <div class="row"><a class="btn line" href="https://performativegroup.com/early-access/" target="_blank">Open the sign-up page ↗</a></div></div>
+      <div class="row"><a class="btn line" href="https://performativegroup.com/early-access/" target="_blank" rel="noopener noreferrer">Open the sign-up page ↗</a></div></div>
     <div class="grid kpis">
       <div class="kpi"><span class="eyebrow">Signed up</span><b>${fmt(all.length)}</b></div>
       <div class="kpi"><span class="eyebrow">This week</span><b>${fmt(thisWeek)}</b></div>
@@ -399,15 +411,15 @@ async function loadEarly() {
       <input type="search" id="eaSearch" placeholder="Search email, name, Instagram" value="${esc(earlySearch)}" style="max-width:260px">
       <span class="space"></span><button class="btn ghost small" type="button" id="eaCopy">Copy emails</button><button class="btn ghost small" type="button" id="eaCsv">Download CSV</button><button class="btn ghost small" type="button" id="eaImport">Import a list</button></div>
     <div class="card" style="padding:6px 8px">${rows.length ? `<table><thead><tr><th style="width:34px"></th><th>#</th><th>Person</th><th>Wants to</th><th>From</th><th>Signed up</th><th>Status</th><th></th></tr></thead><tbody>
-      ${rows.map(r => `<tr data-id="${r.id}">
-        <td><input type="checkbox" class="eaPick" data-id="${r.id}" ${earlyPicked.has(r.id) ? "checked" : ""} aria-label="Select ${esc(r.email)}"></td>
-        <td class="muted">${r.place}</td>
-        <td><b>${esc(r.name || r.email.split("@")[0])}</b><div class="muted small">${esc(r.email)}${r.instagram ? ` · <a href="https://instagram.com/${encodeURIComponent(r.instagram)}" target="_blank">@${esc(r.instagram)}</a>` : ""}</div></td>
+      ${rows.map(r => `<tr data-id="${esc(r.id)}">
+        <td><input type="checkbox" class="eaPick" data-id="${esc(r.id)}" ${earlyPicked.has(r.id) ? "checked" : ""} aria-label="Select ${esc(r.email)}"></td>
+        <td class="muted">${esc(r.place)}</td>
+        <td><b>${esc(r.name || r.email.split("@")[0])}</b><div class="muted small">${esc(r.email)}${r.instagram ? ` · <a href="https://instagram.com/${encodeURIComponent(r.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(r.instagram)}</a>` : ""}</div></td>
         <td class="small">${(r.interests || []).map(esc).join(", ") || `<span class="muted">—</span>`}</td>
         <td class="small">${esc(r.source || "—")}${r.country ? ` · ${flag(r.country)}` : ""}</td>
         <td class="small">${when(r.created_at)}</td>
-        <td><span class="pill ${r.status === "invited" ? "scheduled" : r.status === "joined" ? "live" : r.status === "removed" ? "ended" : "draft"}">${EARLY_LABEL[r.status]}${r.invite_count > 1 ? ` ×${r.invite_count}` : ""}</span></td>
-        <td><select class="eaStatus" data-id="${r.id}" aria-label="Change status">${Object.entries(EARLY_LABEL).map(([k, v]) => `<option value="${k}" ${r.status === k ? "selected" : ""}>${v}</option>`).join("")}</select></td></tr>`).join("")}
+        <td><span class="pill ${r.status === "invited" ? "scheduled" : r.status === "joined" ? "live" : r.status === "removed" ? "ended" : "draft"}">${esc(EARLY_LABEL[r.status] || r.status)}${r.invite_count > 1 ? ` ×${esc(r.invite_count)}` : ""}</span></td>
+        <td><select class="eaStatus" data-id="${esc(r.id)}" aria-label="Change status">${Object.entries(EARLY_LABEL).map(([k, v]) => `<option value="${k}" ${r.status === k ? "selected" : ""}>${v}</option>`).join("")}</select></td></tr>`).join("")}
       </tbody></table>` : `<div class="empty">${all.length ? "No one here." : "No sign-ups yet. Put performativegroup.com/early-access in your Instagram bio."}</div>`}</div>`;
 
   const saveLink = () => { try { localStorage.setItem("earlyLink", $("#eaLink").value.trim()); } catch {} };
@@ -445,7 +457,8 @@ async function loadEarly() {
   };
   $("#eaCsv").onclick = () => {
     const cols = ["place", "email", "name", "instagram", "interests", "country", "source", "status", "created_at", "invited_at"];
-    const cell = v => `"${String(Array.isArray(v) ? v.join("; ") : v ?? "").replace(/"/g, '""')}"`;
+    // Anything starting with = + - @ tab or return could run as a formula in Excel or Sheets: a leading ' keeps it as plain text.
+    const cell = v => { let t = String(Array.isArray(v) ? v.join("; ") : v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; };
     const csv = [cols.join(","), ...rows.map(r => cols.map(c => cell(r[c])).join(","))].join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     a.download = `early-access-${todayISO()}.csv`; a.click(); URL.revokeObjectURL(a.href);
@@ -552,7 +565,7 @@ function renderChallengeList() {
       ${[{ id:"performative", name:"Performative", color:"#0A0A0A", tint:"#EDEDEA" }, ...sponsors].filter(b => challenges.some(c => brandKey(c) === b.id)).map(b => {
         const n = challenges.filter(c => brandKey(c) === b.id).length, on = chBrand === b.id, dim = chBrand && !on;
         return `<button class="brandchip ${on ? "on" : ""} ${dim ? "dim" : ""}" data-brand="${esc(b.id)}" title="${esc(b.name)}">
-          <span class="disc" style="background:${esc(b.tint || "#EDEDEA")}; ${on ? `box-shadow:0 0 0 2px ${esc(b.color)}` : ""}">${b.logo_path ? `<img src="${logoURL(b.logo_path)}" alt="">` : `<b style="color:${esc(b.color)}">${esc((b.wordmark || b.name)[0])}</b>`}</span>
+          <span class="disc" style="background:${esc(b.tint || "#EDEDEA")}; ${on ? `box-shadow:0 0 0 2px ${esc(b.color)}` : ""}">${b.logo_path ? `<img src="${esc(logoURL(b.logo_path))}" alt="">` : `<b style="color:${esc(b.color)}">${esc((b.wordmark || b.name)[0])}</b>`}</span>
           <span class="nm">${esc(b.name)}</span><span class="ct">${n}</span></button>`; }).join("")}
     </div>
     <div class="toolbar">
@@ -564,7 +577,7 @@ function renderChallengeList() {
       ${rows.length ? `<table><thead><tr><th>Challenge</th><th>Runs</th><th>Where</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
       ${rows.map(c => { const s = sp(c.sponsor_id), st = stateOf(c); return `<tr class="click" data-id="${esc(c.id)}">
         <td><div class="row" style="gap:10px; flex-wrap:nowrap"><span class="swatch" style="width:10px;height:36px;border-radius:4px;background:${esc(s?.color || "#0A0A0A")}"></span>
-          <div><b>${esc(c.title)}</b>${c.featured_on ? ` <span class="pill dark">${slotLabel(c.featured_on)}</span>` : ""}<div class="muted small">${esc(c.rule)}</div></div></div></td>
+          <div><b>${esc(c.title)}</b>${c.featured_on ? ` <span class="pill dark">${esc(slotLabel(c.featured_on))}</span>` : ""}<div class="muted small">${esc(c.rule)}</div></div></div></td>
         <td>${dayLabel(c.starts_on)} – ${dayLabel(c.ends_on)}<div class="muted small">${daysBetween(c.starts_on, c.ends_on) + 1} days</div></td>
         <td>${flag(c.region)} ${esc(countryName(c.region))}</td>
         <td>${s ? `<span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.name)}` : '<span class="muted">Performative</span>'}</td>
@@ -640,11 +653,11 @@ function editChallenge(orig) {
 
         <div class="card section" id="sec-look"><h3>Sponsor & look</h3><p>A sponsor's colours and logo go on the card. No sponsor means it's a Performative challenge (black).</p>
           <label class="f"><span>Sponsor</span><select name="sponsor_id"><option value="">None · Performative</option>
-            ${sponsors.map(s => `<option value="${s.id}" ${c.sponsor_id === s.id ? "selected" : ""}>${esc(s.name)}${s.is_sample ? " (sample)" : ""}</option>`).join("")}</select>
+            ${sponsors.map(s => `<option value="${esc(s.id)}" ${c.sponsor_id === s.id ? "selected" : ""}>${esc(s.name)}${s.is_sample ? " (sample)" : ""}</option>`).join("")}</select>
             <div class="help"><a href="#" id="toSponsors">Add or edit sponsors</a></div></label>
           <label class="f"><span>Featured spot <small>· the big card at the top of a page; one challenge per spot at a time</small></span>
             <select name="featured_on" id="featSel"></select><div class="help" id="featHelp"></div><div class="err" data-err="featured"></div></label>
-          <label class="f" style="margin-top:12px"><span>Note under the card <small>· optional, e.g. a prize</small></span><input type="text" name="cover_note" maxlength="200" placeholder="e.g. Top 3 win a pair of Northline runners" value="${esc(c.cover_note || "")}"></label>
+          <label class="f" style="margin-top:12px"><span>Note under the card <small>· optional</small></span><input type="text" name="cover_note" maxlength="200" placeholder="e.g. Do 10 of the 14 days for 15% off Northline gear" value="${esc(c.cover_note || "")}"></label>
         </div>
 
         <div class="card section" id="sec-reward"><h3>Reward & emails</h3><p>Everyone who does it on at least this many days gets the code by email the morning after it ends. Leave the days empty for no reward.</p>
@@ -653,7 +666,7 @@ function editChallenge(orig) {
             <label class="f"><span>What they get <small>· shown in the app and emails</small></span><input type="text" name="reward_details" maxlength="200" placeholder="e.g. 15% off all Fernhill gear" value="${esc(c.reward_details || "")}"><div class="err" data-err="reward_details"></div></label>
           </div>
           <label class="f" style="margin-top:12px"><span>Discount code <small>· private: only sent to people who earn it</small></span><input type="text" name="reward_code" id="rewardCode" maxlength="60" placeholder="e.g. FERNHILL15" style="font-family:ui-monospace,Menlo,monospace; text-transform:uppercase"><div class="err" data-err="reward_code"></div></label>
-          <div class="help" style="margin-top:8px">Rewards and prizes come from the sponsor; the emails say Performative isn't responsible for fulfilling them. Prizes in the note under the card are claimed by replying to the results email (it goes to sponsors@).</div>
+          <div class="help" style="margin-top:8px">Performative runs the challenge and emails the code; the sponsor supplies the discount and honours it at checkout. Rewards only go on Time challenges (the app's timer, not Apple Health), and there are no prize draws: everyone who does enough days gets the code.</div>
           <div class="row" style="gap:8px; margin-top:14px; flex-wrap:wrap">
             ${isNew ? `<span class="help">Save it first to preview the emails.</span>` : `<button type="button" class="btn line small" data-preview="joined">Email me the welcome email</button><button type="button" class="btn line small" data-preview="ended">Email me a results email</button>`}
           </div>
@@ -775,6 +788,7 @@ function editChallenge(orig) {
       if (len && c.reward_min_days > len) p.reward_days = `It only runs for ${len} days.`;
       if (!c.reward_details) p.reward_details = "Say what they get.";
       if (!rewardCode) p.reward_code = "Add the code they'll be sent.";
+      if (c.metric !== "time") p.reward_days = "Rewards can only go on Time challenges (measured by the app's timer), not Distance or Steps.";
     } else if (c.reward_details || rewardCode) p.reward_days = "Set how many days earn it, or clear the reward.";
     return p;
   }
@@ -795,8 +809,8 @@ function editChallenge(orig) {
     const sel = $("#featSel"); if (!sel) return;
     const clash = slot => challenges.find(x => x.id !== c.id && x.featured_on === slot && ["live", "draft"].includes(x.status) && x.starts_on <= c.ends_on && x.ends_on >= c.starts_on);
     const opts = [["", "Not featured"], ["all", "Main page (premium)"], [c.group_name, `${c.group_name} page`]];
-    sel.innerHTML = opts.map(([v, l]) => { const k = v && clash(v); return `<option value="${v}" ${(c.featured_on || "") === v ? "selected" : ""} ${k ? "disabled" : ""}>${l}${k ? ` · booked by ${esc(k.title)}` : ""}</option>`; }).join("");
-    if (c.featured_on && c.featured_on !== "all" && c.featured_on !== c.group_name) sel.insertAdjacentHTML("beforeend", `<option value="${c.featured_on}" selected>${c.featured_on} page</option>`);
+    sel.innerHTML = opts.map(([v, l]) => { const k = v && clash(v); return `<option value="${esc(v)}" ${(c.featured_on || "") === v ? "selected" : ""} ${k ? "disabled" : ""}>${esc(l)}${k ? ` · booked by ${esc(k.title)}` : ""}</option>`; }).join("");
+    if (c.featured_on && c.featured_on !== "all" && c.featured_on !== c.group_name) sel.insertAdjacentHTML("beforeend", `<option value="${esc(c.featured_on)}" selected>${esc(c.featured_on)} page</option>`);
     $("#featHelp").textContent = c.featured_on === "all" ? "Shown at the top of Challenges for everyone." : c.featured_on ? `Shown at the top when people tap ${c.featured_on}.` : "";
   }
   function drawPreview() {
@@ -804,7 +818,7 @@ function editChallenge(orig) {
     const s = sponsors.find(x => x.id === c.sponsor_id);
     const color = s?.color || "#0A0A0A", tint = s?.tint || "#F2F2F2";
     const days = daysBetween(c.starts_on, c.ends_on) + 1, m = METRICS[c.metric];
-    const logo = s?.logo_path ? `<img src="${logoURL(s.logo_path)}">` : "";
+    const logo = s?.logo_path ? `<img src="${esc(logoURL(s.logo_path))}" alt="">` : "";
     const firstName = "Alex";
     $("#cPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
@@ -818,10 +832,10 @@ function editChallenge(orig) {
       ${c.cover_note ? `<div class="ptint" style="background:${esc(tint)}; font-size:12px"><b>${esc(c.cover_note)}</b></div>` : ""}
       <div class="plist"><div class="eyebrow" style="display:block; margin-bottom:8px">How it works</div>
         ${(c.steps.filter(Boolean).length ? c.steps.filter(Boolean) : ["Steps show here"]).map((st, i) => `<div><span>${i + 1}</span>${esc(st)}</div>`).join("")}
-        <div><span>✓</span>${c.daily_target || "?"} ${m.unit} · ${esc(c.categories.join(", ") || "pick activities")}</div></div>
+        <div><span>✓</span>${esc(c.daily_target || "?")} ${m.unit} · ${esc(c.categories.join(", ") || "pick activities")}</div></div>
       <div class="eyebrow" style="margin:16px 0 4px">Notifications</div>
       ${c.notify_start ? `<div class="notif"><b>PERFORMATIVE · ${dayLabel(c.starts_on)}, 9:00</b>${esc(c.title || "Your challenge")} starts today. ${esc(c.announcement || "")}</div>` : ""}
-      ${c.reminder_time ? `<div class="notif"><b>DAILY · ${c.reminder_time.slice(0, 5)}</b>${esc(c.rule || "Today's target")}: not done yet today, ${firstName}.</div>` : ""}
+      ${c.reminder_time ? `<div class="notif"><b>DAILY · ${esc(c.reminder_time.slice(0, 5))}</b>${esc(c.rule || "Today's target")}: not done yet today, ${firstName}.</div>` : ""}
       ${c.notify_ending ? `<div class="notif"><b>${dayLabel(addDays(c.ends_on, -2))}, 9:00</b>2 days left in ${esc(c.title || "the challenge")}.</div>` : ""}
       ${c.notify_results ? `<div class="notif"><b>${dayLabel(addDays(c.ends_on, 1))}, 9:00</b>${esc(c.title || "The challenge")} is over. See how you did.</div>` : ""}
       ${!c.notify_start && !c.reminder_time && !c.notify_ending && !c.notify_results ? '<div class="muted small">None</div>' : ""}
@@ -896,8 +910,8 @@ async function loadSponsors() {
     <div class="pagehead"><div><h1>Sponsors</h1><p>Brands that run challenges. Each one has a private report link with their numbers.</p></div>
       <button class="btn" id="newSponsor">＋ New sponsor</button></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
-      ${sponsors.map(s => `<div class="card scard" data-id="${s.id}">
-        <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${logoURL(s.logo_path)}" style="width:26px;height:26px;border-radius:50%;background:#fff;object-fit:cover;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
+      ${sponsors.map(s => `<div class="card scard" data-id="${esc(s.id)}">
+        <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${esc(logoURL(s.logo_path))}" alt="" style="width:26px;height:26px;border-radius:50%;background:#fff;object-fit:cover;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
         <div class="row"><b>${esc(s.name)}</b>${s.is_sample ? '<span class="pill">sample</span>' : ""}<span class="space"></span></div>
         <div class="muted small" style="margin-top:4px">${live(s.id)} live challenge${live(s.id) === 1 ? "" : "s"} · <span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</div>
       </div>`).join("")}
@@ -982,11 +996,11 @@ async function editSponsor(orig) {
           <label class="f"><span>Id <small>· ${isNew ? "made from the name" : "fixed"}</small></span><input type="text" name="slug" value="${esc(s.slug)}" ${isNew ? "" : "readonly"}><div class="err" data-err="slug"></div></label>
           <div class="flabel">Logo <small>· PNG, at least 512 × 512, shown in a circle, so keep it centred</small></div>
           <div class="row" style="gap:14px; margin-bottom:14px">
-            <img id="logoImg" class="thumb ${logoPreview ? "" : "hidden"}" style="border-radius:50%; object-fit:cover; background:#fff; box-shadow:inset 0 0 0 1px var(--hair)" ${logoPreview ? `src="${logoPreview}"` : ""} crossorigin="anonymous">
-            <label class="btn line small" style="cursor:pointer">${logoPreview ? "Replace logo" : "Upload logo"}<input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml" hidden></label>
+            <img id="logoImg" class="thumb ${logoPreview ? "" : "hidden"}" style="border-radius:50%; object-fit:cover; background:#fff; box-shadow:inset 0 0 0 1px var(--hair)" ${logoPreview ? `src="${esc(logoPreview)}"` : ""} alt="" crossorigin="anonymous">
+            <label class="btn line small" style="cursor:pointer">${logoPreview ? "Replace logo" : "Upload logo"}<input type="file" id="logoFile" accept="image/png,image/jpeg" hidden></label>
           </div>
           <label class="f"><span>About <small>· shown when people tap "Sponsored"</small></span><textarea name="about" maxlength="400" placeholder="Two sentences about who they are.">${esc(s.about || "")}</textarea></label>
-          <label class="f"><span>Link <small>· shown as "Visit ${esc(s.name || "them")}" in the app's About the sponsor</small></span><input type="url" name="website" value="${esc(s.website || "")}" placeholder="https://"></label>
+          <label class="f"><span>Link <small>· shown as "Visit ${esc(s.name || "them")}" in the app's About the sponsor</small></span><input type="url" name="website" value="${esc(s.website || "")}" placeholder="https://"><div class="err" data-err="website"></div></label>
         </div>
         <div class="card section"><h3>Colours</h3><p>The brand colour fills their challenge card; the light tint sits behind their logo and notes.</p>
           <div class="flabel">Brand colour <span id="contrast" class="contrast"></span></div>
@@ -995,9 +1009,9 @@ async function editSponsor(orig) {
           <label class="switch"><div class="t"><b>Work out the light tint for me</b><span>A very light version of the brand colour.</span></div><input type="checkbox" id="autoTint" ${autoTint ? "checked" : ""}></label>
           <div id="tintBox" class="${autoTint ? "hidden" : ""}" style="margin-top:12px"><div class="flabel">Light tint</div>${colorField("tint", s.tint)}</div>
         </div>
-        ${isNew ? "" : `<div class="card section"><h3>Private report</h3><p>Their numbers only: totals, never names or photos. Send them this link.</p>
-          ${priv ? `<div class="copy" id="reportLink">${esc(REPORT_BASE + "?t=" + priv.report_token)}</div>
-            <div class="row" style="margin-top:10px"><button type="button" class="btn small" id="copyLink">Copy link</button><a class="btn line small" target="_blank" id="openLink" href="${esc(REPORT_BASE + "?t=" + priv.report_token)}">Open</a>
+        ${isNew ? "" : `<div class="card section"><h3>Private report</h3><p>Their numbers only: counts and totals, never names, photos or Apple Health data. Send them this link.</p>
+          ${priv ? `<div class="copy" id="reportLink">${esc(REPORT_BASE + "#t=" + priv.report_token)}</div>
+            <div class="row" style="margin-top:10px"><button type="button" class="btn small" id="copyLink">Copy link</button><a class="btn line small" target="_blank" rel="noopener noreferrer" id="openLink" href="${esc(REPORT_BASE + "#t=" + priv.report_token)}">Open</a>
               <span class="space"></span><button type="button" class="btn ghost small" id="newLink">Make a new link</button></div>
             <div class="two" style="margin-top:14px"><label class="f"><span>Contact name</span><input type="text" name="contact_name" value="${esc(priv.contact_name || "")}"></label>
               <label class="f"><span>Contact email</span><input type="email" name="contact_email" value="${esc(priv.contact_email || "")}"></label></div>
@@ -1019,9 +1033,9 @@ async function editSponsor(orig) {
     const cb = $("#contrast"); cb.className = "contrast " + (ok ? "ok" : "bad"); cb.textContent = ok ? `✓ White text reads well (${ratio.toFixed(1)}:1)` : `⚠ White text is hard to read (${ratio.toFixed(1)}:1). Pick a darker shade.`;
     $("#sPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
-      <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${logoPreview}">` : ""}${esc(wm.toUpperCase())}</div>
+      <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${esc(logoPreview)}" alt="">` : ""}${esc(wm.toUpperCase())}</div>
         <div><h4>Example challenge</h4><div class="meta">Name and rules come from the challenge you add next</div></div><span class="join">Join</span></div>
-      <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${logoPreview}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
+      <div class="ptint" style="background:${esc(tint)}"><div class="row" style="gap:8px">${logoPreview ? `<img src="${esc(logoPreview)}" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff">` : `<span class="logo" style="background:${esc(color)};width:30px;height:30px">${esc(name[0] || "B")}</span>`}
         <b style="font-size:13px">About ${esc(name)}</b></div><div style="font-size:12px; margin-top:8px; color:#333">${esc(form.about.value || "Their two sentences show here.")}</div></div>
     </div></div></div>`;
   };
@@ -1036,6 +1050,7 @@ async function editSponsor(orig) {
   $("#logoImg").onload = e => showSwatches(e.target);
   $("#logoFile").onchange = e => {
     const f = e.target.files[0]; if (!f) return;
+    if (!["image/png", "image/jpeg"].includes(f.type)) { e.target.value = ""; return toast("Use a PNG or JPEG logo.", true); }
     if (f.size > 2_000_000) return toast("That logo is over 2 MB. Use a smaller PNG.", true);
     logoFile = f; logoPreview = URL.createObjectURL(f); const img = $("#logoImg"); img.src = logoPreview; img.classList.remove("hidden"); preview();
   };
@@ -1058,12 +1073,15 @@ async function editSponsor(orig) {
       color: form.color.value.toUpperCase(), tint: (autoTint ? tintOf(form.color.value) : form.tint.value).toUpperCase(),
       about: (f.get("about") || "").trim() || null, website: (f.get("website") || "").trim() || null };
     if (!row.name) errs.name = "Give the sponsor a name.";
+    // Same rule as the server: a web address, made https:// if no scheme was typed; anything else is refused.
+    if (row.website) { const u = safeUrl(/^[a-z][a-z0-9+.-]*:/i.test(row.website) ? row.website : "https://" + row.website);
+      if (u && /\./.test(new URL(u).hostname)) row.website = u; else errs.website = "Enter a web address like https://brand.com"; }
     if (!/^[a-z0-9-]{2,40}$/.test(row.slug)) errs.slug = "Lowercase letters, numbers and dashes.";
     $$("[data-err]", form).forEach(x => x.textContent = errs[x.dataset.err] || "");
     if (Object.keys(errs).length) return toast("Fix the highlighted bits first.", true);
     try {
       if (logoFile) {
-        const ext = logoFile.type === "image/png" ? "png" : logoFile.type === "image/svg+xml" ? "svg" : "jpg";
+        const ext = logoFile.type === "image/png" ? "png" : "jpg";
         const path = `${row.slug}.${ext}`;
         const { error } = await sb.storage.from("brand").upload(path, logoFile, { upsert:true, contentType: logoFile.type });
         if (error) throw error; row.logo_path = path; logoURL.v = Date.now();
@@ -1084,7 +1102,14 @@ async function editSponsor(orig) {
 }
 
 // ---------------- Reports ----------------
-async function photoURL(path) { if (!path) return null; const { data } = await sb.storage.from("photos").createSignedUrl(path, 600); return data?.signedUrl; }
+// A reported post's photo is in "photos"; a reported chat photo comes as "chat:<path>" and lives in the private "chat" bucket.
+async function photoURL(path) {
+  if (!path) return null;
+  const chat = String(path).startsWith("chat:");
+  const { data } = await sb.storage.from(chat ? "chat" : "photos").createSignedUrl(chat ? path.slice(5) : path, 600);
+  return data?.signedUrl;
+}
+const REPORT_KIND = { post:"post", comment:"comment", message:"message", profile:"profile" };
 async function loadReports(showResolved = false) {
   const el = $("#tab-reports");
   const { data, error } = await sb.rpc("admin_reports", { include_resolved: showResolved }); if (error) throw error;
@@ -1092,21 +1117,21 @@ async function loadReports(showResolved = false) {
   el.innerHTML = `<div class="pagehead"><div><h1>Reports</h1><p>What people flagged. Remove takes it down for everyone; Suspend stops that person posting, commenting and messaging.</p></div>
       <div class="segs"><button class="${showResolved ? "" : "on"}" data-r="0">To review</button><button class="${showResolved ? "on" : ""}" data-r="1">All</button></div></div>
     <div class="card" style="padding:6px 8px">${data.length ? `<table><tbody>${data.map(r => `<tr>
-      <td style="width:80px">${r.image_path ? `<img class="thumb" data-path="${esc(r.image_path)}">` : `<div class="thumb" style="display:grid;place-items:center;color:#999">Aa</div>`}</td>
-      <td><div class="row"><span class="pill red">${esc(r.reason)}</span><span class="pill">${esc(r.target_type)}</span><span class="muted small">${when(r.created_at)}</span></div>
-        <div style="margin-top:6px">${r.content ? `“${esc(r.content)}”` : '<span class="muted">(no text)</span>'}</div>
+      <td style="width:80px">${r.image_path ? `<img class="thumb" data-path="${esc(r.image_path)}" alt="Reported photo">` : `<div class="thumb" style="display:grid;place-items:center;color:#999">Aa</div>`}</td>
+      <td><div class="row"><span class="pill red">${esc(r.reason)}</span><span class="pill">${esc(REPORT_KIND[r.target_type] || r.target_type)}</span><span class="muted small">${when(r.created_at)}</span></div>
+        <div style="margin-top:6px">${r.content ? (r.target_type === "profile" ? `<b>${esc(r.content)}</b>` : `“${esc(r.content)}”`) : '<span class="muted">(no text)</span>'}</div>
         ${r.note ? `<div class="muted small" style="margin-top:4px">Their note: ${esc(r.note)}</div>` : ""}
         <div class="muted small" style="margin-top:4px">Reported <b>@${esc(r.reported || "?")}</b> · by @${esc(r.reporter || "?")}</div></td>
       <td style="width:300px; text-align:right">${r.outcome ? `<span class="pill">${esc(r.outcome)}</span><div class="muted small">${when(r.resolved_at)}</div>`
         : `<div class="row" style="justify-content:flex-end">
-            ${["post", "comment"].includes(r.target_type) ? `<button class="btn red small" data-act="removed" data-id="${r.id}">Remove</button>` : ""}
-            ${r.reported_id ? `<button class="btn small" data-act="suspended" data-id="${r.id}">Suspend</button>` : ""}
-            <button class="btn ghost small" data-act="dismissed" data-id="${r.id}">Dismiss</button></div>`}</td></tr>`).join("")}</tbody></table>`
+            ${["post", "comment", "message"].includes(r.target_type) ? `<button class="btn red small" data-act="removed" data-type="${esc(r.target_type)}" data-id="${esc(r.id)}">Remove</button>` : ""}
+            ${r.reported_id ? `<button class="btn small" data-act="suspended" data-id="${esc(r.id)}">Suspend</button>` : ""}
+            <button class="btn ghost small" data-act="dismissed" data-id="${esc(r.id)}">Dismiss</button></div>`}</td></tr>`).join("")}</tbody></table>`
       : '<div class="empty">Nothing to review. 🎉</div>'}</div>`;
   $$(".segs button", el).forEach(b => b.onclick = () => loadReports(b.dataset.r === "1").catch(fail));
   $$("img[data-path]", el).forEach(async img => { img.src = await photoURL(img.dataset.path) || ""; });
   $$("button[data-act]", el).forEach(b => b.onclick = async () => {
-    const words = { removed:"Remove this for everyone?", suspended:"Suspend this person? They can still open the app but can't post, comment or message.", dismissed:"Dismiss this report?" };
+    const words = { removed: b.dataset.type === "message" ? "Delete this message from the chat for everyone?" : "Remove this for everyone?", suspended:"Suspend this person? They can still open the app but can't post, comment or message.", dismissed:"Dismiss this report?" };
     if (!confirm(words[b.dataset.act])) return;
     const { error } = await sb.rpc("resolve_report", { report: b.dataset.id, action: b.dataset.act });
     if (error) return fail(error); toast("Done"); loadReports(showResolved).catch(fail);
@@ -1162,7 +1187,7 @@ async function viewReport(s, id, kind) {
         <div class="small muted" style="margin-top:4px">To: ${r.to.length ? esc(r.to.join(", ")) : "<span style='color:var(--red)'>no contact email yet</span>"}</div>
         <div class="row" style="margin-top:10px"><button class="btn line small" id="mPreview">Email me a copy</button><span class="space"></span>
           <button class="btn small" id="mSend" ${r.to.length ? "" : "disabled"}>Send to ${esc(s.name)} now</button></div></div>
-      <iframe id="mFrame" title="Report preview"></iframe>`;
+      <iframe id="mFrame" sandbox="allow-popups allow-popups-to-escape-sandbox" title="Report preview"></iframe>`;
     $("#mFrame").srcdoc = r.html;
     $("#mPreview").onclick = async () => { try { const x = await reportFn({ challenge_id: id, kind, mode: "preview" }); toast("Sent to " + x.to.join(", ")); } catch (e) { fail(e); } };
     $("#mSend").onclick = async () => {
@@ -1189,14 +1214,14 @@ async function loadRequests() {
   const count = s => data.filter(r => r.status === s).length;
   el.innerHTML = `
     <div class="pagehead"><div><h1>Requests</h1><p>Brands who built a challenge on the sponsor page. Review, then approve or decline. Approving makes the sponsor and a draft challenge; it goes live when you mark it paid.</p></div>
-      <a class="btn line" href="https://performativegroup.com/sponsor/" target="_blank">Open the sponsor page ↗</a></div>
+      <a class="btn line" href="https://performativegroup.com/sponsor/" target="_blank" rel="noopener noreferrer">Open the sponsor page ↗</a></div>
     <div class="toolbar"><div class="segs" id="reqSegs">${["pending", "approved", "declined", "all"].map(s => `<button data-s="${s}" class="${reqFilter === s ? "on" : ""}">${s === "all" ? "All" : REQ_LABEL[s]} <span class="muted">${s === "all" ? data.length : count(s)}</span></button>`).join("")}</div></div>
     <div class="card" style="padding:6px 8px">${rows.length ? `<table><thead><tr><th>Brand</th><th>Challenge</th><th>Runs</th><th>Where</th><th>Price</th><th>Status</th></tr></thead><tbody>
-      ${rows.map(r => `<tr class="click" data-id="${r.id}">
-        <td><div class="row" style="gap:10px; flex-wrap:nowrap">${r.logo_path ? `<img src="${logoURL(r.logo_path)}" class="logo" style="object-fit:cover;background:#fff;box-shadow:inset 0 0 0 1px var(--hair)">` : `<span class="logo" style="background:${esc(r.color)}">${esc(r.company[0])}</span>`}
+      ${rows.map(r => `<tr class="click" data-id="${esc(r.id)}">
+        <td><div class="row" style="gap:10px; flex-wrap:nowrap">${r.logo_path ? `<img src="${esc(logoURL(r.logo_path))}" alt="" class="logo" style="object-fit:cover;background:#fff;box-shadow:inset 0 0 0 1px var(--hair)">` : `<span class="logo" style="background:${esc(r.color)}">${esc(r.company[0])}</span>`}
           <div><b>${esc(r.company)}</b><div class="muted small">${esc(r.contact_name)} · ${when(r.created_at)}</div></div></div></td>
-        <td><b>${esc(r.title)}</b>${(r.featured_on || r.featured) ? ` <span class="pill dark">${slotLabel(r.featured_on || "all")}</span>` : ""}<div class="muted small">${esc(r.rule)}</div></td>
-        <td>${dayLabel(r.starts_on)}<div class="muted small">${r.days} days</div></td>
+        <td><b>${esc(r.title)}</b>${(r.featured_on || r.featured) ? ` <span class="pill dark">${esc(slotLabel(r.featured_on || "all"))}</span>` : ""}<div class="muted small">${esc(r.rule)}</div></td>
+        <td>${dayLabel(r.starts_on)}<div class="muted small">${esc(r.days)} days</div></td>
         <td>${r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"}</td>
         <td><b>HK$${fmt(r.quote?.price)}</b></td>
         <td><span class="pill ${r.status === "pending" ? "draft" : r.status === "approved" ? (r.paid_at ? "live" : "scheduled") : "ended"}">${r.status === "approved" ? (r.paid_at ? "Paid · live" : "Approved · unpaid") : REQ_LABEL[r.status]}</span></td></tr>`).join("")}
@@ -1210,16 +1235,19 @@ async function openRequest(r) {
   const ends = addDays(r.starts_on, r.days - 1);
   const { data: now } = await sb.rpc("public_quote", { p_region: r.region, p_days: r.days, p_capacity: r.capacity, p_featured: r.featured_on || (r.featured ? "all" : null), p_categories: r.categories });
   const q = r.quote || {};
-  const lines = [["Company", esc(r.company) + (r.website ? ` · <a href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.website)}</a>` : "")],
+  const site = safeUrl(r.website);
+  const lines = [["Company", esc(r.company) + (r.website ? " · " + (site
+      ? `<a href="${esc(site)}" target="_blank" rel="noopener noreferrer">${esc(r.website)}</a>`
+      : `<span class="pill red">Invalid link</span> ${esc(r.website)}`) : "")],
     ["Contact", `${esc(r.contact_name)} · <a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.phone ? " · " + esc(r.phone) : ""}`],
     ["Challenge", `<b>${esc(r.title)}</b> · ${esc(r.rule)}`], ["Area and activities", `${esc(r.group_name)} · ${esc((r.categories || []).join(", "))}`],
-    ["Daily target", esc(target)], ["Dates", `${dayLabel(r.starts_on)} – ${dayLabel(ends)} (${r.days} days)`],
+    ["Daily target", esc(target)], ["Dates", `${dayLabel(r.starts_on)} – ${dayLabel(ends)} (${esc(r.days)} days)`],
     ["Who can join", r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"], ["Spots", r.capacity ? fmt(r.capacity) : "No limit"],
-    ["Placement", (r.featured_on || r.featured) ? (r.featured_on && r.featured_on !== "all" ? `Featured on the ${esc(r.featured_on)} page` : "Featured on the main page") : "Standard"], ["Prize or note", esc(r.cover_note || "—")], ["About the brand", esc(r.about || "—")], ["Their notes", esc(r.notes || "—")]];
+    ["Placement", (r.featured_on || r.featured) ? (r.featured_on && r.featured_on !== "all" ? `Featured on the ${esc(r.featured_on)} page` : "Featured on the main page") : "Standard"], ["Reward or note", esc(r.cover_note || "—")], ["About the brand", esc(r.about || "—")], ["Their notes", esc(r.notes || "—")]];
   el.innerHTML = `
     <div class="pagehead"><div><a href="#" id="rBack" class="muted small" style="text-decoration:none">← All requests</a>
       <h1 style="margin-top:6px">${esc(r.company)}: ${esc(r.title)}</h1>
-      <p>Sent ${when(r.created_at)} · reference ${r.id.slice(0, 8).toUpperCase()} · <span class="pill ${r.status === "pending" ? "draft" : "scheduled"}">${REQ_LABEL[r.status]}</span>${r.decided_at ? ` · decided ${when(r.decided_at)}` : ""}${r.paid_at ? ` · paid ${when(r.paid_at)}` : ""}</p></div></div>
+      <p>Sent ${when(r.created_at)} · reference ${esc(String(r.id).slice(0, 8).toUpperCase())} · <span class="pill ${r.status === "pending" ? "draft" : "scheduled"}">${REQ_LABEL[r.status]}</span>${r.decided_at ? ` · decided ${when(r.decided_at)}` : ""}${r.paid_at ? ` · paid ${when(r.paid_at)}` : ""}</p></div></div>
     <div class="editor" style="grid-template-columns: minmax(0,1fr) 330px">
       <div>
         <div class="card section"><h3>What they asked for</h3><p>Check the wording, dates and target are sensible and safe.</p>
@@ -1228,7 +1256,7 @@ async function openRequest(r) {
           <div class="grid kpis">
             <div class="kpi"><span class="eyebrow">Quoted</span><b>HK$${fmt(q.price)}</b><div class="muted small">${fmt(q.reach_low)}–${fmt(q.reach_high)} people</div></div>
             <div class="kpi"><span class="eyebrow">Today</span><b>HK$${fmt(now?.price)}</b><div class="muted small">${fmt(now?.reach_low)}–${fmt(now?.reach_high)} people</div></div>
-            <div class="kpi"><span class="eyebrow">Activity match</span><b>${q.affinity ?? "—"}×</b><div class="muted small">How popular their activities are</div></div>
+            <div class="kpi"><span class="eyebrow">Activity match</span><b>${esc(q.affinity ?? "—")}×</b><div class="muted small">How popular their activities are</div></div>
           </div>
           <p class="help" style="margin-top:10px">Invoice the quoted price: it's what they agreed to.</p></div>
         ${r.status === "pending" ? `<div class="card section"><h3>Decide</h3><p>They get an email either way. A note is optional for approvals and helps for declines.</p>
@@ -1244,8 +1272,8 @@ async function openRequest(r) {
       <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">How it would look</div>
         <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
           <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
-          <div class="pcard" style="background:${esc(r.color)}"><div class="wm">${r.logo_path ? `<img src="${logoURL(r.logo_path)}">` : ""}${esc(r.company.toUpperCase())}${(r.featured_on || r.featured) ? " · FEATURED" : ""}</div>
-            <div><h4>${esc(r.title)}</h4><div class="meta">${esc(r.rule)} · ${r.days} days · ${r.region ? esc(countryName(r.region)) : "Worldwide"}</div></div><span class="join">Join</span></div>
+          <div class="pcard" style="background:${esc(r.color)}"><div class="wm">${r.logo_path ? `<img src="${esc(logoURL(r.logo_path))}" alt="">` : ""}${esc(r.company.toUpperCase())}${(r.featured_on || r.featured) ? " · FEATURED" : ""}</div>
+            <div><h4>${esc(r.title)}</h4><div class="meta">${esc(r.rule)} · ${esc(r.days)} days · ${r.region ? esc(countryName(r.region)) : "Worldwide"}</div></div><span class="join">Join</span></div>
           ${r.cover_note ? `<div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}; font-size:12px"><b>${esc(r.cover_note)}</b></div>` : ""}
           <div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}"><b style="font-size:13px">About ${esc(r.company)}</b><div style="font-size:12px; margin-top:6px; color:#333">${esc(r.about || "No about text.")}</div></div>
         </div></div></div>
@@ -1328,7 +1356,7 @@ async function loadPricing() {
         </div>
         <div class="card section"><h3>Who can see it</h3><p>The audience is everyone who could join: all accounts, or only those in one country.</p>
           <div class="segs" id="pqWhere" style="margin-bottom:12px"><button type="button" data-w="world">🌍 Worldwide</button><button type="button" data-w="country">One country</button></div>
-          <select id="pqRegion" class="hidden" style="margin-bottom:12px">${regionsWithPeople.map(r => `<option value="${r.region}">${flag(r.region)} ${esc(countryName(r.region))} · ${whole(r.people)} accounts</option>`).join("")}
+          <select id="pqRegion" class="hidden" style="margin-bottom:12px">${regionsWithPeople.map(r => `<option value="${esc(r.region)}">${flag(r.region)} ${esc(countryName(r.region))} · ${whole(r.people)} accounts</option>`).join("")}
             <option disabled>──────────</option>${COUNTRIES.filter(c => !audience.regions.some(r => r.region === c.code)).map(c => `<option value="${c.code}">${flag(c.code)} ${esc(c.name)} · 0 accounts</option>`).join("")}</select>
           <div class="segs" id="pqBasis" style="margin-bottom:12px"><button type="button" data-b="all">All accounts</button><button type="button" data-b="active">Posted in the last 30 days</button></div>
           <label class="f"><span>Growth by the start date <small>· e.g. 20 if you expect 20% more accounts by then</small></span>
@@ -1351,7 +1379,7 @@ async function loadPricing() {
                ["setup", "Set-up fee HK$", "Building it: brand, card, reports", 100],
                ["featuredFee", "Main featured fee HK$", "For the main page's top spot", 500],
                ["minimum", "Minimum HK$", "Never quote below this", 500]].map(([k, l, h, st]) =>
-               `<label class="f"><span>${l}</span><input type="number" step="${st}" data-a="${k}" value="${priceAssume[k]}"><div class="help">${h}</div></label>`).join("")}
+               `<label class="f"><span>${l}</span><input type="number" step="${st}" data-a="${k}" value="${esc(priceAssume[k])}"><div class="help">${h}</div></label>`).join("")}
           </div>
           <div class="help" id="pqMeasured"></div>
         </div>
@@ -1415,7 +1443,7 @@ Expected participants: ${whole(m.E.low)} to ${whole(m.E.high)}
 Price: ${money(m.price.mid)} (about ${money(m.price.mid / HKD_PER_USD, "US$")})
 
 Included: your branded challenge card${pq.slot ? " in the featured spot" : ""}, logo and brand colours, start, reminder and results notifications to participants, a live report link, and halftime and final reports by email.
-Every figure we share is a total: Performative never shares names, photos, posts or messages.`;
+Every figure we share is a count or a total: Performative never shares names, photos, posts, messages or anyone's Apple Health data.`;
       await navigator.clipboard.writeText(text); toast("Quote copied");
     };
   };
@@ -1459,10 +1487,10 @@ async function loadPeople(q = "") {
   const { data, error } = await sb.rpc("admin_people", { q }); if (error) throw error;
   $("#peopleList").innerHTML = data.length ? `<table><thead><tr><th>Person</th><th>Email</th><th>Joined</th><th>Posts</th><th>Friends</th><th>Last post</th><th></th></tr></thead><tbody>
     ${data.map(p => `<tr><td><b>${esc(p.name)}</b><div class="muted small">@${esc(p.handle)}</div>
-        <div class="row" style="margin-top:4px; gap:6px">${p.suspended_at ? '<span class="pill red">Suspended</span>' : ""}${p.open_reports ? `<span class="pill red">${p.open_reports} report${p.open_reports > 1 ? "s" : ""}</span>` : ""}</div></td>
+        <div class="row" style="margin-top:4px; gap:6px">${p.suspended_at ? '<span class="pill red">Suspended</span>' : ""}${p.open_reports ? `<span class="pill red">${esc(p.open_reports)} report${p.open_reports > 1 ? "s" : ""}</span>` : ""}</div></td>
       <td>${esc(p.email || "")}</td><td>${dayLabel(p.created_at)}</td><td>${fmt(p.posts)}</td><td>${fmt(p.friends)}</td>
       <td>${p.last_post ? when(p.last_post) : '<span class="muted">—</span>'}</td>
-      <td style="text-align:right">${p.suspended_at ? `<button class="btn ghost small" data-id="${p.id}" data-s="0">Lift suspension</button>` : `<button class="btn line small" data-id="${p.id}" data-s="1">Suspend</button>`}</td></tr>`).join("")}
+      <td style="text-align:right">${p.suspended_at ? `<button class="btn ghost small" data-id="${esc(p.id)}" data-s="0">Lift suspension</button>` : `<button class="btn line small" data-id="${esc(p.id)}" data-s="1">Suspend</button>`}</td></tr>`).join("")}
     </tbody></table>` : '<div class="empty">No one found.</div>';
   $$("#peopleList button[data-id]").forEach(b => b.onclick = async () => {
     const suspend = b.dataset.s === "1";

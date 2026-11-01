@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -20,9 +22,6 @@
   .hero h1 { font-size:clamp(46px, 7vw, 92px); line-height:.96; margin:18px 0 22px; }
   .hero .lead { font-size:19px; line-height:1.55; color:var(--muted); max-width:500px; margin:0 0 30px; }
   .hero .ctas { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-  .badge { display:inline-flex; align-items:center; gap:10px; background:var(--ink); color:#fff; border-radius:14px; padding:9px 18px 9px 14px; text-decoration:none; }
-  .badge svg { width:24px; height:24px; fill:#fff; }
-  .badge small { display:block; font-size:10px; opacity:.75; letter-spacing:.02em; } .badge b { display:block; font-size:17px; letter-spacing:-.01em; line-height:1.1; }
   .stage { position:relative; display:flex; justify-content:center; min-height:640px; }
   .float { position:absolute; background:#fff; border-radius:18px; box-shadow:0 18px 40px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06); padding:14px 16px; }
   .float.streak { left:-4px; top:290px; width:150px; text-align:center; }
@@ -120,6 +119,7 @@
   .ccard .bar { height:5px; background:rgba(255,255,255,.28); border-radius:9px; margin-top:14px; overflow:hidden; } .ccard .bar i { display:block; height:100%; background:#fff; border-radius:9px; }
   .ccard .join { align-self:flex-start; margin-top:16px; background:#fff; color:#111; border-radius:99px; padding:8px 16px; font-weight:700; font-size:13px; }
   @media (max-width:900px) { .cards { grid-template-columns:1fr; } .ccard { min-height:200px; } }
+  .examples { margin:12px 0 0; font-size:13px; color:var(--muted); text-align:center; }
   .brandband { margin-top:18px; background:var(--ink); color:#fff; border-radius:22px; padding:30px 32px; display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
   .brandband h3 { font-size:clamp(24px, 3vw, 32px); } .brandband p { margin:6px 0 0; color:#A3A3A3; max-width:560px; line-height:1.5; }
   .brandband .btn { margin-left:auto; }
@@ -129,15 +129,6 @@
   .priv > div { border-top:2px solid #fff; padding-top:18px; }
   .priv b { display:block; font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:-.02em; margin-bottom:8px; } .priv p { margin:0; color:#A3A3A3; line-height:1.55; font-size:15px; }
   @media (max-width:900px) { .priv { grid-template-columns:1fr 1fr; } } @media (max-width:520px) { .priv { grid-template-columns:1fr; } }
-
-  /* Plans */
-  .plans { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:860px; margin:0 auto; }
-  .plan { background:var(--bg); border-radius:22px; padding:28px; }
-  .plan.dark { background:var(--ink); color:#fff; }
-  .plan h3 { font-size:30px; } .plan .sub { color:var(--muted); margin:6px 0 20px; } .plan.dark .sub { color:#A3A3A3; }
-  .plan ul { list-style:none; padding:0; margin:0; } .plan li { padding:11px 0; border-top:1px solid rgba(0,0,0,.07); display:flex; justify-content:space-between; gap:12px; font-size:15px; }
-  .plan.dark li { border-color:rgba(255,255,255,.1); } .plan li b { font-weight:600; }
-  @media (max-width:700px) { .plans { grid-template-columns:1fr; } }
 
   /* Download */
   .download { text-align:center; padding:110px 0; }
@@ -161,9 +152,6 @@
     <h1>Celebrate the <em>small wins.</em></h1>
     <p class="lead">Performative is for doing the things you mean to do. Start a timer, snap a live photo when you're done, and watch your days fill up, together with your friends.</p>
     <div class="ctas">
-      <a class="badge" href="#download" aria-label="Coming soon on the App Store">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.37 12.62c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5zM14.2 6.16c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.08 1.96-.49 2.56-1.21z"/></svg>
-        <span><small>Coming soon on the</small><b>App Store</b></span></a>
       <a class="btn big" href="/early-access/">Get early access</a>
     </div>
   </div>
@@ -255,6 +243,7 @@
     <div class="ccard rv" style="background:#0F7B5F"><div class="wm">LEAFNOTE</div><div><h3>Read 30</h3><div class="meta">Read 20 min a day · 30 days · Worldwide</div><div class="bar"><i style="width:30%"></i></div></div><span class="join">Join</span></div>
     <div class="ccard rv" style="background:#111"><div class="wm">PERFORMATIVE</div><div><h3>Morning Yoga</h3><div class="meta">Yoga 15 min before 10am · 14 days</div><div class="bar"><i style="width:45%"></i></div></div><span class="join">Join</span></div>
   </div>
+  <p class="examples">Examples. The brands shown are made up.</p>
   <div class="brandband rv">
     <div><div class="eyebrow" style="color:#8a8a8a">For brands</div><h3 style="margin-top:8px">Put your brand inside people's daily habits.</h3>
       <p>Sponsor a challenge on Performative and get your colours in front of people every day they take part, with real numbers at the end.</p></div>
@@ -273,21 +262,10 @@
   </div>
 </div></section>
 
-<section class="block" id="plans"><div class="wrap">
-  <div class="shead center rv"><div class="eyebrow">Free to use</div><h2>Everything you need, free.</h2>
-    <p>Plus is there if you want more room for goals, groups and challenges.</p></div>
-  <div class="plans">
-    <div class="plan rv"><h3>Free</h3><p class="sub">For getting started</p>
-      <ul><li><span>Daily goals</span><b>Up to 3</b></li><li><span>Personal goals</span><b>Up to 7 days</b></li><li><span>Groups you can be in</span><b>Up to 5</b></li><li><span>Group size</span><b>Up to 10 people</b></li><li><span>Challenges at once</span><b>Up to 2</b></li></ul></div>
-    <div class="plan dark rv"><h3>Plus</h3><p class="sub">Monthly subscription</p>
-      <ul><li><span>Daily goals</span><b>Up to 10</b></li><li><span>Personal goals</span><b>Longer than 7 days</b></li><li><span>Groups you can be in</span><b>Up to 20</b></li><li><span>Group size</span><b>Up to 50 people</b></li><li><span>Challenges at once</span><b>Up to 5</b></li></ul></div>
-  </div>
-</div></section>
-
 <section class="block alt" id="faq"><div class="wrap" style="max-width:860px">
   <div class="shead rv"><div class="eyebrow">Questions</div><h2>Good to know.</h2></div>
   <details><summary>When can I get it?</summary><p>Performative is coming soon to the App Store for iPhone. It needs iOS 17 or later.</p></details>
-  <details><summary>Is it free?</summary><p>Yes. Everything you need is free. Performative Plus is an optional monthly subscription with room for more goals, groups and challenges.</p></details>
+  <details><summary>Is it free?</summary><p>Yes. Performative is free to download and use, and every challenge is free to join.</p></details>
   <details><summary>Why can't I post from my camera roll?</summary><p>Because a post should mean you actually did it. Every post is a live photo taken at the end of what you did, straight from the camera.</p></details>
   <details><summary>Who can see my posts?</summary><p>You choose for each post: friends, a group or everyone. You can also make your whole account private, so only people you approve can follow along.</p></details>
   <details><summary>Is it on Android?</summary><p>Not yet. We're starting with iPhone.</p></details>
@@ -298,9 +276,8 @@
 <section class="download" id="download"><div class="wrap">
   <div class="mark rv">P.</div>
   <h2 class="rv">Do something productive.<br><em>Every day.</em></h2>
-  <p class="rv">Performative is coming soon to iPhone. Join the early access list and be one of the first in.</p>
+  <p class="rv">Coming soon to iPhone. Join the early access list and be one of the first in.</p>
   <div class="rv" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
-    <span class="badge" aria-label="Coming soon on the App Store"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.37 12.62c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5zM14.2 6.16c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.08 1.96-.49 2.56-1.21z"/></svg><span><small>Coming soon on the</small><b>App Store</b></span></span>
     <a class="btn big" href="/early-access/">Get early access</a>
   </div>
 </div></section>

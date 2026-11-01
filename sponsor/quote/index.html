@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -11,7 +13,7 @@
 <link rel="stylesheet" href="/assets/site.css?v=3">
 <title>See Quotes · Sponsor a Challenge · Performative</title>
 <meta name="description" content="Build a sponsored challenge on Performative and see your estimated reach and price as you go. Nothing is charged until we approve it.">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <style>
   .pcard { border-radius:22px; padding:18px; color:#fff; min-height:200px; display:flex; flex-direction:column; justify-content:space-between; transition:background .6s ease; background:var(--brand); }
   .pcard .wm { font-weight:700; letter-spacing:.16em; font-size:11px; display:flex; gap:8px; align-items:center; }
@@ -151,63 +153,64 @@
   <div id="builderArea" class="builder">
     <form id="form" novalidate>
       <div class="panel"><h3><span class="n">1</span>The activity</h3><p class="sub">What people do each day to count.</p>
-        <div class="field"><span class="label">Area</span><div class="chips" id="groups"></div></div>
-        <div class="field" data-f="categories"><span class="label">Activities that count <small>· pick one or more</small></span><div class="chips" id="cats"></div><div class="err" data-e="categories"></div></div>
-        <div class="field"><span class="label">Measured by</span><div class="segs" id="metric"></div><div class="small muted" id="metricHelp" style="margin-top:8px"></div></div>
-        <div class="field" data-f="daily_target"><span class="label" id="targetLabel">Daily target</span>
+        <div class="field"><span class="label" id="groupsLabel">Area</span><div class="chips" id="groups" role="group" aria-labelledby="groupsLabel"></div></div>
+        <div class="field" data-f="categories"><span class="label" id="catsLabel">Activities that count <small>· pick one or more</small></span><div class="chips" id="cats" role="group" aria-labelledby="catsLabel"></div><div class="err" data-e="categories"></div></div>
+        <div class="field"><span class="label" id="metricLabel">Measured by</span><div class="segs" id="metric" role="group" aria-labelledby="metricLabel"></div><div class="small muted" id="metricHelp" style="margin-top:8px"></div></div>
+        <div class="field" data-f="daily_target"><label class="label" id="targetLabel" for="target">Daily target</label>
           <div style="display:flex; gap:10px; align-items:center"><input type="number" id="target" min="1" style="max-width:160px"><span class="muted" id="targetUnit"></span></div><div class="err" data-e="daily_target"></div></div>
       </div>
 
       <div class="panel"><h3><span class="n">2</span>How long, and when</h3><p class="sub">First choose how many days it runs, then when it starts. Days run midnight to midnight, Hong Kong time.</p>
-        <div class="field"><span class="label">Length</span><div class="segs" id="lens"></div>
-          <input type="range" id="days" min="3" max="60" step="1" style="margin-top:14px"><div class="rangeval"><span>3 days</span><b id="daysVal"></b><span>60 days</span></div></div>
+        <div class="field"><span class="label" id="lensLabel">Length</span><div class="segs" id="lens" role="group" aria-labelledby="lensLabel"></div>
+          <input type="range" id="days" min="3" max="60" step="1" aria-label="Length in days" style="margin-top:14px"><div class="rangeval"><span>3 days</span><b id="daysVal"></b><span>60 days</span></div></div>
         <div class="two dates">
-          <div class="field" data-f="starts_on" style="margin-bottom:0"><span class="label">Start date</span><input type="date" id="start"><div class="err" data-e="starts_on"></div></div>
-          <div class="field" style="margin-bottom:0"><span class="label">Ends</span><input type="text" id="endText" readonly tabindex="-1"></div>
+          <div class="field" data-f="starts_on" style="margin-bottom:0"><label class="label" for="start">Start date</label><input type="date" id="start"><div class="err" data-e="starts_on"></div></div>
+          <div class="field" style="margin-bottom:0"><label class="label" for="endText">Ends</label><input type="text" id="endText" readonly tabindex="-1"></div>
         </div>
       </div>
 
       <div class="panel"><h3><span class="n">3</span>Who and how many</h3><p class="sub">Open it to everyone, or to people in one country.</p>
-        <div class="field"><div class="segs" id="where"><button type="button" data-w="world">🌍 Worldwide</button><button type="button" data-w="country">One country</button></div></div>
-        <div class="field hidden" id="countryField"><span class="label">Country</span><select id="country"></select></div>
-        <div class="field"><label class="switch"><div class="t"><b>Limit the number of spots</b><span>Useful if there's a prize or a product for each person.</span></div><input type="checkbox" id="capOn"></label>
-          <div id="capBox" class="hidden" style="margin-top:10px"><input type="range" id="cap" min="50" max="20000" step="50"><div class="rangeval"><span>50</span><b id="capVal"></b><span>20,000</span></div></div></div>
-        <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label">Placement</span>
-          <div class="slots" id="slots"></div><div class="err" data-e="featured_on"></div></div>
+        <div class="field"><div class="segs" id="where" role="group" aria-label="Who can join"><button type="button" data-w="world" aria-pressed="true">🌍 Worldwide</button><button type="button" data-w="country" aria-pressed="false">One country</button></div></div>
+        <div class="field hidden" id="countryField"><label class="label" for="country">Country</label><select id="country"></select></div>
+        <div class="field"><label class="switch"><div class="t"><b>Limit the number of spots</b><span>Useful for a launch or a limited offer.</span></div><input type="checkbox" id="capOn"></label>
+          <div id="capBox" class="hidden" style="margin-top:10px"><input type="range" id="cap" min="50" max="20000" step="50" aria-label="Number of spots"><div class="rangeval"><span>50</span><b id="capVal"></b><span>20,000</span></div></div></div>
+        <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label" id="slotsLabel">Placement</span>
+          <div class="slots" id="slots" role="group" aria-labelledby="slotsLabel"></div><div class="err" data-e="featured_on"></div></div>
       </div>
 
       <div class="panel"><h3><span class="n">4</span>Your brand</h3><p class="sub">How your challenge looks in the app.</p>
         <div class="two">
-          <div class="field" data-f="company"><span class="label">Company or brand name</span><input type="text" id="company" maxlength="60" autocomplete="organization"><div class="err" data-e="company"></div></div>
-          <div class="field"><span class="label">Website <small>· optional, shown as a link in the app</small></span><input type="url" id="website" placeholder="https://"></div>
+          <div class="field" data-f="company"><label class="label" for="company">Company or brand name</label><input type="text" id="company" maxlength="60" autocomplete="organization"><div class="err" data-e="company"></div></div>
+          <div class="field" data-f="website"><label class="label" for="website">Website <small>· optional, shown as a link in the app</small></label><input type="text" inputmode="url" autocomplete="url" autocapitalize="off" spellcheck="false" id="website" maxlength="200" placeholder="yourbrand.com"><div class="err" data-e="website"></div></div>
         </div>
         <div class="field" data-f="logo"><span class="label">Logo <small>· PNG or JPEG, under 1.5 MB · shown in a circle</small></span>
           <label class="drop" id="drop"><span class="ph" id="logoPh">＋</span><img id="logoImg" class="hidden" alt="Your logo"><div style="min-width:0"><b id="logoName" style="overflow-wrap:anywhere">Choose a file or drop it here</b><div class="small muted">It's cropped to a circle, so keep it centred with a little space around it.</div></div>
             <input type="file" id="logo" accept="image/png,image/jpeg" hidden></label><div class="err" data-e="logo"></div></div>
         <div class="field" data-f="color"><span class="label">Brand colour</span>
-          <div class="colorrow"><input type="color" id="colorPick" value="#2340FF" aria-label="Pick a colour"><input type="text" id="color" value="#2340FF" maxlength="7"><div class="sw" id="swatches"></div></div>
+          <div class="colorrow"><input type="color" id="colorPick" value="#2340FF" aria-label="Pick a colour"><input type="text" id="color" value="#2340FF" maxlength="7" aria-label="Brand colour as a hex code"><div class="sw" id="swatches"></div></div>
           <div class="small" id="contrast" style="margin-top:8px"></div><div class="err" data-e="color"></div></div>
-        <div class="field" style="margin-bottom:0"><span class="label">About your brand <small>· shown when people tap "Sponsored", optional</small></span><textarea id="about" maxlength="400" placeholder="Two sentences about who you are."></textarea></div>
+        <div class="field" style="margin-bottom:0"><label class="label" for="about">About your brand <small>· shown when people tap "Sponsored", optional</small></label><textarea id="about" maxlength="400" placeholder="Two sentences about who you are."></textarea></div>
       </div>
 
       <div class="panel"><h3><span class="n">5</span>The challenge card</h3><p class="sub">The words people see. We may suggest edits when we review it.</p>
         <div class="two">
-          <div class="field" data-f="title"><span class="label">Challenge name</span><input type="text" id="title" maxlength="40" placeholder="e.g. Run Week"><div class="err" data-e="title"></div></div>
-          <div class="field" data-f="rule"><span class="label">The rule <small>· one line</small></span><input type="text" id="rule" maxlength="60"><div class="err" data-e="rule"></div></div>
+          <div class="field" data-f="title"><label class="label" for="title">Challenge name</label><input type="text" id="title" maxlength="40" placeholder="e.g. Run Week"><div class="err" data-e="title"></div></div>
+          <div class="field" data-f="rule"><label class="label" for="rule">The rule <small>· one line</small></label><input type="text" id="rule" maxlength="60"><div class="err" data-e="rule"></div></div>
         </div>
-        <div class="field" style="margin-bottom:0"><span class="label">Prize or note <small>· optional</small></span><input type="text" id="cover" maxlength="200" placeholder="e.g. Everyone who finishes gets 20% off. Top 3 win a pair of runners."></div>
+        <div class="field" style="margin-bottom:0"><label class="label" for="cover">Reward or note <small>· optional</small></label><input type="text" id="cover" maxlength="200" placeholder="e.g. Do 10 of the 14 days and get 20% off at our store." aria-describedby="coverHelp">
+          <div class="small muted" id="coverHelp" style="margin-top:8px">Rewards are discount codes you supply. Performative runs the challenge and emails your code to everyone who earns it. Rewards can only go on Time challenges (measured by the app's timer), and there are no prize draws.</div></div>
       </div>
 
       <div class="panel"><h3><span class="n">6</span>Your details</h3><p class="sub">So we can reply and send your invoice.</p>
         <div class="two">
-          <div class="field" data-f="contact_name"><span class="label">Your name</span><input type="text" id="cname" autocomplete="name"><div class="err" data-e="contact_name"></div></div>
-          <div class="field" data-f="email"><span class="label">Work email</span><input type="email" id="email" autocomplete="email"><div class="err" data-e="email"></div></div>
+          <div class="field" data-f="contact_name"><label class="label" for="cname">Your name</label><input type="text" id="cname" autocomplete="name"><div class="err" data-e="contact_name"></div></div>
+          <div class="field" data-f="email"><label class="label" for="email">Work email</label><input type="email" id="email" autocomplete="email"><div class="err" data-e="email"></div></div>
         </div>
-        <div class="field"><span class="label">Phone <small>· optional</small></span><input type="tel" id="phone" autocomplete="tel"></div>
-        <div class="field"><span class="label">Anything else? <small>· optional</small></span><textarea id="notes" maxlength="1000" placeholder="Goals, timing, a product launch it ties into…"></textarea></div>
-        <div class="field" data-f="agree" style="margin-bottom:0"><label class="switch"><div class="t"><b>I agree to the <a href="/sponsor/#terms" target="_blank">sponsor terms</a></b><span>Nothing is charged now. You pay only after we approve it.</span></div><input type="checkbox" id="agree"></label><div class="err" data-e="agree"></div></div>
+        <div class="field"><label class="label" for="phone">Phone <small>· optional</small></label><input type="tel" id="phone" autocomplete="tel"></div>
+        <div class="field"><label class="label" for="notes">Anything else? <small>· optional</small></label><textarea id="notes" maxlength="1000" placeholder="Goals, timing, a product launch it ties into…"></textarea></div>
+        <div class="field" data-f="agree" style="margin-bottom:0"><label class="switch"><div class="t"><b>I agree to the <a href="/sponsor/#terms" target="_blank" rel="noopener noreferrer">sponsor terms</a></b><span>Nothing is charged now. You pay only after we approve it.</span></div><input type="checkbox" id="agree"></label><div class="err" data-e="agree"></div></div>
       </div>
-      <div class="err" id="formErr" style="margin:0 0 12px"></div>
+      <div class="err" id="formErr" role="alert" style="margin:0 0 12px"></div>
       <button type="submit" class="btn" id="submit" style="width:100%; padding:17px">Send for review</button>
       <p class="small muted" style="text-align:center">We reply within two working days.</p>
     </form>
@@ -228,6 +231,7 @@
           <li>Start, reminder and results notifications to everyone in it</li>
           <li>Live report link from day one</li>
           <li>Halftime and final reports by email</li>
+          <li>Counts and totals only, never anyone's personal or Apple Health data</li>
           <li id="incFeat" class="hidden"></li>
         </ul>
       </div>
@@ -247,7 +251,6 @@
 
 <div class="mbar" id="mbar"><div><b id="mPrice">…</b><span id="mReach"></span></div><button type="button" id="mSee">See estimate</button></div>
   <p class="mini-terms">By sending a request you agree to the <a href="/sponsor/#terms">sponsor terms</a>. Questions? <a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a></p>
-</div></section>
 </main>
 <footer class="site"><div class="wrap">
   <div class="cols">
@@ -273,8 +276,8 @@ const money = x => "HK$" + whole(x);
 const GROUPS = { Exercise:["Running","Walking","Workout","Gym","Cycling","Swimming","Yoga","Sport"], Learning:["Reading","Studying","Language","Coding"],
   Mind:["Meditation","Journaling","Yoga"], Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Home:["Cooking","Cleaning"] };
 const METRICS = { time:{ label:"Time", unit:"minutes a day", def:20, help:"Timed in the app with a live photo at the end." },
-  km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout. Can't be typed in." },
-  steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count." } };
+  km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout, so it can't be typed in. Your report shows joins and posts, never distances. Rewards need a Time challenge." },
+  steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count. Your report shows joins and posts, never step counts. Rewards need a Time challenge." } };
 const DISTANCE = new Set(["Running","Walking","Cycling","Swimming"]);
 const COUNTRY_CODES = "AE AR AT AU BE BR CA CH CL CN CO CZ DE DK EG ES FI FR GB GR HK HU ID IE IL IN IT JP KR KW MO MX MY NG NL NO NZ PH PK PL PT QA RO SA SE SG TH TR TW UA US VN ZA".split(" ");
 const regionNames = new Intl.DisplayNames(["en"], { type:"region" });
@@ -291,9 +294,9 @@ let taken = [], slotPrices = {};
 // ---------- nav shadow, hero card rotation ----------
 // ---------- builder ----------
 function drawGroups() {
-  $("#groups").innerHTML = Object.keys(GROUPS).map(g => `<button type="button" class="chip ${st.group === g ? "on" : ""}" data-g="${g}">${g}</button>`).join("");
+  $("#groups").innerHTML = Object.keys(GROUPS).map(g => `<button type="button" class="chip ${st.group === g ? "on" : ""}" data-g="${g}" aria-pressed="${st.group === g}">${g}</button>`).join("");
   $$("#groups .chip").forEach(b => b.onclick = () => { st.group = b.dataset.g; st.cats = [GROUPS[st.group][0]]; if (st.slot && st.slot !== "all") st.slot = st.group; autoMetric(); drawAll(); });
-  $("#cats").innerHTML = GROUPS[st.group].map(c => `<button type="button" class="chip ${st.cats.includes(c) ? "on" : ""}" data-c="${c}">${c}</button>`).join("");
+  $("#cats").innerHTML = GROUPS[st.group].map(c => `<button type="button" class="chip ${st.cats.includes(c) ? "on" : ""}" data-c="${c}" aria-pressed="${st.cats.includes(c)}">${c}</button>`).join("");
   $$("#cats .chip").forEach(b => b.onclick = () => { const c = b.dataset.c; st.cats = st.cats.includes(c) ? st.cats.filter(x => x !== c) : [...st.cats, c]; autoMetric(); drawAll(); });
 }
 function availableMetrics() {
@@ -304,20 +307,20 @@ function availableMetrics() {
 function autoMetric() { const m = availableMetrics(); if (!m.includes(st.metric)) { st.metric = m[0]; st.target = METRICS[st.metric].def; } }
 function drawMetric() {
   const m = availableMetrics();
-  $("#metric").innerHTML = m.map(k => `<button type="button" data-m="${k}" class="${st.metric === k ? "on" : ""}">${METRICS[k].label}</button>`).join("");
+  $("#metric").innerHTML = m.map(k => `<button type="button" data-m="${k}" class="${st.metric === k ? "on" : ""}" aria-pressed="${st.metric === k}">${METRICS[k].label}</button>`).join("");
   $$("#metric button").forEach(b => b.onclick = () => { st.metric = b.dataset.m; st.target = METRICS[st.metric].def; drawAll(); });
   $("#metricHelp").textContent = METRICS[st.metric].help;
   $("#targetUnit").textContent = METRICS[st.metric].unit; $("#target").value = st.target;
 }
 function drawWhen() {
   $("#start").min = addDays(hkToday(), 5); $("#start").value = st.start;
-  $("#lens").innerHTML = [7, 14, 21, 30].map(n => `<button type="button" data-l="${n}" class="${st.days === n ? "on" : ""}">${n} days</button>`).join("");
+  $("#lens").innerHTML = [7, 14, 21, 30].map(n => `<button type="button" data-l="${n}" class="${st.days === n ? "on" : ""}" aria-pressed="${st.days === n}">${n} days</button>`).join("");
   $$("#lens button").forEach(b => b.onclick = () => { st.days = Number(b.dataset.l); drawAll(); });
   $("#days").value = st.days; $("#daysVal").textContent = st.days + " days";
   $("#endText").value = nice(addDays(st.start, st.days - 1));
 }
 function drawWhere() {
-  $$("#where button").forEach(b => b.classList.toggle("on", (b.dataset.w === "country") === !!st.region));
+  $$("#where button").forEach(b => { const on = (b.dataset.w === "country") === !!st.region; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
   $("#countryField").classList.toggle("hidden", !st.region);
   $("#capBox").classList.toggle("hidden", !st.cap); $("#capOn").checked = !!st.cap;
   if (st.cap) { $("#cap").value = st.cap; $("#capVal").textContent = whole(st.cap) + " spots"; }
@@ -330,7 +333,7 @@ function drawSlots() {
     ["all", "Featured on the main page", "The big card at the top of Challenges, seen by everyone"]];
   if (st.slot && taken.includes(st.slot)) st.slot = null;
   $("#slots").innerHTML = opts.map(([k, t, d]) => { const isTaken = k && taken.includes(k), on = st.slot === k;
-    return `<button type="button" class="slot ${on ? "on" : ""} ${isTaken ? "taken" : ""}" data-k="${k ?? ""}" ${isTaken ? "disabled" : ""}><span class="dot"></span>
+    return `<button type="button" class="slot ${on ? "on" : ""} ${isTaken ? "taken" : ""}" data-k="${esc(k ?? "")}" aria-pressed="${on}" ${isTaken ? "disabled" : ""}><span class="dot"></span>
       <span class="t"><b>${esc(t)}${k === "all" ? '<span class="tag">Premium</span>' : ""}</b><span>${isTaken ? "Already booked for these dates" : esc(d)}</span></span>
       <span class="pr">${isTaken ? "Booked" : slotPrices[k ?? "none"] ? money(slotPrices[k ?? "none"]) : ""}</span></button>`; }).join("");
   $$("#slots .slot:not(.taken)").forEach(b => b.onclick = () => { st.slot = b.dataset.k || null; $("[data-e=featured_on]").textContent = ""; drawSlots(); drawPreview(); quote(); });
@@ -482,7 +485,6 @@ $("#form").addEventListener("click", e => { const f = e.target.closest("[data-f=
 $("#another").onclick = e => { e.preventDefault(); $("#doneArea").classList.add("hidden"); $("#builderArea").classList.remove("hidden"); };
 
 drawAll();
-</script>
 </script>
 </body>
 </html>

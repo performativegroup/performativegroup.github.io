@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -13,7 +15,7 @@
 <meta name="description" content="Put your brand inside people's daily habits. Sponsor a challenge on Performative: people join, do it every day and prove it with a live photo. See prices and build yours online.">
 <meta property="og:title" content="Sponsor a Challenge · Performative">
 <meta property="og:description" content="Put your brand inside people's daily habits.">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <style>
   .hero { padding:64px 0 80px; overflow:hidden; }
   .hero .wrap { display:grid; grid-template-columns:1.15fr .85fr; gap:48px; align-items:center; }
@@ -159,11 +161,11 @@
   <div class="show3">
     <div class="rv"><div class="vis"><div class="mini-card"><div class="wm">YOUR BRAND</div><h5>Your challenge</h5><span>Your rule · your dates · your colours</span></div></div>
       <h3>Your card, your colours</h3><p>A branded card on the Challenges page with your logo and colours, a link to your website, and a label on every post made for it.</p></div>
-    <div class="rv"><div class="vis"><div class="proof"><span class="tag">● Live photo</span><span class="h">Apple Health · 5.2 km</span><span class="t">28:14</span></div></div>
+    <div class="rv"><div class="vis"><div class="proof"><span class="tag">● Live photo</span><span class="h">Timed in the app</span><span class="t">28:14</span></div></div>
       <h3>Proof, not claims</h3><p>Every day counts only when it's real: timed in the app or read from Apple Health, with a live photo. No typing in numbers.</p></div>
-    <div class="rv"><div class="vis"><div class="rep"><div class="k"><div><b>1,240</b><span>joined</span></div><div><b>72%</b><span>took part</span></div><div><b>8,930</b><span>km covered</span></div><div><b>3,410</b><span>live photos</span></div></div>
+    <div class="rv"><div class="vis"><div class="rep"><div class="k"><div><b>1,240</b><span>joined</span></div><div><b>72%</b><span>took part</span></div><div><b>1,724</b><span>hours logged</span></div><div><b>3,410</b><span>live photos</span></div></div>
         <div class="bars"><i style="height:90%"></i><i style="height:84%"></i><i style="height:80%"></i><i style="height:76%"></i><i style="height:78%"></i><i style="height:72%"></i><i style="height:70%"></i></div></div></div>
-      <h3>Numbers you can share</h3><p>A live report link from day one, a halftime report and a final report by email. Totals only, so your participants' privacy is protected. <a href="#reports">See an example</a></p></div>
+      <h3>Numbers you can share</h3><p>A live report link from day one, a halftime report and a final report by email. Counts and totals only, so your participants' privacy is protected. <a href="#reports">See an example</a></p></div>
   </div>
 </div></section>
 
@@ -171,18 +173,18 @@
   <div class="rv">
     <div class="eyebrow">Your reports</div>
     <h2>Real numbers, <em>in your colours.</em></h2>
-    <p class="lead">Every sponsored challenge comes with reports you can forward straight to your team. They're branded with your logo and colours, and every number comes from real, timed activity.</p>
+    <p class="lead">Every sponsored challenge comes with reports you can forward straight to your team, branded with your logo and colours. They show how many people joined, posted and stayed in, live photos posted and where people are. For timed challenges, they also show the hours logged and how many people met the daily target.</p>
     <ul class="rlist">
       <li><i>1</i><div><b>A live report link from day one</b><span>Check sign-ups and daily activity whenever you like.</span></div></li>
-      <li><i>2</i><div><b>A halftime report by email</b><span>The morning after the middle day: who's joined, who's on track, and how many are on course for your reward.</span></div></li>
+      <li><i>2</i><div><b>A halftime report by email</b><span>The morning after the middle day: how many have joined and posted, and for timed challenges who's on track and on course for your reward.</span></div></li>
       <li><i>3</i><div><b>A final report by email</b><span>The morning after it ends: totals, daily completions, where people are, and how many earned your code.</span></div></li>
     </ul>
-    <p class="muted small" style="margin:0">Totals only. We never share names, photos, posts or messages, and countries with fewer than 5 people are grouped together.</p>
+    <p class="muted small" style="margin:0">Counts and totals only. We never share names, photos, posts, messages or anyone's Apple Health data. For distance and step challenges, which use Apple Health, you see joins and posts only: never distances, step counts or who hit a target. Countries with fewer than 5 people are grouped together.</p>
   </div>
   <div class="rv">
     <div class="rtabs" role="tablist"><button type="button" class="on" data-r="final" role="tab" aria-selected="true">Final report</button><button type="button" data-r="halftime" role="tab" aria-selected="false">Halftime report</button></div>
     <div class="rframe" id="rframe">
-      <img id="rimg" src="/assets/report-final.jpg" width="640" height="1657" alt="An example final report email for Fernhill 3K a Day, in the brand's green, with totals, a daily chart and where participants are." loading="lazy">
+      <img id="rimg" src="/assets/report-final.jpg" width="640" height="1657" alt="An example final report email for Fernhill 20 a Day, a timed challenge, in the brand's green, with totals, a daily chart and where participants are." loading="lazy">
       <div class="fade"><button class="btn" type="button" id="rmore">See the whole report</button></div>
     </div>
     <p class="rnote">Example report for a made-up brand, with sample numbers.</p>
@@ -219,7 +221,7 @@
     <div class="rv"><b>An idea</b><p>What people do each day, like running 3 km, reading 20 minutes or 8,000 steps.</p></div>
     <div class="rv"><b>Your dates</b><p>How long it runs, from 3 to 60 days, starting at least 5 days from now.</p></div>
     <div class="rv"><b>Your brand</b><p>A square logo (PNG or JPEG) and your brand colour. We'll check it reads well.</p></div>
-    <div class="rv"><b>A prize, if you like</b><p>Optional, but it helps sign-ups: a discount for finishers, or a prize for the top three.</p></div>
+    <div class="rv"><b>A reward, if you like</b><p>Optional, but it helps sign-ups: a discount code for everyone who reaches the target. Rewards go on timed challenges.</p></div>
   </div>
 </div></section>
 
@@ -227,9 +229,9 @@
   <div class="shead rv"><div class="eyebrow">Questions</div><h2>Good to know.</h2></div>
   <details><summary>Is this page just for brands?</summary><p>Yes. Sponsoring is for companies and organisations that want to run a branded challenge. If you just want to use Performative, <a href="/">head to the main site</a>.</p></details>
   <details><summary>How is the price worked out?</summary><p>We start from how many people are on Performative where your challenge is open, and how many typically join a challenge. We adjust for how long it runs (longer challenges get fewer sign-ups but more days of activity), featured placement, and how popular your chosen activities are with those people right now. There's a minimum price, and spots you limit are never charged beyond the limit.</p></details>
-  <details><summary>What data do I get about participants?</summary><p>Totals only: how many joined, took part, stayed on track, the total activity, live photos posted and which countries people are in. We never share names, photos, posts, messages or contact details. Countries with fewer than 5 people are grouped together.</p></details>
+  <details id="data"><summary>What data do I get about participants?</summary><p>Counts and totals only: how many joined, posted and stayed in, live photos posted, and which countries people are in. For timed challenges you also see the hours logged in the app and how many people stayed on track. We never share names, photos, posts, messages, contact details or anyone's Apple Health data, so for distance and step challenges you see joins and posts only, never distances, step counts or who hit a target. Countries with fewer than 5 people are grouped together.</p></details>
   <details><summary>Can I change it after sending?</summary><p>Yes. Reply to our email before you pay and we'll update it. After it's live, the wording and dates are fixed so it's fair to everyone taking part.</p></details>
-  <details><summary>Can I give a prize or a discount?</summary><p>Yes, and it helps sign-ups. A discount code works best: choose how many days people need to do, and everyone who gets there is emailed your code the morning after it ends. Bigger prizes are claimed by replying to that email; we pass on the winner's details only when they ask us to. You provide the reward itself, and you're responsible for honouring it.</p></details>
+  <details id="rewards"><summary>Can I offer a reward?</summary><p>Yes, a discount code, and it helps sign-ups. You choose how many days people need to do, and everyone who gets there is emailed your code the morning after it ends. Performative runs the challenge and sends the codes; you supply the code and honour it at checkout. Rewards can only go on challenges measured by the app's timer, not distance or steps. There are no prize draws, and nobody has to buy anything to take part. The app shows the official rules before anyone joins.</p></details>
   <details><summary>What won't you run?</summary><p>Challenges for alcohol, tobacco or vaping, gambling, weight-loss products or medical claims, anything unsafe (for example extreme fasting or distances without preparation), and anything misleading. We may decline any request.</p></details>
 </div></section>
 
@@ -238,9 +240,10 @@
   <ol>
     <li>Sending a request doesn't commit you to anything, and nothing is charged until we approve it and you pay our invoice.</li>
     <li>Prices are in Hong Kong dollars and are fixed once we approve your request. The estimated participants are a guide, not a guarantee.</li>
-    <li>You confirm you have the right to use the name, logo and colours you send us. Any discount code, prize or reward you offer is yours to provide, as described and at your own cost. Performative sends codes to people who earn them and forwards prize claims to you, but isn't responsible for fulfilling rewards.</li>
+    <li>You confirm you have the right to use the name, logo and colours you send us.</li>
+    <li>Performative Group organises and promotes every challenge, and writes the official rules shown in the app. If you offer a reward, it's a discount code you supply at your own cost and honour at checkout as described. We email it to everyone who earns it. Rewards can only go on challenges measured by the app's timer, and we don't run prize draws.</li>
     <li>We may edit wording for clarity, and we may decline any request. If we have to stop a challenge early because of a problem on our side, we refund the unused share.</li>
-    <li>We share totals only. You won't receive personal data about anyone taking part.</li>
+    <li>We share counts and totals only. You won't receive personal data or any Apple Health data about anyone taking part.</li>
   </ol>
 </div></section>
 
@@ -271,7 +274,7 @@
   document.querySelectorAll(".rtabs button").forEach(b => b.addEventListener("click", () => {
     document.querySelectorAll(".rtabs button").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-selected", x === b); });
     img.src = `/assets/report-${b.dataset.r}.jpg`; img.height = H[b.dataset.r][0];
-    img.alt = `An example ${b.dataset.r} report email for Fernhill 3K a Day, in the brand's colours.`;
+    img.alt = `An example ${b.dataset.r} report email for Fernhill 20 a Day, a timed challenge, in the brand's colours.`;
   }));
   document.getElementById("rmore").addEventListener("click", () => f.classList.add("open"));
 })();

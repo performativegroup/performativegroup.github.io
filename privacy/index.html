@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -9,8 +11,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css?v=3">
-<title>Privacy · Performative</title>
-<meta name="description" content="How Performative handles your data: what we collect, what we never do, and the choices you have.">
+<title>Privacy Policy · Performative</title>
+<meta name="description" content="How Performative handles your data: what we collect and why, who sees what, how long we keep it, and your choices.">
+<style>
+  .doc h2[id] { scroll-margin-top:80px; }
+  .doc .toc { columns:2; column-gap:28px; margin:0; padding-left:20px; }
+  .doc .toc li { break-inside:avoid; }
+  @media (max-width:560px) { .doc .toc { columns:1; } }
+  .doc dl { margin:0; }
+  .doc dt { font-weight:700; margin-top:14px; }
+  .doc dd { margin:4px 0 0; color:#333; line-height:1.65; }
+</style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="wrap">
@@ -23,43 +34,165 @@
 <main class="doc">
   <div class="tabs"><a href="/privacy/" class=on>Privacy</a><a href="/terms/">Terms</a><a href="/guidelines/">Community Guidelines</a><a href="/support/">Support</a></div>
 
-  <h1>Privacy</h1>
-  <p class="lead">Performative is about doing the thing, not being tracked. Here's exactly what we keep, why, and how to delete it.</p>
-  <p class="small muted">Last updated 31 October 2026</p>
-  <h2>What we collect</h2>
+  <h1>Privacy Policy</h1>
+  <p class="lead">Performative is about doing the thing, not being tracked. This page explains what we keep, why, who can see it, how long we keep it, and how to delete it.</p>
+  <p class="small muted">Last updated 1 November 2026</p>
+
+  <div class="card"><b>The short version.</b> We collect what the app needs to work. We never sell your data and never use it for advertising. Apple Health data is only used for your own posts, goals and challenges, and is never given to sponsors or anyone else. Sponsors only see counts and totals, never you. You can delete everything from the app at any time.</div>
+
+  <ol class="toc">
+    <li><a href="#who">Who we are</a></li>
+    <li><a href="#collect">What we collect and why</a></li>
+    <li><a href="#photos">Camera and photo library</a></li>
+    <li><a href="#health">Apple Health</a></li>
+    <li><a href="#see">Who sees what</a></li>
+    <li><a href="#emails">Emails and notifications</a></li>
+    <li><a href="#sponsors">Sponsored challenges</a></li>
+    <li><a href="#providers">Who helps us run it</a></li>
+    <li><a href="#safety">Reports and moderation</a></li>
+    <li><a href="#keep">How long we keep it</a></li>
+    <li><a href="#choices">Your choices and rights</a></li>
+    <li><a href="#children">Children and teens</a></li>
+    <li><a href="#website">This website</a></li>
+    <li><a href="#changes">Changes and contact</a></li>
+  </ol>
+
+  <h2 id="who">Who we are</h2>
+  <p>Performative is made by Performative Group, based in Hong Kong. When this page says "we" or "us", it means Performative Group. We decide how your data is used, and we're responsible for it.</p>
+  <p>Questions about your data? Email <a href="mailto:support@performativegroup.com">support@performativegroup.com</a>.</p>
+
+  <h2 id="collect">What we collect and why</h2>
+  <dl>
+    <dt>Your account</dt>
+    <dd>Your name, username, email address and profile photo, and your password (stored scrambled, so no one can read it). We use these to run your account, show your profile, and send you sign-in and password codes.</dd>
+    <dt>Your date of birth</dt>
+    <dd>We ask for it when you sign up, only to check you're 13 or older. It stays on your phone. We don't keep it on our servers.</dd>
+    <dt>What you post</dt>
+    <dd>The live photo, the activity, how long it took, your caption and when you posted it. If you link an Apple Health workout or your steps, the numbers that go with it (see <a href="#health">Apple Health</a>).</dd>
+    <dt>Your goals and progress</dt>
+    <dd>Your goals, rest days and streaks, the challenges you join, and your results in them.</dd>
+    <dt>Your friends, groups and chats</dt>
+    <dd>Friends, groups, likes, comments, and the messages and photos you send in chats. We need these to show them to you and the people you share them with.</dd>
+    <dt>Your country</dt>
+    <dd>If you let the app use your approximate location, we save only your country. Otherwise we use the region set on your phone. We use it to show challenges open where you are, and your country appears on challenge leaderboards. We never save where you are or track where you go.</dd>
+    <dt>Notifications</dt>
+    <dd>If you allow notifications, Apple gives us a push token for your phone so we can send them, plus the notification settings you choose.</dd>
+    <dt>Safety</dt>
+    <dd>Reports and blocks you make, reports about you or your content, and any strikes or suspensions. We use these to keep Performative safe.</dd>
+    <dt>Messages to us</dt>
+    <dd>If you email us or send feedback, we keep what you send so we can help.</dd>
+    <dt>Crash reports</dt>
+    <dd>We don't use any crash-tracking tools in the app. If you choose to share analytics with app developers in your iPhone's settings, Apple may send us crash reports. These don't say who you are.</dd>
+  </dl>
+
+  <h2 id="photos">Camera and photo library</h2>
   <ul>
-    <li><b>Your account:</b> your name, username, email address and profile photo.</li>
-    <li><b>What you post:</b> the photo, the activity, how long it took, your caption and the time you posted it. If a post comes from an Apple Health workout, the numbers that go with it, such as distance or steps.</li>
-    <li><b>Your goals and progress:</b> your goals, rest days, streaks and the challenges you join.</li>
-    <li><b>Your connections:</b> friends, groups, likes, comments and chats.</li>
-    <li><b>Safety:</b> reports and blocks you make, and reports about your content.</li>
-    <li><b>Your country, if you allow it:</b> if you let Performative use your approximate location, we save only your country, so we can show challenges that are open where you are. We never save where you are.</li>
-    <li><b>Crash logs,</b> so we can fix problems.</li>
+    <li>Posts always use the live camera, so a post means you actually did it.</li>
+    <li>The app only uses your photo library when you choose to: to pick a profile photo, to send a photo in a chat, or to save a share card (like your weekly recap) to Photos. We only get the photos you pick.</li>
+    <li>Location data is removed from every photo before it's uploaded.</li>
   </ul>
-  <h2>What we don't do</h2>
+
+  <h2 id="health">Apple Health</h2>
+  <p>If you connect Apple Health, Performative can read your workouts (the type, when it happened, how long it took and the distance) and today's step count. We only read. We never write anything to Apple Health.</p>
   <ul>
-    <li>We never sell your data, and we don't use it for advertising tracking.</li>
-    <li>Location is removed from every photo before it's posted, and the app never tracks where you go.</li>
-    <li>Posts only use the live camera. Your photo library is used only for the profile photo you pick.</li>
-    <li>Apple Health data is read only when you choose to link a workout or steps, and is never shared with anyone else.</li>
+    <li>We only read it when you link a workout or your steps to a post, a goal or a challenge.</li>
+    <li>It's used only for your posts, your goals, the challenges you join and their leaderboards.</li>
+    <li>It's never used for advertising or marketing, never sold, and never given to sponsors or any other third party.</li>
+    <li>For distance and step challenges, sponsors see only how many days, added up across everyone, people reached the target. They never see distances, step counts, workouts or who did them.</li>
+    <li>You can turn off access at any time in the iPhone's Settings › Health › Data Access &amp; Devices › Performative.</li>
   </ul>
-  <h2>Who sees what</h2>
-  <p>You choose who sees each post: your friends, a group, or everyone. If your account is private, only people you approve can see your posts. Your email address is never shown to other people.</p>
-  <h2>Sponsored challenges</h2>
-  <p>Some challenges are sponsored by brands. Sponsors only ever receive totals, such as how many people joined and the total distance covered. They never receive your name, photos, posts, messages or contact details. Countries with fewer than 5 people taking part are grouped together.</p>
-  <h2>Where your data is kept</h2>
-  <p>Your data is stored with our hosting provider, Supabase, in Tokyo, Japan, and is sent over encrypted connections. Performative is run from Hong Kong.</p>
-  <h2>Your choices</h2>
+
+  <h2 id="see">Who sees what</h2>
   <ul>
-    <li>Make your account private, turn on quiet mode, or block people, from Settings.</li>
-    <li>Turn location, notifications and Apple Health on or off at any time in the iPhone's Settings.</li>
-    <li>Delete your account, and everything in it, from Settings in the app. It's removed from our servers and can't be recovered.</li>
+    <li><b>Posts:</b> you choose for each post: your friends, a group, or everyone. Public posts can be seen by anyone on Performative, appear in For You and can be reposted.</li>
+    <li><b>Private accounts:</b> only people you approve see your posts. Accounts of people under 18 are private by default.</li>
+    <li><b>Your profile:</b> your name, username and profile photo are visible to people on Performative so friends can find you. If "Show my goals" is on, people who can see your profile also see your goals and how you're doing.</li>
+    <li><b>Active now:</b> if "Show when I'm active" is on, friends can see when you're in a session.</li>
+    <li><b>Groups and chats:</b> only the members of a group or chat see what's shared there.</li>
+    <li><b>Challenge leaderboards:</b> everyone in a challenge sees its leaderboard. People who aren't your friends see your first name and last initial, your country and your score. Friends see your full name.</li>
+    <li><b>Your email address</b> is never shown to other people.</li>
   </ul>
-  <h2>Children</h2>
-  <p>You must be 13 or older to use Performative. If you're under 18, a parent or guardian must agree to the Terms.</p>
-  <h2>Changes</h2>
-  <p>If we change how we use your data, we'll update this page and tell you in the app before it takes effect.</p>
-  <div class="card">Questions about your data, or want a copy of it? Email <a href="mailto:support@performativegroup.com">support@performativegroup.com</a>.</div>
+
+  <h2 id="emails">Emails and notifications</h2>
+  <ul>
+    <li><b>Account emails:</b> sign-in codes, password reset codes and important messages about your account.</li>
+    <li><b>Challenge emails:</b> a welcome email when you join a challenge, and your results the morning after it ends, with any discount code you earned. You can turn these off in the app: Settings › Notifications › Challenge emails.</li>
+    <li><b>Notifications:</b> reminders, challenge updates and messages from friends, sent through Apple's push notification service. A message notification can show the sender's name and a preview of the message. You choose which ones you get in the app's Settings, or turn them all off in the iPhone's Settings.</li>
+  </ul>
+
+  <h2 id="sponsors">Sponsored challenges</h2>
+  <p>Performative Group runs every challenge, including the ones sponsored by brands. A sponsor only supplies the reward, such as a discount code.</p>
+  <ul>
+    <li>Sponsors only see counts and totals: how many people joined, posted and left, how many live photos were posted, and which countries people are in. For challenges timed in the app, they also see the hours logged and how many people met the daily target. Nothing worked out from Apple Health (distances, steps, or whether a distance or step target was met) is ever shared with sponsors. Countries with fewer than 5 people are grouped as "Other", so no one can be singled out.</li>
+    <li>Sponsors never receive your name, username, photos, posts, messages, contact details or any Apple Health data.</li>
+    <li>If you earn a reward, we email you the code. The brand doesn't learn who you are from us. If you use the code with them, their own privacy policy applies.</li>
+    <li>We only pass your details to a sponsor if you ask us to.</li>
+  </ul>
+
+  <h2 id="providers">Who helps us run it</h2>
+  <p>We use a few trusted companies to run Performative. They handle your data only to provide their service to us, and may not use it for anything else.</p>
+  <ul>
+    <li><b>Supabase:</b> our database, file storage, sign-in and server code. Your data is stored in Tokyo, Japan.</li>
+    <li><b>Resend:</b> sends our emails. Based in the United States.</li>
+    <li><b>Apple:</b> delivers push notifications, and runs the App Store and TestFlight.</li>
+  </ul>
+  <p>We never sell your data, and we don't share it with advertisers or data brokers. We may share information if the law requires it, or to protect someone's safety.</p>
+  <p><b>Outside Hong Kong.</b> Because of these providers, your data is stored and handled outside Hong Kong, mainly in Japan and the United States. Everything is sent over encrypted connections, and where the law requires it we rely on the contract protections these providers offer.</p>
+
+  <h2 id="safety">Reports and moderation</h2>
+  <ul>
+    <li>Anyone can report a post, comment, chat message or profile. Our moderators review reports within 24 hours.</li>
+    <li>To do that, moderators can see the reported content, including a reported chat message and its photo. We don't look at your chats unless a message is reported to us or the law requires it.</li>
+    <li>The app also checks text for words that break the <a href="/guidelines/">Community Guidelines</a>.</li>
+    <li>Moderators can remove content and suspend or close accounts. Serious breaches get a strike, and 3 strikes in 12 months closes the account.</li>
+  </ul>
+
+  <h2 id="keep">How long we keep it</h2>
+  <ul>
+    <li><b>Your account and everything in it:</b> until you delete your account, or we close it. When you delete it, it's removed from our live database straight away and can't be recovered. Copies in our backups are deleted automatically within 30 days.</li>
+    <li><b>Posts, comments and messages you delete:</b> removed straight away. Backup copies go within 30 days.</li>
+    <li><b>Reports and moderation decisions:</b> 12 months, so we can apply the strike rule and handle appeals.</li>
+    <li><b>Early access list:</b> until 12 months after the app launches, or until you ask us to remove you.</li>
+    <li><b>Sponsor requests from businesses:</b> 7 years, for invoicing and accounting.</li>
+  </ul>
+
+  <h2 id="choices">Your choices and rights</h2>
+  <p>In the app:</p>
+  <ul>
+    <li>Make your account private, turn on quiet mode, hide your goals or when you're active, or block people, in Profile › Settings.</li>
+    <li>Choose which notifications and emails you get in Settings › Notifications.</li>
+    <li>Turn location, notifications, photo access and Apple Health on or off at any time in the iPhone's Settings.</li>
+    <li>Delete your account and everything in it in Profile › Settings › Delete account. See <a href="/support/#delete-account">how deleting works</a>.</li>
+  </ul>
+  <p>You can also ask us to:</p>
+  <ul>
+    <li>give you a copy of your data;</li>
+    <li>correct something that's wrong;</li>
+    <li>delete your data;</li>
+    <li>stop or limit using your data for something, or object to how we use it.</li>
+  </ul>
+  <p>Email <a href="mailto:support@performativegroup.com">support@performativegroup.com</a> from the address on your account. We'll reply within 30 days. Where you gave permission (for example for Apple Health, location or notifications), you can take it back at any time by turning it off.</p>
+  <p>We follow Hong Kong's Personal Data (Privacy) Ordinance. If you're in the EU or UK, you also have rights under the GDPR or UK GDPR. We use your data to provide the service you signed up for, with your permission (for Apple Health, location, photos and notifications), to keep Performative safe and working well, and to meet legal duties such as keeping invoices. If you're unhappy with how we handle your data, please tell us first. You can also complain to Hong Kong's Privacy Commissioner for Personal Data, or your local data protection authority.</p>
+
+  <h2 id="children">Children and teens</h2>
+  <ul>
+    <li>You must be 13 or older to use Performative. If you're under 18, a parent or guardian must agree to the <a href="/terms/">Terms</a>.</li>
+    <li>Accounts of people under 18 are private by default.</li>
+    <li>If we learn that someone under 13 has an account, we delete it. Parents can contact us at <a href="mailto:support@performativegroup.com">support@performativegroup.com</a>.</li>
+  </ul>
+
+  <h2 id="website">This website</h2>
+  <ul>
+    <li><b>No cookies, no analytics:</b> this website doesn't use cookies, analytics or advertising trackers.</li>
+    <li><b>Early access sign-up:</b> your email, your first name if you give it, a guess at your country from your browser's language or time zone, where you came from (the link you used or the site that sent you), and a scrambled (hashed) version of your IP address to stop abuse. We use it to email you about early access and the launch.</li>
+    <li><b>Sponsor requests (for businesses):</b> the company and contact details, logo and challenge details you send, and a hashed IP address to stop abuse. We use it to review the request, reply and invoice.</li>
+    <li><b>Fonts:</b> pages load fonts from Google Fonts, so your browser connects to Google, which sees your IP address. See <a href="https://policies.google.com/privacy" rel="noopener noreferrer">Google's privacy policy</a>.</li>
+    <li><b>Staff pages:</b> our staff sign-in page keeps a sign-in token in the browser tab while staff are signed in. It isn't used for visitors.</li>
+  </ul>
+
+  <h2 id="changes">Changes and contact</h2>
+  <p>If we change how we use your data, we'll update this page and the date at the top. For important changes, we'll tell you in the app before they take effect.</p>
+  <div class="card">Questions about your data, or want a copy of it? Email <a href="mailto:support@performativegroup.com">support@performativegroup.com</a>. Performative Group, Hong Kong.</div>
 
 </main>
 <footer class="site"><div class="wrap">

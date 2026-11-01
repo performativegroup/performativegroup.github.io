@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://rwyopnhqcnwsxcgpwgtr.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Performative · Sponsor report</title>
-<meta name="robots" content="noindex">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter+Tight:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -42,7 +45,8 @@
 <body>
 <div class="wrap" id="app"><div class="empty">Loading your report…</div></div>
 <script>
-// The report link looks like: …/index.html?t=<sponsor's private token>
+// The report link looks like: …/reports/#t=<sponsor's private token>. Older links used ?t=, which still works.
+// The part after # is never sent to any server, so the token stays out of server logs and Referer headers.
 // The publishable key is safe to be public; the token only opens this sponsor's totals.
 const SUPABASE_URL = "https://rwyopnhqcnwsxcgpwgtr.supabase.co";
 const PUBLISHABLE_KEY = "sb_publishable_wo0jRHFIC1S-EiX_e5VQjg_WHEjZ4ji";
@@ -51,10 +55,12 @@ const fmt = n => Number(n || 0).toLocaleString("en-GB");
 const day = d => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
+// Distance and step challenges are measured with Apple Health. Nothing worked out from it is shared with
+// sponsors (no distances, steps or "target met" counts), so those challenges show posting instead.
+const usesHealth = c => c.metric !== "time";
+
 function total(c) {
-  if (c.metric === "km") return { value: fmt(Math.round(c.total_km)), label: "km run in total" };
-  if (c.metric === "steps") return { value: fmt(c.total_steps), label: "steps in total" };
-  const h = Math.round(c.total_minutes / 60);
+  const h = Math.round((c.total_minutes || 0) / 60);
   return { value: fmt(h), label: "hours logged in total" };
 }
 
@@ -66,7 +72,7 @@ function chart(c) {
   const bars = days.map((d, i) => {
     const bh = Math.round((d.people_done / max) * (h - 34));
     const x = i * (w / days.length) + 4;
-    return `<g><title>${day(d.day)}: ${fmt(d.people_done)} people did it, ${fmt(d.posts)} posts, ${fmt(d.joins)} joined</title>
+    return `<g><title>${day(d.day)}: ${fmt(d.people_done)} ${usesHealth(c) ? "people posted" : "people did it"}, ${fmt(d.posts)} posts, ${fmt(d.joins)} joined</title>
       <rect x="${x}" y="${h - 20 - bh}" width="${bw}" height="${Math.max(bh, 2)}" rx="4" fill="var(--brand)"></rect>
       ${i % Math.ceil(days.length / 8) === 0 ? `<text x="${x}" y="${h - 4}" font-size="10" fill="var(--muted)">${day(d.day)}</text>` : ""}</g>`;
   }).join("");
@@ -89,14 +95,17 @@ function render(r) {
       </div>
       <div class="grid">
         <div class="stat"><b>${fmt(c.still_in)}</b><span>taking part${c.capacity ? ` of ${fmt(c.capacity)} spots` : ""}</span></div>
+        ${usesHealth(c) ? `
+        <div class="stat"><b>${fmt(c.active_people)}</b><span>have posted at least once</span></div>` : `
         <div class="stat"><b>${fmt(c.active_people)}</b><span>have done it at least once</span></div>
         <div class="stat"><b>${fmt(c.on_track)}</b><span>on track (done on 80%+ of days)</span></div>
-        <div class="stat"><b>${t.value}</b><span>${t.label}</span></div>
+        <div class="stat"><b>${t.value}</b><span>${t.label}</span></div>`}
         <div class="stat"><b>${fmt(c.posts)}</b><span>live photos posted</span></div>
         <div class="stat"><b>${fmt(c.left)}</b><span>left the challenge</span></div>
       </div>
       ${fill !== null ? `<div class="bar" title="${fill}% of spots filled"><i style="width:${fill}%"></i></div>` : ""}
-      <div class="section"><div class="eyebrow" style="margin-bottom:8px">People who did it each day</div><div class="chart">${chart(c)}</div></div>
+      <div class="section"><div class="eyebrow" style="margin-bottom:8px">${usesHealth(c) ? "People who posted each day" : "People who did it each day"}</div><div class="chart">${chart(c)}</div></div>
+      ${usesHealth(c) ? `<div class="sub" style="margin-top:8px">Distance and steps come from Apple Health, which is never shared with sponsors, so this challenge's report counts posts rather than distances, steps or targets met.</div>` : ""}
       <div class="section"><div class="eyebrow" style="margin-bottom:8px">Where people are</div>
         <div class="regions">${(c.regions || []).map(x => `<div>${esc(x.region)} · ${fmt(x.people)}</div>`).join("") || '<div>No one yet</div>'}</div></div>
     </section>`;
@@ -105,13 +114,18 @@ function render(r) {
     <div class="top"><div><div class="eyebrow">Performative · Sponsor report</div><h1>${esc(r.sponsor)}</h1>
       <div class="sub">Updated ${updated}. Refresh the page for the latest numbers.</div></div></div>
     ${cards || '<div class="empty">No live challenges yet. They appear here once they go live.</div>'}
-    <footer>Every number here is a total. Performative never shares names, photos, posts or messages with sponsors.
+    <footer>Every number here is a count or a total. Performative never shares names, photos, posts, messages or anyone's Apple Health data with sponsors.
+      For distance and step challenges, which use Apple Health, you see joins and posts only: never distances, step counts or who hit a target.
       Regions with fewer than 5 people are grouped as "Other" so no one can be singled out.
       Questions: sponsors@performativegroup.com</footer>`;
 }
 
 async function load() {
-  const token = new URLSearchParams(location.search).get("t");
+  const fromHash = new URLSearchParams(location.hash.slice(1)).get("t");
+  const fromQuery = new URLSearchParams(location.search).get("t");
+  const token = fromHash || fromQuery;
+  // Move an old ?t= link's token into the # part, so it doesn't stay in the address the browser sends anywhere.
+  if (fromQuery) { try { history.replaceState(null, "", location.pathname + "#t=" + encodeURIComponent(token)); } catch {} }
   const app = document.getElementById("app");
   if (!token) { app.innerHTML = '<div class="error">This link is missing its key. Use the full link Performative sent you.</div>'; return; }
   try {
