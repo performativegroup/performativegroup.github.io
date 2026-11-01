@@ -23,7 +23,7 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .muted { color:var(--muted); } .small { font-size:13px; } .hidden { display:none !important; }
 
 /* The mark: Instrument Serif, a little shorter and given a hint more weight. */
-.logo { font-family:var(--serif); font-size:24px; line-height:1; text-decoration:none; color:var(--ink); -webkit-text-stroke:.35px currentColor; letter-spacing:-.005em; white-space:nowrap; }
+.logo { font-family:var(--serif); font-size:31px; line-height:1; text-decoration:none; color:var(--ink); -webkit-text-stroke:.35px currentColor; letter-spacing:-.005em; white-space:nowrap; }
 
 /* Buttons */
 .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; cursor:pointer; background:var(--ink); color:#fff; font-weight:600; padding:13px 22px; border-radius:999px; text-decoration:none; font-size:15px; line-height:1.2; transition:transform .15s, background .15s; white-space:nowrap; }
