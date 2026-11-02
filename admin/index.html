@@ -601,8 +601,8 @@ function editChallenge(orig) {
   let c = orig ? structuredClone(orig) : { id:"", title:"", rule:"", group_name:"Exercise", categories:["Running"], metric:"time", daily_target:20,
     starts_on: addDays(t, 1), ends_on: addDays(t, 7), sponsor_id:null, region:null, capacity:null, featured_on:null,
     steps:["Do it every day.", "Post a live photo when you're done.", "Ranked by total."], status:"draft", joined_base:0,
-    notify_start:true, reminder_time:"18:00:00", notify_ending:true, notify_results:true, announcement:"", cover_note:"", reward_min_days:null, reward_details:"" };
-  let rewardCode = "";
+    notify_start:true, reminder_time:"18:00:00", notify_ending:true, notify_results:true, announcement:"", cover_note:"", reward_min_days:null, reward_details:"", top_prize:"" };
+  let rewardCode = "", topCodes = ["", "", ""];
   const el = $("#tab-challenges");
   const sections = [["basics","Basics"],["schedule","When"],["goal","Daily target"],["audience","Who can join"],["look","Sponsor & look"],["reward","Reward & emails"],["how","How it works"],["notify","Notifications"]];
   el.innerHTML = `
@@ -648,7 +648,7 @@ function editChallenge(orig) {
             <div class="list hidden" id="countryList"></div>
             <div class="chips" style="margin-top:8px" id="popular">${POPULAR.map(p => `<button type="button" class="chip" data-c="${p}">${flag(p)} ${esc(countryName(p))}</button>`).join("")}</div>
           </div>
-          <label class="f" style="margin-top:14px"><span>Spots <small>· leave empty for no limit</small></span><input type="number" name="capacity" min="1" placeholder="No limit" value="${esc(c.capacity ?? "")}" style="max-width:220px"></label>
+          <label class="f" style="margin-top:14px"><span>Spots <small>· required for sponsored challenges; leave empty for no limit on Performative's own</small></span><input type="number" name="capacity" min="1" placeholder="No limit" value="${esc(c.capacity ?? "")}" style="max-width:220px"><div class="err" data-err="capacity"></div></label>
         </div>
 
         <div class="card section" id="sec-look"><h3>Sponsor & look</h3><p>A sponsor's colours and logo go on the card. No sponsor means it's a Performative challenge (black).</p>
@@ -667,8 +667,15 @@ function editChallenge(orig) {
           </div>
           <label class="f" style="margin-top:12px"><span>Discount code <small>· private: only sent to people who earn it</small></span><input type="text" name="reward_code" id="rewardCode" maxlength="60" placeholder="e.g. FERNHILL15" style="font-family:ui-monospace,Menlo,monospace; text-transform:uppercase"><div class="err" data-err="reward_code"></div></label>
           <div class="help" style="margin-top:8px">Performative runs the challenge and emails the code; the sponsor supplies the discount and honours it at checkout. Rewards only go on Time challenges (the app's timer, not Apple Health), and there are no prize draws: everyone who does enough days gets the code.</div>
+          <h4 style="margin:22px 0 6px">Prize for the top 3 <small class="muted" style="font-weight:500">· optional</small></h4>
+          <div class="help" style="margin-bottom:10px">Ranked by days done, then minutes (counting up to 3 hours a day), then who joined first. After it ends you check the top 3's posts below, then press Send prizes.</div>
+          <label class="f"><span>The prize <small>· shown in the app and emails</small></span><input type="text" name="top_prize" maxlength="120" placeholder="e.g. A free pair of Fernhill running shoes" value="${esc(c.top_prize || "")}"><div class="err" data-err="top_prize"></div></label>
+          <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px">
+            ${[1, 2, 3].map(n => `<label class="f"><span>${n === 1 ? "1st" : n === 2 ? "2nd" : "3rd"} place code <small>· private</small></span><input type="text" name="top_code_${n}" id="topCode${n}" maxlength="300" placeholder="Code or claim instructions"></label>`).join("")}
+          </div><div class="err" data-err="top_codes"></div>
+          <div id="prizePanel"></div>
           <div class="row" style="gap:8px; margin-top:14px; flex-wrap:wrap">
-            ${isNew ? `<span class="help">Save it first to preview the emails.</span>` : `<button type="button" class="btn line small" data-preview="joined">Email me the welcome email</button><button type="button" class="btn line small" data-preview="ended">Email me a results email</button>`}
+            ${isNew ? `<span class="help">Save it first to preview the emails.</span>` : `<button type="button" class="btn line small" data-preview="joined">Email me the welcome email</button><button type="button" class="btn line small" data-preview="ended">Email me a results email</button>${c.top_prize ? `<button type="button" class="btn line small" data-preview="winner">Email me a winner email</button>` : ""}`}
           </div>
           <div class="help">People get a welcome email when they join, and their results the morning after it ends (nothing if they did no days). They can turn these off in the app's Settings.</div>
         </div>
@@ -773,6 +780,8 @@ function editChallenge(orig) {
     c.reward_min_days = f.get("reward_min_days") ? Number(f.get("reward_min_days")) : null;
     c.reward_details = (f.get("reward_details") || "").trim();
     rewardCode = (f.get("reward_code") || "").trim().toUpperCase();
+    c.top_prize = (f.get("top_prize") || "").trim();
+    topCodes = [1, 2, 3].map(n => (f.get("top_code_" + n) || "").trim());
   }
   function problems() {
     const p = {};
@@ -790,9 +799,12 @@ function editChallenge(orig) {
       if (!rewardCode) p.reward_code = "Add the code they'll be sent.";
       if (c.metric !== "time") p.reward_days = "Rewards can only go on Time challenges (measured by the app's timer), not Distance or Steps.";
     } else if (c.reward_details || rewardCode) p.reward_days = "Set how many days earn it, or clear the reward.";
+    if (c.sponsor_id && !(c.capacity > 0)) p.capacity = "Sponsored challenges need a number of spots.";
+    if (c.top_prize && c.metric !== "time") p.top_prize = "Top-3 prizes can only go on Time challenges (measured by the app's timer).";
+    if (!c.top_prize && topCodes.some(Boolean)) p.top_prize = "Describe the prize, or clear the codes.";
     return p;
   }
-  const sectionOf = { title:"basics", rule:"basics", id:"basics", categories:"basics", dates:"schedule", target:"goal", reward_days:"reward", reward_details:"reward", reward_code:"reward" };
+  const sectionOf = { title:"basics", rule:"basics", id:"basics", categories:"basics", dates:"schedule", target:"goal", capacity:"audience", reward_days:"reward", reward_details:"reward", reward_code:"reward", top_prize:"reward", top_codes:"reward" };
   function refresh(redrawSteps = true) {
     read();
     const p = problems();
@@ -858,7 +870,7 @@ function editChallenge(orig) {
     read(); form._tried = true; const p = problems(); refresh();
     if (Object.keys(p).length) { const k = Object.keys(p)[0]; $("#sec-" + sectionOf[k]).scrollIntoView({ behavior:"smooth" }); return toast("Fix the highlighted bits first.", true); }
     const row = { ...c, status, steps: c.steps.map(s => s.trim()).filter(Boolean), cover_note: c.cover_note || null, announcement: c.announcement || null,
-      reward_min_days: c.reward_min_days || null, reward_details: c.reward_min_days ? c.reward_details : null };
+      reward_min_days: c.reward_min_days || null, reward_details: c.reward_min_days ? c.reward_details : null, top_prize: c.top_prize || null };
     delete row.updated_at; delete row.created_at;
     try {
       delete row.featured;   // the database sets it from featured_on
@@ -869,6 +881,11 @@ function editChallenge(orig) {
         ? await sb.from("challenge_rewards").upsert({ challenge_id: row.id, code: rewardCode, updated_at: new Date().toISOString() })
         : await sb.from("challenge_rewards").delete().eq("challenge_id", row.id);
       if (r.error) throw r.error;
+      // Top-3 codes live in their own admin-only table too, one row per place.
+      const keep = row.top_prize ? topCodes.map((code, i) => ({ challenge_id: row.id, place: i + 1, code })).filter(x => x.code) : [];
+      const gone = [1, 2, 3].filter(n => !keep.some(x => x.place === n));
+      if (keep.length) { const u = await sb.from("challenge_top_prizes").upsert(keep); if (u.error) throw u.error; }
+      if (gone.length) { const d = await sb.from("challenge_top_prizes").delete().eq("challenge_id", row.id).in("place", gone); if (d.error) throw d.error; }
       toast(status === "live" ? (isNew || orig?.status !== "live" ? "Published. It's in the app now." : "Saved. Phones update within seconds.") : status === "ended" ? "Ended." : "Saved as a draft.");
       await loadChallenges(); editChallenge(challenges.find(x => x.id === row.id));
     } catch (err) { if (String(err.message).includes("featured spot")) { $("[data-err=featured]").textContent = err.message; $("#sec-look").scrollIntoView({ behavior:"smooth" }); }
@@ -888,6 +905,60 @@ function editChallenge(orig) {
   if (!isNew) sb.from("challenge_rewards").select("code").eq("challenge_id", c.id).maybeSingle().then(({ data }) => {
     if (data?.code && !$("#rewardCode").value) { $("#rewardCode").value = data.code; rewardCode = data.code; refresh(); }
   });
+  if (!isNew) sb.from("challenge_top_prizes").select("place, code").eq("challenge_id", c.id).then(({ data }) => {
+    (data || []).forEach(x => { const el = $("#topCode" + x.place); if (el && !el.value) el.value = x.code; }); refresh();
+  });
+  // After it ends: the top 3 by the prize rules, with posts to check, a disqualify button, and Send prizes.
+  async function drawPrizePanel() {
+    const box = $("#prizePanel"); if (!box) return;
+    if (isNew || !orig?.top_prize) { box.innerHTML = ""; return; }
+    const ended = orig.ends_on < new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+    const { data, error } = await sb.rpc("admin_prize_ranking", { cid: c.id });
+    if (error) { box.innerHTML = `<div class="help" style="margin-top:12px">Couldn't load the ranking: ${esc(error.message)}</div>`; return; }
+    const rows = data || [];
+    const sent = rows.some(x => x.emailed);
+    box.innerHTML = `<div class="card" style="margin-top:16px; background:#f6f6f4; box-shadow:none">
+      <b>Top 3 ${ended ? "" : "so far"}</b><div class="help" style="margin:4px 0 10px">${ended ? "Open each person's posts to check them. Disqualify anyone who cheated and the next person moves up." : "It's still running. Check back the morning after it ends."}</div>
+      ${rows.length ? `<table style="width:100%"><thead><tr><th>Place</th><th>Person</th><th>Days</th><th>Minutes</th><th></th></tr></thead><tbody>
+        ${rows.map(x => `<tr style="${x.status === "disqualified" ? "opacity:.5" : ""}"><td>${x.place ? (x.place === 1 ? "1st" : x.place === 2 ? "2nd" : "3rd") : "—"}</td>
+          <td><b>${esc(x.name || x.handle)}</b> <span class="muted">@${esc(x.handle)}</span>${x.reason ? `<div class="help">${esc(x.reason)}</div>` : ""}</td>
+          <td>${fmt(x.days_done)}</td><td>${fmt(x.capped_minutes)}</td>
+          <td style="text-align:right; white-space:nowrap"><button type="button" class="btn ghost small" data-posts="${x.user_id}" data-name="${esc(x.name || x.handle)}">Posts</button> ${x.emailed ? `<span class="muted small">Emailed</span>` : x.status === "disqualified"
+            ? `<button type="button" class="btn line small" data-dq="${x.user_id}" data-on="0">Reinstate</button>`
+            : `<button type="button" class="btn line small" data-dq="${x.user_id}" data-on="1">Disqualify</button>`}</td></tr>`).join("")}
+      </tbody></table>` : `<div class="help">Nobody has done any days yet.</div>`}
+      ${ended && rows.some(x => x.place) ? `<div class="row" style="margin-top:12px; gap:8px"><button type="button" class="btn white small" id="sendPrizes">${sent ? "Send any remaining prizes" : "Send prizes"}</button><span class="help">Emails each winner their place's code. Each place is emailed once.</span></div>` : ""}
+    </div>`;
+    $$("[data-posts]", box).forEach(b => b.onclick = async () => {
+      const from = new Date(orig.starts_on + "T00:00:00+08:00").toISOString(), to = new Date(addDays(orig.ends_on, 1) + "T02:00:00+08:00").toISOString();
+      const { data: posts, error } = await sb.from("posts").select("id, category, caption, duration_minutes, image_path, captured_at, created_at, hidden_at")
+        .eq("author_id", b.dataset.posts).gte("created_at", from).lt("created_at", to).order("created_at");
+      if (error) return fail(error);
+      const urls = await Promise.all((posts || []).map(x => photoURL(x.image_path)));
+      openModal(`${b.dataset.name}'s posts`, (posts || []).length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px">${posts.map((x, i) => `<div>
+        ${urls[i] ? `<img src="${esc(urls[i])}" style="width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:10px; background:#eee">` : ""}
+        <div class="small"><b>${esc(x.category)}</b> · ${fmt(x.duration_minutes)} min${x.hidden_at ? " · hidden" : ""}</div>
+        <div class="muted small">${new Date(x.created_at).toLocaleString("en-GB", { timeZone:"Asia/Hong_Kong", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" })}</div>
+        ${x.caption ? `<div class="small">${esc(x.caption)}</div>` : ""}</div>`).join("")}</div>` : `<p class="muted">No posts during the challenge.</p>`);
+    });
+    $$("[data-dq]", box).forEach(b => b.onclick = async () => {
+      const on = b.dataset.on === "1"; const why = on ? prompt("Why? (kept for your records)", "Posts don't show the activity") : null;
+      if (on && why === null) return;
+      const { error } = await sb.rpc("admin_prize_check", { cid: c.id, person: b.dataset.dq, disqualify: on, why: why || null });
+      if (error) return fail(error); drawPrizePanel();
+    });
+    $("#sendPrizes", box)?.addEventListener("click", async e => {
+      if (!confirm("Email the top 3 their prizes now? Make sure you've checked their posts and saved the codes.")) return;
+      e.target.disabled = true;
+      try {
+        const { data, error } = await sb.functions.invoke("challenge-emails", { body: { action: "winners", challenge_id: c.id } });
+        let out = data; if (error) { try { out = await error.context.json(); } catch { out = { error: error.message }; } }
+        if (!out?.ok) throw new Error(out?.error || "Couldn't send");
+        toast(`Sent ${out.sent}${out.already ? `, ${out.already} already sent` : ""}${out.failed?.length ? `. Failed: ${out.failed.join("; ")}` : ""}`, !!out.failed?.length);
+      } catch (err) { fail(err); } finally { drawPrizePanel(); }
+    });
+  }
+  drawPrizePanel();
   $$("[data-preview]").forEach(b => b.onclick = async () => {
     b.disabled = true; const label = b.textContent; b.textContent = "Sending…";
     try {
@@ -1199,6 +1270,8 @@ async function viewReport(s, id, kind) {
 
 // ---------------- Requests from the public sponsor page ----------------
 let reqFilter = "pending";
+/** Quotes from before the switch to US dollars were in HK dollars. */
+const reqMoney = q => (q?.currency === "USD" ? "US$" : "HK$") + fmt(q?.price);
 const REQ_LABEL = { pending:"To review", approved:"Approved", declined:"Declined", withdrawn:"Withdrawn" };
 async function reqFn(body) {
   const { data, error } = await sb.functions.invoke("sponsor-requests", { body });
@@ -1223,7 +1296,7 @@ async function loadRequests() {
         <td><b>${esc(r.title)}</b>${(r.featured_on || r.featured) ? ` <span class="pill dark">${esc(slotLabel(r.featured_on || "all"))}</span>` : ""}<div class="muted small">${esc(r.rule)}</div></td>
         <td>${dayLabel(r.starts_on)}<div class="muted small">${esc(r.days)} days</div></td>
         <td>${r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"}</td>
-        <td><b>HK$${fmt(r.quote?.price)}</b></td>
+        <td><b>${reqMoney(r.quote)}</b></td>
         <td><span class="pill ${r.status === "pending" ? "draft" : r.status === "approved" ? (r.paid_at ? "live" : "scheduled") : "ended"}">${r.status === "approved" ? (r.paid_at ? "Paid · live" : "Approved · unpaid") : REQ_LABEL[r.status]}</span></td></tr>`).join("")}
       </tbody></table>` : `<div class="empty">${reqFilter === "pending" ? "Nothing waiting. New requests from the sponsor page land here, and you get an email." : "None here."}</div>`}</div>`;
   $$("#reqSegs button").forEach(b => b.onclick = () => { reqFilter = b.dataset.s; loadRequests().catch(fail); });
@@ -1243,7 +1316,8 @@ async function openRequest(r) {
     ["Challenge", `<b>${esc(r.title)}</b> · ${esc(r.rule)}`], ["Area and activities", `${esc(r.group_name)} · ${esc((r.categories || []).join(", "))}`],
     ["Daily target", esc(target)], ["Dates", `${dayLabel(r.starts_on)} – ${dayLabel(ends)} (${esc(r.days)} days)`],
     ["Who can join", r.region ? flag(r.region) + " " + esc(countryName(r.region)) : "🌍 Worldwide"], ["Spots", r.capacity ? fmt(r.capacity) : "No limit"],
-    ["Placement", (r.featured_on || r.featured) ? (r.featured_on && r.featured_on !== "all" ? `Featured on the ${esc(r.featured_on)} page` : "Featured on the main page") : "Standard"], ["Reward or note", esc(r.cover_note || "—")], ["About the brand", esc(r.about || "—")], ["Their notes", esc(r.notes || "—")]];
+    ["Reward for finishing", r.reward_details ? `${esc(r.reward_details)} · at least ${esc(r.reward_min_days)} of ${esc(r.days)} days` : "—"], ["Prize for the top 3", esc(r.top_prize || "—")],
+    ["Placement", (r.featured_on || r.featured) ? (r.featured_on && r.featured_on !== "all" ? `Featured on the ${esc(r.featured_on)} page` : "Featured on the main page") : "Standard"], ...(r.cover_note ? [["Note (older request)", esc(r.cover_note)]] : []), ["About the brand", esc(r.about || "—")], ["Their notes", esc(r.notes || "—")]];
   el.innerHTML = `
     <div class="pagehead"><div><a href="#" id="rBack" class="muted small" style="text-decoration:none">← All requests</a>
       <h1 style="margin-top:6px">${esc(r.company)}: ${esc(r.title)}</h1>
@@ -1254,8 +1328,8 @@ async function openRequest(r) {
           <table class="breakdown"><tbody>${lines.map(([k, v]) => `<tr><td class="muted" style="width:170px">${k}</td><td style="text-align:left">${v}</td></tr>`).join("")}</tbody></table></div>
         <div class="card section"><h3>Price</h3><p>What they were quoted when they sent it, and what the same challenge prices at today.</p>
           <div class="grid kpis">
-            <div class="kpi"><span class="eyebrow">Quoted</span><b>HK$${fmt(q.price)}</b><div class="muted small">${fmt(q.reach_low)}–${fmt(q.reach_high)} people</div></div>
-            <div class="kpi"><span class="eyebrow">Today</span><b>HK$${fmt(now?.price)}</b><div class="muted small">${fmt(now?.reach_low)}–${fmt(now?.reach_high)} people</div></div>
+            <div class="kpi"><span class="eyebrow">Quoted</span><b>${reqMoney(q)}</b><div class="muted small">${fmt(q.reach_low)}–${fmt(q.reach_high)} people</div></div>
+            <div class="kpi"><span class="eyebrow">Today</span><b>${reqMoney(now)}</b><div class="muted small">${fmt(now?.reach_low)}–${fmt(now?.reach_high)} people</div></div>
             <div class="kpi"><span class="eyebrow">Activity match</span><b>${esc(q.affinity ?? "—")}×</b><div class="muted small">How popular their activities are</div></div>
           </div>
           <p class="help" style="margin-top:10px">Invoice the quoted price: it's what they agreed to.</p></div>
@@ -1264,7 +1338,7 @@ async function openRequest(r) {
           <div class="row"><button class="btn green" id="rApprove">Approve</button><button class="btn ghost" id="rDecline">Decline</button>
             <span class="space"></span><span class="muted small">Approving makes the sponsor (${esc(r.company)}) and a draft challenge.</span></div></div>` : ""}
         ${r.status === "approved" ? `<div class="card section"><h3>${r.paid_at ? "Live" : "Waiting for payment"}</h3>
-          <p>${r.paid_at ? "It's paid and live on its start date. The sponsor has their report link." : `Send the invoice for HK$${fmt(q.price)} to ${esc(r.email)}. When it's paid, mark it here: the challenge goes live and they get their report link.`}</p>
+          <p>${r.paid_at ? "It's paid and live on its start date. The sponsor has their report link." : `Send the invoice for ${reqMoney(q)} to ${esc(r.email)}. When it's paid, mark it here: the challenge goes live and they get their report link.`}</p>
           <div class="row">${r.challenge_id ? `<button class="btn line" id="rOpen">Open the challenge</button>` : ""}${r.sponsor_id ? `<button class="btn line" id="rSponsor">Open the sponsor</button>` : ""}
             <span class="space"></span>${r.paid_at ? "" : `<button class="btn" id="rPaid">Mark paid and go live</button>`}</div></div>` : ""}
         ${r.admin_note ? `<div class="card section"><h3>Your note</h3><p>${esc(r.admin_note)}</p></div>` : ""}
@@ -1275,6 +1349,8 @@ async function openRequest(r) {
           <div class="pcard" style="background:${esc(r.color)}"><div class="wm">${r.logo_path ? `<img src="${esc(logoURL(r.logo_path))}" alt="">` : ""}${esc(r.company.toUpperCase())}${(r.featured_on || r.featured) ? " · FEATURED" : ""}</div>
             <div><h4>${esc(r.title)}</h4><div class="meta">${esc(r.rule)} · ${esc(r.days)} days · ${r.region ? esc(countryName(r.region)) : "Worldwide"}</div></div><span class="join">Join</span></div>
           ${r.cover_note ? `<div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}; font-size:12px"><b>${esc(r.cover_note)}</b></div>` : ""}
+          ${r.reward_details ? `<div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}; font-size:12px"><b>Do ${esc(r.reward_min_days)} of ${esc(r.days)} days: ${esc(r.reward_details)}</b></div>` : ""}
+          ${r.top_prize ? `<div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}; font-size:12px"><b>Top 3 win: ${esc(r.top_prize)}</b></div>` : ""}
           <div class="ptint" style="background:${esc(r.tint || "#F2F2F2")}"><b style="font-size:13px">About ${esc(r.company)}</b><div style="font-size:12px; margin-top:6px; color:#333">${esc(r.about || "No about text.")}</div></div>
         </div></div></div>
         <div class="muted small" style="text-align:center; margin-top:10px">White text on their colour: ${contrastWhite(r.color) >= 3 ? "reads well" : "<b style='color:var(--amber)'>hard to read</b>"}</div>
@@ -1291,15 +1367,15 @@ async function openRequest(r) {
 }
 
 // ---------------- Sponsor pricing ----------------
-// Price = set-up + featured fee + (expected participants × active days each × rate) × country premium, never below the minimum.
-const PRICE_DEFAULTS = { baseJoin: 8, featuredBoost: 2.2, featuredFee: 18000, featuredPremium: 1.6, areaBoost: 1.35, areaFee: 4500, areaPremium: 1.15,
-  lengthDrag: 0.3, halfLife: 10, rate: 1.2, setup: 2500, countryPremium: 1.2, minimum: 5000, round: 500 };
+// Price (US$) = base × (days ÷ 7)^curve × (spots ÷ 50)^curve, rounded, never below the base, plus a flat featured fee.
+// The participant estimate is separate: a guide for the sponsor, never more than the spots. Same maths as public_quote.
+const PRICE_DEFAULTS = { priceBase: 64, baseDays: 7, baseSpots: 50, curve: 0.45, roundTo: 5, maxSpots: 5000, featuredFeeUSD: 385, areaFeeUSD: 130,
+  baseJoin: 8, featuredBoost: 2.2, areaBoost: 1.35, lengthDrag: 0.3, halfLife: 10 };
 let priceAssume = { ...PRICE_DEFAULTS };
 let audience = null;
-const pq = { from:"", region:null, basis:"all", growth:0, days:14, cap:"", slot:"" };
-const HKD_PER_USD = 7.8;
+const pq = { from:"", region:null, basis:"all", growth:0, days:14, cap:100, slot:"" };
 const whole = x => Math.round(Number(x) || 0).toLocaleString("en-GB");
-const money = (x, cur = "HK$") => cur + Math.round(x).toLocaleString("en-GB");
+const money = (x, cur = "US$") => cur + Math.round(x).toLocaleString("en-GB");
 
 function audienceFor(region, basis) {
   if (!audience) return 0;
@@ -1308,20 +1384,19 @@ function audienceFor(region, basis) {
   return r ? (basis === "active" ? r.active_30d : r.people) : 0;
 }
 function priceModel(q, a) {
-  const L = Math.max(1, Number(q.days) || 1);
+  const L = Math.max(3, Math.min(60, Number(q.days) || 7));
+  const cap = Math.max(a.baseSpots, Math.min(Number(q.cap) || a.baseSpots, a.maxSpots));
   const N0 = audienceFor(q.region, q.basis);
   const N = N0 * (1 + (Number(q.growth) || 0) / 100);
-  const tier = q.slot === "all" ? { boost: a.featuredBoost, fee: a.featuredFee, prem: a.featuredPremium } : q.slot ? { boost: a.areaBoost, fee: a.areaFee, prem: a.areaPremium } : { boost: 1, fee: 0, prem: 1 };
+  const tier = q.slot === "all" ? { boost: a.featuredBoost, fee: a.featuredFeeUSD } : q.slot ? { boost: a.areaBoost, fee: a.areaFeeUSD } : { boost: 1, fee: 0 };
   const p = (a.baseJoin / 100) * tier.boost * Math.pow(7 / L, a.lengthDrag);
-  const cap = Number(q.cap) > 0 ? Number(q.cap) : Infinity;
   const E = { low: Math.min(cap, N * p * 0.5), mid: Math.min(cap, N * p), high: Math.min(cap, N * p * 1.5) };
   const A = a.halfLife * (1 - Math.exp(-L / a.halfLife));
-  const fees = a.setup + tier.fee;
-  const m = (q.region ? a.countryPremium : 1) * tier.prem;
-  const raw = k => fees + E[k] * A * a.rate * m;
-  const round = x => Math.max(a.minimum, Math.ceil(x / a.round) * a.round);
-  return { L, N0, N, p, cap, E, A, fees, m, tier, raw: { low: raw("low"), mid: raw("mid"), high: raw("high") },
-    price: { low: round(raw("low")), mid: round(raw("mid")), high: round(raw("high")) }, floor: raw("mid") < a.minimum };
+  const dayF = Math.pow(Math.max(L, a.baseDays) / a.baseDays, a.curve), spotF = Math.pow(cap / a.baseSpots, a.curve);
+  const part = a.priceBase * dayF * spotF;
+  const atMin = part <= a.priceBase;
+  const price = (atMin ? a.priceBase : Math.round(part / a.roundTo) * a.roundTo) + tier.fee;
+  return { L, cap, N0, N, p, E, A, tier, dayF, spotF, part, atMin, price };
 }
 function measuredJoinRate() {
   if (!audience) return null;
@@ -1340,7 +1415,7 @@ async function loadPricing() {
   if (!challenges.length) { const r = await sb.from("challenges").select("*"); challenges = r.data || []; }
   const regionsWithPeople = [...audience.regions].sort((a, b) => b.people - a.people);
   el.innerHTML = `
-    <div class="pagehead"><div><h1>Sponsor pricing</h1><p>What to charge for a sponsored challenge, from how many people can see it, how many are likely to join, and for how long.</p></div></div>
+    <div class="pagehead"><div><h1>Sponsor pricing</h1><p>What a sponsored challenge costs in US dollars, from its length, spots and placement, plus a guide to how many are likely to join.</p></div></div>
     <div class="editor" style="grid-template-columns: minmax(0,1fr) 380px">
       <div>
         <div class="card section"><h3>The challenge</h3><p>Start from one you've made, or fill it in.</p>
@@ -1350,7 +1425,7 @@ async function loadPricing() {
           <div class="row" style="margin-bottom:14px"><div class="segs" id="pqLen">${[7, 14, 21, 30].map(n => `<button type="button" data-len="${n}">${n} days</button>`).join("")}</div>
             <input type="number" id="pqDays" min="1" max="90" style="width:100px"> <span class="muted small">days</span></div>
           <div class="two">
-            <label class="f"><span>Spots <small>· empty for no limit</small></span><input type="number" id="pqCap" min="1" placeholder="No limit"></label>
+            <label class="f"><span>Spots <small>· 50 to 5,000</small></span><input type="number" id="pqCap" min="50" max="5000" step="50"></label>
             <label class="f"><span>Placement</span><select id="pqSlot"><option value="">Standard</option><option value="all">Featured · main page (premium)</option>${GROUPS.filter(g => g !== "Other").map(g => `<option value="${g}">Featured · ${g} page</option>`).join("")}</select></label>
           </div>
         </div>
@@ -1366,19 +1441,19 @@ async function loadPricing() {
         <div class="card section"><div class="row"><h3>Assumptions</h3><span class="space"></span><button type="button" class="btn ghost small" id="pqReset">Reset</button></div>
           <p>The levers behind the price. They're shared with the public sponsor page, so a change here changes what brands are quoted. Saved automatically.</p>
           <div class="three">
-            ${[["baseJoin", "Join rate %", "Share of the audience who join a standard challenge", 0.5],
-               ["featuredBoost", "Main featured boost ×", "How many more join from the main page's big card", 0.1],
-               ["featuredPremium", "Main featured premium ×", "Charged on top for every active day", 0.05],
-               ["areaBoost", "Area featured boost ×", "How many more join from an area page's big card", 0.05],
-               ["areaPremium", "Area featured premium ×", "Charged on top for every active day", 0.05],
-               ["areaFee", "Area featured fee HK$", "For an area page's top spot", 100],
-               ["lengthDrag", "Length drag", "How much a longer challenge puts people off (0 = not at all)", 0.05],
-               ["halfLife", "Staying power, days", "On average, how long someone keeps going", 1],
-               ["rate", "HK$ per active day", "Price for one person active on one day", 0.1],
-               ["countryPremium", "Country premium ×", "Targeting one country is worth more per person", 0.05],
-               ["setup", "Set-up fee HK$", "Building it: brand, card, reports", 100],
-               ["featuredFee", "Main featured fee HK$", "For the main page's top spot", 500],
-               ["minimum", "Minimum HK$", "Never quote below this", 500]].map(([k, l, h, st]) =>
+            ${[["priceBase", "Base price US$", "For the base length and spots; never quote below this", 1],
+               ["baseDays", "Base length, days", "The length the base price covers", 1],
+               ["baseSpots", "Base spots", "The spots the base price covers (also the fewest allowed)", 10],
+               ["curve", "Growth curve", "How fast price grows with days and spots (1 = in proportion, 0.45 = gently)", 0.05],
+               ["roundTo", "Round to US$", "Prices are rounded to this", 1],
+               ["maxSpots", "Most spots", "The largest limit a sponsor can choose", 100],
+               ["featuredFeeUSD", "Main featured fee US$", "Added for the main page's top spot", 5],
+               ["areaFeeUSD", "Area featured fee US$", "Added for an area page's top spot", 5],
+               ["baseJoin", "Join rate %", "For the estimate only: share of the audience who join", 0.5],
+               ["featuredBoost", "Main featured boost ×", "For the estimate only: more join from the main page", 0.1],
+               ["areaBoost", "Area featured boost ×", "For the estimate only: more join from an area page", 0.05],
+               ["lengthDrag", "Length drag", "For the estimate only: how much a longer challenge puts people off", 0.05],
+               ["halfLife", "Staying power, days", "For the estimate only: how long someone keeps going", 1]].map(([k, l, h, st]) =>
                `<label class="f"><span>${l}</span><input type="number" step="${st}" data-a="${k}" value="${esc(priceAssume[k])}"><div class="help">${h}</div></label>`).join("")}
           </div>
           <div class="help" id="pqMeasured"></div>
@@ -1404,43 +1479,42 @@ async function loadPricing() {
       : "No challenges have run yet, so the join rate is a starting guess. Once a few have run, the measured rate shows here.";
     $("#pqUseMeasured")?.addEventListener("click", e => { e.preventDefault(); priceAssume.baseJoin = Math.round(meas.rate * 10) / 10; saveAssume(); loadPricing(); });
 
-    const capTxt = m.cap === Infinity ? "no limit" : whole(m.cap);
     $("#pqFormula").textContent =
-`Join chance   p = ${a.baseJoin}%${pq.slot ? ` × ${m.tier.boost} featured` : ""} × (7 ÷ ${m.L} days)^${a.lengthDrag}  =  ${(m.p * 100).toFixed(2)}%
-Participants  E = min(spots, audience × p) = min(${capTxt}, ${whole(m.N)} × ${(m.p * 100).toFixed(2)}%)  =  ${whole(m.E.mid)}
-Active days   A = ${a.halfLife} × (1 − e^(−${m.L} ÷ ${a.halfLife}))  =  ${m.A.toFixed(1)} days each
-Price         = HK$${whole(m.fees)} fees + ${whole(m.E.mid)} × ${m.A.toFixed(1)} × HK$${a.rate}${pq.region ? ` × ${a.countryPremium} country` : ""}${pq.slot ? ` × ${m.tier.prem} featured` : ""}  =  ${money(m.raw.mid)}
-Quote         = rounded up to HK$${whole(a.round)}, at least HK$${whole(a.minimum)}  =  ${money(m.price.mid)}`;
+`Length factor  (${m.L} ÷ ${a.baseDays} days)^${a.curve}  =  ${m.dayF.toFixed(2)}
+Spots factor   (${whole(m.cap)} ÷ ${a.baseSpots} spots)^${a.curve}  =  ${m.spotF.toFixed(2)}
+Participation  US$${a.priceBase} × ${m.dayF.toFixed(2)} × ${m.spotF.toFixed(2)}  =  ${money(m.part)}${m.atMin ? " → the base price applies" : ` → rounded to US$${a.roundTo}`}
+Placement fee  ${m.tier.fee ? money(m.tier.fee) : "none (standard)"}
+Price          ${money(m.price)}`;
     const rows = [
       ["Audience", `${whole(m.N)} accounts`], ["Chance each joins", `${(m.p * 100).toFixed(2)}%`],
-      ["Expected participants", `${whole(m.E.low)} – ${whole(m.E.high)} (likely ${whole(m.E.mid)})`],
-      ["Active days per participant", `${m.A.toFixed(1)} of ${m.L}`], ["Active participant-days", whole(m.E.mid * m.A)],
-      ["Set-up and placement fees", money(m.fees)], ["Participation", money(m.raw.mid - m.fees)],
+      ["Expected participants", `${whole(m.E.low)} – ${whole(m.E.high)} (likely ${whole(m.E.mid)}, at most ${whole(m.cap)})`],
+      ["Active days per participant", `${m.A.toFixed(1)} of ${m.L}`],
+      ["Participation", money(m.price - m.tier.fee)], ["Placement fee", money(m.tier.fee)],
     ];
     $("#pqBreakdown").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
 
-    const per = m.E.mid > 0 ? m.price.mid / m.E.mid : null, perDay = m.E.mid > 0 ? m.price.mid / (m.E.mid * m.A) : null;
-    $("#pqQuote").innerHTML = `<div class="eyebrow" style="color:#a8a8a8">Suggested price</div>
-      <div class="big">${money(m.price.mid)}</div>
-      <div class="muted">≈ ${money(m.price.mid / HKD_PER_USD, "US$")} · range ${money(m.price.low)} – ${money(m.price.high)}</div>
-      ${m.floor ? '<div class="small" style="margin-top:8px; color:#ffd27a">The minimum applies: the audience is still small.</div>' : ""}
+    const per = m.E.mid > 0 ? m.price / m.E.mid : null, perSpot = m.price / m.cap;
+    $("#pqQuote").innerHTML = `<div class="eyebrow" style="color:#a8a8a8">Price</div>
+      <div class="big">${money(m.price)}</div>
+      <div class="muted">${m.L} days · ${whole(m.cap)} spots${m.tier.fee ? " · featured" : ""} · about HK$${whole(m.price * 7.8)}</div>
+      ${m.atMin ? '<div class="small" style="margin-top:8px; color:#ffd27a">The base price applies.</div>' : ""}
       <div class="qgrid">
         <div><b>${whole(m.E.mid)}</b><span>likely participants</span></div>
-        <div><b>${whole(m.E.mid * m.A)}</b><span>active participant-days</span></div>
-        <div><b>${per ? money(per) : "—"}</b><span>per participant</span></div>
-        <div><b>${perDay ? "HK$" + perDay.toFixed(2) : "—"}</b><span>per active day</span></div>
+        <div><b>${whole(m.cap)}</b><span>spots</span></div>
+        <div><b>${per ? money(per) : "—"}</b><span>per likely participant</span></div>
+        <div><b>US$${perSpot.toFixed(2)}</b><span>per spot</span></div>
       </div>
       <button class="btn white" style="width:100%; justify-content:center; margin-top:16px" id="pqCopy">Copy quote for the sponsor</button>
-      <p class="small muted" style="margin:10px 0 0">A guide, not a promise: the range shows half to one and a half times the likely number of participants.</p>`;
+      <p class="small muted" style="margin:10px 0 0">The participant estimate is a guide, not a promise. The price depends only on the days, spots and placement.</p>`;
     $("#pqCopy").onclick = async () => {
       const text = `Performative sponsored challenge: quote
 
 Challenge: ${pq.from ? (challenges.find(c => c.id === pq.from)?.title || "") : "To be named"}
 Length: ${m.L} days${pq.slot === "all" ? ", featured on the main Challenges page" : pq.slot ? `, featured on the ${pq.slot} page` : ""}
-Audience: ${pq.region ? countryName(pq.region) + " only" : "Worldwide"}${m.cap !== Infinity ? `, capped at ${whole(m.cap)} participants` : ""}
+Audience: ${pq.region ? countryName(pq.region) + " only" : "Worldwide"}, up to ${whole(m.cap)} participants
 
 Expected participants: ${whole(m.E.low)} to ${whole(m.E.high)}
-Price: ${money(m.price.mid)} (about ${money(m.price.mid / HKD_PER_USD, "US$")})
+Price: ${money(m.price)} (US dollars)
 
 Included: your branded challenge card${pq.slot ? " in the featured spot" : ""}, logo and brand colours, start, reminder and results notifications to participants, a live report link, and halftime and final reports by email.
 Every figure we share is a count or a total: Performative never shares names, photos, posts, messages or anyone's Apple Health data.`;
@@ -1460,7 +1534,7 @@ Every figure we share is a count or a total: Performative never shares names, ph
   $("#pqFrom").value = pq.from;
   $("#pqFrom").onchange = e => {
     pq.from = e.target.value; const c = challenges.find(x => x.id === pq.from); if (!c) return draw();
-    pq.days = daysBetween(c.starts_on, c.ends_on) + 1; pq.cap = c.capacity || ""; pq.slot = c.featured_on || ""; pq.region = c.region || null;
+    pq.days = daysBetween(c.starts_on, c.ends_on) + 1; pq.cap = c.capacity || 50; pq.slot = c.featured_on || ""; pq.region = c.region || null;
     $("#pqDays").value = pq.days; $("#pqCap").value = pq.cap; $("#pqSlot").value = pq.slot; if (pq.region) $("#pqRegion").value = pq.region; draw();
   };
   $$("#pqLen button").forEach(b => b.onclick = () => { pq.days = Number(b.dataset.len); $("#pqDays").value = pq.days; draw(); });

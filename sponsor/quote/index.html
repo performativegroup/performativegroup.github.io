@@ -172,8 +172,10 @@
       <div class="panel"><h3><span class="n">3</span>Who and how many</h3><p class="sub">Open it to everyone, or to people in one country.</p>
         <div class="field"><div class="segs" id="where" role="group" aria-label="Who can join"><button type="button" data-w="world" aria-pressed="true">🌍 Worldwide</button><button type="button" data-w="country" aria-pressed="false">One country</button></div></div>
         <div class="field hidden" id="countryField"><label class="label" for="country">Country</label><select id="country"></select></div>
-        <div class="field"><label class="switch"><div class="t"><b>Limit the number of spots</b><span>Useful for a launch or a limited offer.</span></div><input type="checkbox" id="capOn"></label>
-          <div id="capBox" class="hidden" style="margin-top:10px"><input type="range" id="cap" min="50" max="20000" step="50" aria-label="Number of spots"><div class="rangeval"><span>50</span><b id="capVal"></b><span>20,000</span></div></div></div>
+        <div class="field" data-f="capacity"><span class="label" id="capLabel">Number of spots</span>
+          <div class="small muted" style="margin-bottom:10px">Every challenge has a limit. Once it's full, nobody else can join. More spots and more days cost more.</div>
+          <div class="segs" id="capPresets" role="group" aria-labelledby="capLabel"></div>
+          <input type="range" id="cap" min="50" max="5000" step="50" aria-label="Number of spots" style="margin-top:14px"><div class="rangeval"><span>50</span><b id="capVal"></b><span>5,000</span></div><div class="err" data-e="capacity"></div></div>
         <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label" id="slotsLabel">Placement</span>
           <div class="slots" id="slots" role="group" aria-labelledby="slotsLabel"></div><div class="err" data-e="featured_on"></div></div>
       </div>
@@ -197,11 +199,22 @@
           <div class="field" data-f="title"><label class="label" for="title">Challenge name</label><input type="text" id="title" maxlength="40" placeholder="e.g. Run Week"><div class="err" data-e="title"></div></div>
           <div class="field" data-f="rule"><label class="label" for="rule">The rule <small>· one line</small></label><input type="text" id="rule" maxlength="60"><div class="err" data-e="rule"></div></div>
         </div>
-        <div class="field" style="margin-bottom:0"><label class="label" for="cover">Reward or note <small>· optional</small></label><input type="text" id="cover" maxlength="200" placeholder="e.g. Do 10 of the 14 days and get 20% off at our store." aria-describedby="coverHelp">
-          <div class="small muted" id="coverHelp" style="margin-top:8px">Rewards are discount codes you supply. Performative runs the challenge and emails your code to everyone who earns it. Rewards can only go on Time challenges (measured by the app's timer), and there are no prize draws.</div></div>
+              </div>
+
+      <div class="panel"><h3><span class="n">6</span>Rewards <small class="muted" style="font-weight:500;font-size:14px">· optional</small></h3><p class="sub">Offer a reward to everyone who finishes, a prize for the top 3, both, or neither. You supply the codes; we email them only to the people who earn them, so you never receive anyone's personal details. Rewards need a Time challenge (measured by the app's timer).</p>
+        <div class="field" data-f="reward_details"><label class="switch"><div class="t"><b>Reward everyone who finishes</b><span>e.g. 20% off for anyone who does at least 10 of the 14 days.</span></div><input type="checkbox" id="rewardOn"></label>
+          <div id="rewardBox" class="hidden" style="margin-top:10px">
+            <div class="two">
+              <div class="field" style="margin-bottom:0"><label class="label" for="rewardDetails">The reward</label><input type="text" id="rewardDetails" maxlength="80" placeholder="e.g. 20% off at our store"></div>
+              <div class="field" data-f="reward_min_days" style="margin-bottom:0"><label class="label" for="rewardDays">Days needed</label><div style="display:flex;gap:10px;align-items:center"><input type="number" id="rewardDays" min="1" style="max-width:110px"><span class="muted" id="rewardDaysOf"></span></div><div class="err" data-e="reward_min_days"></div></div>
+            </div></div><div class="err" data-e="reward_details"></div></div>
+        <div class="field" data-f="top_prize" style="margin-bottom:0"><label class="switch"><div class="t"><b>Prize for the top 3</b><span>The 3 people with the most days done win. Ties go to the most minutes (up to 3 hours a day counts), then whoever joined first.</span></div><input type="checkbox" id="prizeOn"></label>
+          <div id="prizeBox" class="hidden" style="margin-top:10px"><label class="label" for="topPrize">The prize</label><input type="text" id="topPrize" maxlength="120" placeholder="e.g. A free pair of running shoes for each of the top 3">
+            <div class="small muted" style="margin-top:8px">We check the top 3's posts for cheating before anyone wins, then email each winner the code or claim instructions you give us.</div></div><div class="err" data-e="top_prize"></div></div>
+        <div class="err" data-e="metric" style="margin-top:8px"></div>
       </div>
 
-      <div class="panel"><h3><span class="n">6</span>Your details</h3><p class="sub">So we can reply and send your invoice.</p>
+      <div class="panel"><h3><span class="n">7</span>Your details</h3><p class="sub">So we can reply and send your invoice.</p>
         <div class="two">
           <div class="field" data-f="contact_name"><label class="label" for="cname">Your name</label><input type="text" id="cname" autocomplete="name"><div class="err" data-e="contact_name"></div></div>
           <div class="field" data-f="email"><label class="label" for="email">Work email</label><input type="email" id="email" autocomplete="email"><div class="err" data-e="email"></div></div>
@@ -271,13 +284,13 @@ const sb = supabase.createClient(SUPABASE_URL, PUBLISHABLE_KEY, { auth: { persis
 const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const whole = x => Math.round(Number(x) || 0).toLocaleString("en-GB");
-const money = x => "HK$" + whole(x);
+const money = x => "US$" + whole(x);
 
 const GROUPS = { Exercise:["Running","Walking","Workout","Gym","Cycling","Swimming","Yoga","Sport"], Learning:["Reading","Studying","Language","Coding"],
   Mind:["Meditation","Journaling","Yoga"], Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Home:["Cooking","Cleaning"] };
 const METRICS = { time:{ label:"Time", unit:"minutes a day", def:20, help:"Timed in the app with a live photo at the end." },
-  km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout, so it can't be typed in. Your report shows joins and posts, never distances. Rewards need a Time challenge." },
-  steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count. Your report shows joins and posts, never step counts. Rewards need a Time challenge." } };
+  km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout, so it can't be typed in. Your report shows joins and posts, never distances. Rewards and prizes need a Time challenge." },
+  steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count. Your report shows joins and posts, never step counts. Rewards and prizes need a Time challenge." } };
 const DISTANCE = new Set(["Running","Walking","Cycling","Swimming"]);
 const COUNTRY_CODES = "AE AR AT AU BE BR CA CH CL CN CO CZ DE DK EG ES FI FR GB GR HK HU ID IE IL IN IT JP KR KW MO MX MY NG NL NO NZ PH PK PL PT QA RO SA SE SG TH TR TW UA US VN ZA".split(" ");
 const regionNames = new Intl.DisplayNames(["en"], { type:"region" });
@@ -288,7 +301,7 @@ const hkToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 1
 const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const nice = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", timeZone:"UTC" });
 
-const st = { group:"Exercise", cats:["Running"], metric:"km", target:3, start: addDays(hkToday(), 14), days:14, region:null, cap:null, slot:null, color:"#2340FF", logo:null };
+const st = { group:"Exercise", cats:["Running"], metric:"km", target:3, start: addDays(hkToday(), 14), days:14, region:null, cap:250, slot:null, rewardOn:false, prizeOn:false, color:"#2340FF", logo:null };
 let taken = [], slotPrices = {};
 
 // ---------- nav shadow, hero card rotation ----------
@@ -300,6 +313,7 @@ function drawGroups() {
   $$("#cats .chip").forEach(b => b.onclick = () => { const c = b.dataset.c; st.cats = st.cats.includes(c) ? st.cats.filter(x => x !== c) : [...st.cats, c]; autoMetric(); drawAll(); });
 }
 function availableMetrics() {
+  if (st.rewardOn || st.prizeOn) return ["time"];
   if (st.cats.length && st.cats.every(c => c === "Walking")) return ["steps", "km", "time"];
   if (st.cats.length && st.cats.every(c => DISTANCE.has(c))) return ["km", "time"];
   return ["time"];
@@ -322,8 +336,9 @@ function drawWhen() {
 function drawWhere() {
   $$("#where button").forEach(b => { const on = (b.dataset.w === "country") === !!st.region; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
   $("#countryField").classList.toggle("hidden", !st.region);
-  $("#capBox").classList.toggle("hidden", !st.cap); $("#capOn").checked = !!st.cap;
-  if (st.cap) { $("#cap").value = st.cap; $("#capVal").textContent = whole(st.cap) + " spots"; }
+  $("#capPresets").innerHTML = [50, 100, 250, 500, 1000].map(n => `<button type="button" data-c="${n}" class="${st.cap === n ? "on" : ""}" aria-pressed="${st.cap === n}">${whole(n)}</button>`).join("");
+  $$("#capPresets button").forEach(b => b.onclick = () => { st.cap = Number(b.dataset.c); drawWhere(); quote(); });
+  $("#cap").value = st.cap; $("#capVal").textContent = whole(st.cap) + " spots";
   drawSlots();
 }
 // Placement: standard, featured on this activity's page, or featured on the main page (the premium spot).
@@ -359,7 +374,7 @@ function drawPreview() {
   const ratio = 1.05 / (lum + .05);
   $("#contrast").innerHTML = ratio >= 3 ? `<span style="color:var(--green)">✓ White text reads well on this colour</span>` : `<span style="color:#A86B00">⚠ White text is hard to read on this colour. A darker shade works better.</span>`;
 }
-function drawAll() { drawGroups(); drawMetric(); drawWhen(); drawWhere(); drawPreview(); quote(); }
+function drawAll() { drawGroups(); drawMetric(); drawWhen(); drawWhere(); drawRewards(); drawPreview(); quote(); }
 
 // ---------- live estimate ----------
 let qTimer, qSeq = 0;
@@ -390,20 +405,28 @@ function quote() {
     $("#meter").classList.toggle("hidden", early);
     $("#price").textContent = money(data.price);
     $("#mPrice").textContent = money(data.price); $("#mReach").textContent = early ? "Early access pricing" : `${whole(data.reach_low)}–${whole(data.reach_high)} people`;
-    $("#priceNote").innerHTML = `≈ US$${whole(data.price / 7.8)} · paid by invoice after approval${!early && data.reach ? ` · about ${money(data.price / Math.max(data.reach, 1))} per participant` : ""}`;
+    $("#priceNote").innerHTML = `${whole(st.cap)} spots · ${st.days} days · in US dollars, paid by invoice after approval`;
   }, 220);
 }
 
 // ---------- inputs ----------
 $("#target").oninput = e => { st.target = Number(e.target.value) || 0; drawPreview(); };
 $("#start").onchange = e => { st.start = e.target.value || st.start; drawWhen(); quote(); };
-$("#days").oninput = e => { st.days = Number(e.target.value); drawWhen(); drawPreview(); quote(); };
+$("#days").oninput = e => { st.days = Number(e.target.value); drawWhen(); drawRewards(); drawPreview(); quote(); };
 $$("#where button").forEach(b => b.onclick = () => { st.region = b.dataset.w === "country" ? ($("#country").value || "HK") : null; drawWhere(); drawPreview(); quote(); });
 $("#country").innerHTML = COUNTRY_CODES.map(c => ({ c, n: countryName(c) })).sort((a, b) => a.n.localeCompare(b.n)).map(x => `<option value="${x.c}">${flag(x.c)} ${esc(x.n)}</option>`).join("");
 $("#country").value = "HK";
 $("#country").onchange = e => { st.region = e.target.value; drawPreview(); quote(); };
-$("#capOn").onchange = e => { st.cap = e.target.checked ? 500 : null; drawWhere(); quote(); };
-$("#cap").oninput = e => { st.cap = Number(e.target.value); $("#capVal").textContent = whole(st.cap) + " spots"; quote(); };
+$("#cap").oninput = e => { st.cap = Number(e.target.value); $$("#capPresets button").forEach(b => { const on = Number(b.dataset.c) === st.cap; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }); $("#capVal").textContent = whole(st.cap) + " spots"; quote(); };
+// Rewards: turning one on switches the challenge to Time, since rewards can't go on Apple Health challenges.
+function drawRewards() {
+  $("#rewardBox").classList.toggle("hidden", !st.rewardOn); $("#rewardOn").checked = st.rewardOn;
+  $("#prizeBox").classList.toggle("hidden", !st.prizeOn); $("#prizeOn").checked = st.prizeOn;
+  const rd = $("#rewardDays"); rd.max = st.days; if (!rd.value || Number(rd.value) > st.days) rd.value = Math.max(1, Math.round(st.days * 0.7));
+  $("#rewardDaysOf").textContent = `of the ${st.days} days`;
+}
+$("#rewardOn").onchange = e => { st.rewardOn = e.target.checked; if (st.rewardOn) $("#rewardDays").value = Math.max(1, Math.round(st.days * 0.7)); autoMetric(); drawAll(); };
+$("#prizeOn").onchange = e => { st.prizeOn = e.target.checked; autoMetric(); drawAll(); };
 
 ["company", "title"].forEach(id => $("#" + id).addEventListener("input", drawPreview));
 $("#rule").addEventListener("input", () => { ruleTouched = true; drawPreview(); });
@@ -451,7 +474,8 @@ $("#form").onsubmit = async e => {
   const req = { company: $("#company").value, contact_name: $("#cname").value, email: $("#email").value, phone: $("#phone").value, website: $("#website").value,
     about: $("#about").value, color: st.color, tint: tintOf(st.color), title: $("#title").value, rule: $("#rule").value, group_name: st.group, categories: st.cats,
     metric: st.metric, daily_target: st.target, starts_on: st.start, days: st.days, region: st.region, capacity: st.cap, featured_on: st.slot,
-    cover_note: $("#cover").value, notes: $("#notes").value, agree: $("#agree").checked };
+    reward_details: st.rewardOn ? $("#rewardDetails").value : "", reward_min_days: st.rewardOn ? Number($("#rewardDays").value) : null,
+    top_prize: st.prizeOn ? $("#topPrize").value : "", notes: $("#notes").value, agree: $("#agree").checked };
   // Quick checks here; the server checks everything again.
   const errs = {};
   if (!req.company.trim()) errs.company = "Add your company or brand name.";
@@ -462,6 +486,10 @@ $("#form").onsubmit = async e => {
   if (!req.contact_name.trim()) errs.contact_name = "Add your name.";
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(req.email.trim())) errs.email = "Add a work email we can reply to.";
   if (st.start < addDays(hkToday(), 5)) errs.starts_on = "Start at least 5 days from today, so there's time to review it.";
+  if (!(st.cap >= 50 && st.cap <= 5000)) errs.capacity = "Set the number of spots, between 50 and 5,000.";
+  if (st.rewardOn && !req.reward_details.trim()) errs.reward_details = "Describe the reward, or turn it off.";
+  if (st.rewardOn && !(req.reward_min_days >= 1 && req.reward_min_days <= st.days)) errs.reward_min_days = `Between 1 and ${st.days}.`;
+  if (st.prizeOn && !req.top_prize.trim()) errs.top_prize = "Describe the prize, or turn it off.";
   if (!req.agree) errs.agree = "Please accept the sponsor terms.";
   showErrors(errs); if (Object.keys(errs).length) return;
   const btn = $("#submit"); btn.disabled = true; btn.textContent = "Sending…";
