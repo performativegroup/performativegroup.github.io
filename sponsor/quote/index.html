@@ -22,9 +22,32 @@
   .pcard .meta { font-size:12px; opacity:.9; }
   .pcard .bar { height:5px; background:rgba(255,255,255,.28); border-radius:9px; margin-top:12px; overflow:hidden; } .pcard .bar i { display:block; height:100%; background:#fff; border-radius:9px; width:62%; }
   .pcard .join { align-self:flex-start; margin-top:14px; background:#fff; color:#111; border-radius:99px; padding:8px 16px; font-weight:700; font-size:12px; }
+  /* Placement examples: three small phones showing the Challenges page */
+  .places { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+  @media (max-width:640px) { .places { grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:72%; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px; } .places .place { scroll-snap-align:start; } }
+  .place { all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:10px; }
+  .place .ph { aspect-ratio:9/17; background:#fff; border-radius:26px; border:6px solid #111; padding:12px 10px; display:flex; flex-direction:column; gap:7px; overflow:hidden; position:relative; box-shadow:0 0 0 2px transparent; transition:box-shadow .15s, transform .15s; }
+  .place.on .ph { box-shadow:0 0 0 3px var(--bg, #f4f4f0), 0 0 0 5px var(--ink); }
+  .place:hover .ph { transform:translateY(-2px); }
+  .place.taken { cursor:not-allowed; opacity:.5; }
+  .ph .st { display:flex; justify-content:space-between; font-size:8px; font-weight:700; color:#111; padding:0 4px; }
+  .ph .ttl { font-family:"Instrument Serif", serif; font-size:19px; line-height:1; margin:2px 2px 0; color:#111; }
+  .ph .chipsm { display:flex; gap:4px; } .ph .chipsm i { display:block; height:12px; border-radius:6px; background:#ececea; flex:none; } .ph .chipsm i.on { background:#111; }
+  .ph .big { border-radius:12px; padding:9px; color:#fff; min-height:34%; display:flex; flex-direction:column; justify-content:space-between; }
+  .ph .big .w { font-size:6.5px; font-weight:700; letter-spacing:.14em; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .ph .big b { font-family:"Instrument Serif", serif; font-weight:400; font-size:15px; line-height:1.02; display:block; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .ph .big .j { align-self:flex-start; background:#fff; color:#111; border-radius:9px; font-size:6.5px; font-weight:700; padding:3px 7px; }
+  .ph .big.other { background:#d9d9d4; color:#fff; } .ph .big.other .j { background:#fff; color:#999; }
+  .ph .row { display:flex; gap:6px; align-items:center; padding:5px; border-radius:9px; background:#f4f4f2; }
+  .ph .row .lg { width:16px; height:16px; border-radius:50%; background:#d9d9d4; flex:none; }
+  .ph .row .ln { flex:1; display:grid; gap:3px; } .ph .row .ln i { display:block; height:4px; border-radius:2px; background:#d9d9d4; } .ph .row .ln i + i { width:60%; background:#e6e6e2; }
+  .ph .row.you { color:#fff; } .ph .row.you .lg { background:#fff; } .ph .row.you .ln { font-size:7px; font-weight:700; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; display:block; }
+  .ph .sec { font-size:6.5px; font-weight:700; letter-spacing:.12em; color:#999; margin:2px 2px -2px; }
+  .ph .you-tag { position:absolute; font-size:7px; font-weight:700; background:var(--ink); color:#fff; border-radius:6px; padding:2px 6px; }
+  .place .cap b { display:block; font-size:14px; } .place .cap span { font-size:12px; color:var(--muted); }
   /* Builder */
   .builder { display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:28px; align-items:start; }
-  @media (max-width:980px) { .builder { grid-template-columns:1fr; } }
+  @media (max-width:980px) { .builder { grid-template-columns:minmax(0,1fr); } }
   .panel { background:#fff; border-radius:24px; border:1px solid var(--hair); padding:26px; margin-bottom:16px; }
   .panel h3 { font-size:28px; margin-bottom:4px; display:flex; align-items:center; gap:12px; }
   .panel h3 .n { font-family:"Inter Tight"; font-size:13px; font-weight:700; width:28px; height:28px; border-radius:50%; background:var(--ink); color:#fff; display:inline-grid; place-items:center; }
@@ -178,6 +201,10 @@
           <input type="range" id="cap" min="50" max="5000" step="50" aria-label="Number of spots" style="margin-top:14px"><div class="rangeval"><span>50</span><b id="capVal"></b><span>5,000</span></div><div class="err" data-e="capacity"></div></div>
         <div class="field" data-f="featured_on" style="margin-bottom:0"><span class="label" id="slotsLabel">Placement</span>
           <div class="slots" id="slots" role="group" aria-labelledby="slotsLabel"></div><div class="err" data-e="featured_on"></div></div>
+      </div>
+
+      <div class="panel" id="placesPanel"><h3>How each placement looks</h3><p class="sub">The Challenges page in the app, with your card in each spot. Tap one to choose it.</p>
+        <div class="places" id="places" role="group" aria-label="Placement examples"></div>
       </div>
 
       <div class="panel"><h3><span class="n">4</span>Your brand</h3><p class="sub">How your challenge looks in the app.</p>
@@ -352,8 +379,34 @@ function drawSlots() {
       <span class="t"><b>${esc(t)}${k === "all" ? '<span class="tag">Premium</span>' : ""}</b><span>${isTaken ? "Already booked for these dates" : esc(d)}</span></span>
       <span class="pr">${isTaken ? "Booked" : slotPrices[k ?? "none"] ? money(slotPrices[k ?? "none"]) : ""}</span></button>`; }).join("");
   $$("#slots .slot:not(.taken)").forEach(b => b.onclick = () => { st.slot = b.dataset.k || null; $("[data-e=featured_on]").textContent = ""; drawSlots(); drawPreview(); quote(); });
+  drawPlaces();
   $("#incFeat").classList.toggle("hidden", !st.slot);
   $("#incFeat").textContent = st.slot === "all" ? "Featured on the main Challenges page" : st.slot ? `Featured on the ${st.slot} page` : "";
+}
+// Three small phones: your card listed with the rest, as the big card on your area's page, and as the big
+// card at the top of the main Challenges page.
+function drawPlaces() {
+  const c = /^#[0-9A-F]{6}$/i.test(st.color) ? st.color : "#2340FF";
+  const brand = esc(($("#company")?.value.trim() || "Your brand").toUpperCase());
+  const title = esc($("#title")?.value.trim() || "Your challenge");
+  const logo = st.logo ? `<img src="${st.logo.url}" alt="" style="width:9px;height:9px;border-radius:50%;background:#fff;object-fit:cover;vertical-align:-1px;margin-right:4px">` : "";
+  const groups = Object.keys(GROUPS), gi = groups.indexOf(st.group);
+  const chips = on => `<div class="chipsm">${[22, 30, 26, 24].map((w, i) => `<i class="${on === i ? "on" : ""}" style="width:${w}px"></i>`).join("")}</div>`;
+  const yours = `<div class="big" style="background:${c}"><div class="w">${logo}${brand} · FEATURED</div><b>${title}</b><span class="j">Join</span></div>`;
+  const other = `<div class="big other"><div class="w">ANOTHER BRAND</div><b style="color:#fff">Someone else's</b><span class="j">Join</span></div>`;
+  const row = `<div class="row"><span class="lg"></span><span class="ln"><i></i><i></i></span></div>`;
+  const yourRow = `<div class="row you" style="background:${c}"><span class="lg">${st.logo ? `<img src="${st.logo.url}" alt="" style="width:16px;height:16px;border-radius:50%;object-fit:cover">` : ""}</span><span class="ln">${title}</span></div>`;
+  const status = `<div class="st"><span>9:41</span><span>●●● ▮</span></div>`;
+  const opts = [
+    [null, "Standard", "Listed with the other challenges", `${status}<div class="ttl">Challenges</div>${chips(null)}${other}<div class="sec">ALL CHALLENGES</div>${row}${yourRow}${row}${row}`],
+    [st.group, `Featured on ${st.group}`, `The big card on the ${st.group} page`, `${status}<div class="ttl">${esc(st.group)}</div>${chips(Math.min(Math.max(gi, 0), 3))}${yours}<div class="sec">${esc(st.group.toUpperCase())}</div>${row}${row}${row}`],
+    ["all", "Featured on the main page", "The first thing everyone sees", `${status}<div class="ttl">Challenges</div>${chips(null)}${yours}<div class="sec">ALL CHALLENGES</div>${row}${row}${row}`],
+  ];
+  $("#places").innerHTML = opts.map(([k, t, d, inner]) => { const isTaken = k && taken.includes(k), on = st.slot === k;
+    return `<button type="button" class="place ${on ? "on" : ""} ${isTaken ? "taken" : ""}" data-k="${esc(k ?? "")}" aria-pressed="${on}" ${isTaken ? "disabled" : ""}>
+      <div class="ph" aria-hidden="true">${inner}</div>
+      <div class="cap"><b>${esc(t)}</b><span>${isTaken ? "Booked for these dates" : esc(d)}${slotPrices[k ?? "none"] && !isTaken ? " · " + money(slotPrices[k ?? "none"]) : ""}</span></div></button>`; }).join("");
+  $$("#places .place:not(.taken)").forEach(b => b.onclick = () => { st.slot = b.dataset.k || null; $("[data-e=featured_on]").textContent = ""; drawSlots(); drawPreview(); quote(); });
 }
 function suggestRule() {
   const act = st.cats[0] || "it";
@@ -370,6 +423,7 @@ function drawPreview() {
   if (!ruleTouched) $("#rule").value = suggestRule();
   $("#pvMeta").textContent = `${$("#rule").value || suggestRule()} · ${st.days} days · ${st.region ? countryName(st.region) : "Worldwide"}`;
   $("#incDays").textContent = st.days;
+  drawPlaces();
   const lum = (() => { const n = parseInt(c.slice(1), 16), v = [n >> 16 & 255, n >> 8 & 255, n & 255].map(x => { x /= 255; return x <= .03928 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4; }); return .2126 * v[0] + .7152 * v[1] + .0722 * v[2]; })();
   const ratio = 1.05 / (lum + .05);
   $("#contrast").innerHTML = ratio >= 3 ? `<span style="color:var(--green)">✓ White text reads well on this colour</span>` : `<span style="color:#A86B00">⚠ White text is hard to read on this colour. A darker shade works better.</span>`;
