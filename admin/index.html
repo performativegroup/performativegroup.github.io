@@ -149,6 +149,15 @@
   .savebar .btn.ghost { background:rgba(255,255,255,.12); color:#fff; } .savebar .btn.ghost:hover { background:rgba(255,255,255,.2); }
   .savebar .btn.white { background:#fff; color:var(--ink); }
   @media (max-width: 760px) { .savebar { bottom:84px; border-radius:22px; } }
+  /* Select mode: tick boxes on rows and cards, and a bar of actions for everything ticked. */
+  .bulkbar { position:sticky; bottom:16px; margin-top:12px; background:rgba(10,10,10,.92); backdrop-filter:blur(16px); color:#fff; border-radius:999px; padding:9px 9px 9px 22px; display:flex; gap:8px; align-items:center; box-shadow:0 12px 34px rgba(0,0,0,.22); flex-wrap:wrap; z-index:6; }
+  .bulkbar .btn.ghost { background:rgba(255,255,255,.12); color:#fff; } .bulkbar .btn.ghost:hover { background:rgba(255,255,255,.2); }
+  .bulkbar .btn.white { background:#fff; color:var(--ink); } .bulkbar .btn.danger { background:var(--red); color:#fff; }
+  @media (max-width: 760px) { .bulkbar { bottom:84px; border-radius:22px; } }
+  .tick { width:20px; height:20px; accent-color:var(--ink); cursor:pointer; margin:0; }
+  tr.picked td { background:rgba(0,0,0,.045); }
+  .scard { position:relative; } .scard .tick { position:absolute; top:18px; right:18px; z-index:2; }
+  .scard.picked { box-shadow:0 0 0 2px var(--ink); }
   .stepsrow { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
   .stepsrow .num { width:26px; height:26px; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:12px; font-weight:700; flex:none; }
   .iconbtn { all:unset; cursor:pointer; width:32px; height:32px; display:grid; place-items:center; border-radius:50%; color:var(--muted); flex:none; }
@@ -540,6 +549,8 @@ function miniList(title, items, sub) {
 
 // ---------------- Challenges ----------------
 let challenges = [], sponsors = [], counts = {}, chFilter = "all", chSearch = "", chBrand = null;
+// Select mode on the Challenges and Sponsors pages: what's ticked, by id.
+let chSelecting = false, chPicked = new Set(), spSelecting = false, spPicked = new Set();
 async function fetchSponsors() {
   const { data, error } = await sb.from("sponsors").select("*").order("name"); if (error) throw error;
   sponsors = data;
@@ -570,7 +581,7 @@ function renderChallengeList() {
     && (!chSearch || (c.title + " " + c.id + " " + (sp(c.sponsor_id)?.name || "")).toLowerCase().includes(chSearch.toLowerCase())));
   el.innerHTML = `
     <div class="pagehead"><div><h1>Challenges</h1><p>What everyone can join in the app. Changes reach phones within seconds.</p></div>
-      <button class="btn" id="newChallenge">＋ New challenge</button></div>
+      <div class="row"><button class="btn line" id="chSelect">${chSelecting ? "Done" : "Select"}</button><button class="btn" id="newChallenge">＋ New challenge</button></div></div>
     <div class="shelf" id="chShelf">
       ${[{ id:"performative", name:"Performative", color:"#0A0A0A", tint:"#EDEDEA" }, ...sponsors].filter(b => challenges.some(c => brandKey(c) === b.id)).map(b => {
         const n = challenges.filter(c => brandKey(c) === b.id).length, on = chBrand === b.id, dim = chBrand && !on;
@@ -584,8 +595,9 @@ function renderChallengeList() {
       <div class="search"><input type="search" id="chSearch" placeholder="Search challenges or sponsors" value="${esc(chSearch)}"></div>
     </div>
     <div class="card" style="padding:6px 8px">
-      ${rows.length ? `<table><thead><tr><th>Challenge</th><th>Runs</th><th>Where</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
-      ${rows.map(c => { const s = sp(c.sponsor_id), st = stateOf(c); return `<tr class="click" data-id="${esc(c.id)}">
+      ${rows.length ? `<table><thead><tr>${chSelecting ? `<th style="width:32px"><input type="checkbox" class="tick" id="chAll" aria-label="Select all shown" ${rows.every(c => chPicked.has(c.id)) ? "checked" : ""}></th>` : ""}<th>Challenge</th><th>Runs</th><th>Where</th><th>Sponsor</th><th>Joined</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(c => { const s = sp(c.sponsor_id), st = stateOf(c), on = chPicked.has(c.id); return `<tr class="click ${chSelecting && on ? "picked" : ""}" data-id="${esc(c.id)}">
+        ${chSelecting ? `<td><input type="checkbox" class="tick" data-pick="${esc(c.id)}" aria-label="Select ${esc(c.title)}" ${on ? "checked" : ""}></td>` : ""}
         <td><div class="row" style="gap:10px; flex-wrap:nowrap"><span class="swatch" style="width:10px;height:36px;border-radius:4px;background:${esc(s?.color || "#0A0A0A")}"></span>
           <div><b>${esc(c.title)}</b>${c.featured_on ? ` <span class="pill dark">${esc(slotLabel(c.featured_on))}</span>` : ""}<div class="muted small">${esc(c.rule)}</div></div></div></td>
         <td>${dayLabel(c.starts_on)} – ${dayLabel(c.ends_on)}<div class="muted small">${daysBetween(c.starts_on, c.ends_on) + 1} days</div></td>
@@ -594,13 +606,61 @@ function renderChallengeList() {
         <td>${fmt(counts[c.id])}${c.capacity ? `<span class="muted"> / ${fmt(c.capacity)}</span>` : ""}</td>
         <td><span class="pill ${st}">${STATE_LABEL[st]}</span></td></tr>`; }).join("")}
       </tbody></table>` : `<div class="empty">No challenges here${chBrand ? " for this brand" : ""}. <a href="#" id="emptyNew">Make one</a>.</div>`}
-    </div>`;
+    </div>
+    ${chSelecting ? `<div class="bulkbar"><span><b>${chPicked.size}</b> selected</span><span class="space"></span>
+      <button class="btn ghost small" data-bulk="publish" ${chPicked.size ? "" : "disabled"}>Publish</button>
+      <button class="btn ghost small" data-bulk="draft" ${chPicked.size ? "" : "disabled"}>Move to draft</button>
+      <button class="btn ghost small" data-bulk="end" ${chPicked.size ? "" : "disabled"}>End now</button>
+      <button class="btn danger small" data-bulk="delete" ${chPicked.size ? "" : "disabled"}>Delete</button></div>` : ""}`;
   $("#newChallenge").onclick = () => editChallenge(null);
   $("#emptyNew")?.addEventListener("click", e => { e.preventDefault(); editChallenge(null); });
   $$("#chSegs button").forEach(b => b.onclick = () => { chFilter = b.dataset.s; renderChallengeList(); });
   $$("#chShelf [data-brand]").forEach(b => b.onclick = () => { chBrand = chBrand === b.dataset.brand ? null : b.dataset.brand; renderChallengeList(); });
   $("#chSearch").oninput = e => { chSearch = e.target.value; const pos = e.target.selectionStart; renderChallengeList(); const i = $("#chSearch"); i.focus(); i.setSelectionRange(pos, pos); };
-  $$("tr.click", el).forEach(tr => tr.onclick = () => editChallenge(challenges.find(c => c.id === tr.dataset.id)));
+  // In select mode a click ticks the row; otherwise it opens the challenge.
+  $$("tr.click", el).forEach(tr => tr.onclick = () => {
+    if (chSelecting) { const id = tr.dataset.id; chPicked.has(id) ? chPicked.delete(id) : chPicked.add(id); renderChallengeList(); }
+    else editChallenge(challenges.find(c => c.id === tr.dataset.id));
+  });
+  $("#chSelect").onclick = () => { chSelecting = !chSelecting; chPicked.clear(); renderChallengeList(); };
+  $("#chAll")?.addEventListener("click", e => { e.stopPropagation(); const all = rows.every(c => chPicked.has(c.id));
+    rows.forEach(c => all ? chPicked.delete(c.id) : chPicked.add(c.id)); renderChallengeList(); });
+  $$("[data-bulk]", el).forEach(b => b.onclick = () => bulkChallenges(b.dataset.bulk));
+}
+
+// Actions on every ticked challenge at once. Each one is done separately, so one that can't change
+// (e.g. a sponsored draft with no spot cap can't be published) doesn't stop the rest.
+async function bulkChallenges(action) {
+  const picked = challenges.filter(c => chPicked.has(c.id));
+  if (!picked.length) return;
+  const names = picked.length === 1 ? `"${picked[0].title}"` : `${picked.length} challenges`;
+  const ask = {
+    publish: `Publish ${names}? Drafts go live in the app (or show as coming soon until they start).`,
+    draft: `Move ${names} back to draft? They leave the app until you publish them again.`,
+    end: `End ${names} now? They leave the app; sponsors' reports keep the numbers.`,
+    delete: `Delete ${names} for good? Everyone in them leaves and their sponsor reports go too. To keep the numbers, use End now instead.`,
+  }[action];
+  if (!confirm(ask)) return;
+  let ok = 0; const failed = [];
+  for (const c of picked) {
+    let error;
+    if (action === "publish") {
+      if (c.status !== "draft") { ok++; continue; }
+      ({ error } = await sb.from("challenges").update({ status: "live" }).eq("id", c.id));
+    } else if (action === "draft") {
+      ({ error } = await sb.from("challenges").update({ status: "draft" }).eq("id", c.id));
+    } else if (action === "end") {
+      if (c.status === "ended") { ok++; continue; }
+      ({ error } = await sb.from("challenges").update({ status: "ended" }).eq("id", c.id));
+    } else if (action === "delete") {
+      ({ error } = await sb.from("challenges").delete().eq("id", c.id));
+    }
+    if (error) failed.push(`${c.title}: ${error.message}`); else ok++;
+  }
+  chPicked.clear();
+  await loadChallenges();
+  if (failed.length) toast(`${ok} done. ${failed.length} couldn't change: ${failed.join("; ")}`, true);
+  else toast(`${ok} challenge${ok === 1 ? "" : "s"} ${{ publish: "published", draft: "moved to draft", end: "ended", delete: "deleted" }[action]}`);
 }
 function slugify(s) { return s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
 
@@ -989,16 +1049,63 @@ async function loadSponsors() {
   const live = id => (ch || []).filter(c => c.sponsor_id === id && stateOf(c) === "live").length;
   el.innerHTML = `
     <div class="pagehead"><div><h1>Sponsors</h1><p>Brands that run challenges. Each one has a private report link with their numbers.</p></div>
-      <button class="btn" id="newSponsor">＋ New sponsor</button></div>
+      <div class="row"><button class="btn line" id="spSelect">${spSelecting ? "Done" : "Select"}</button><button class="btn" id="newSponsor">＋ New sponsor</button></div></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
-      ${sponsors.map(s => `<div class="card scard" data-id="${esc(s.id)}">
+      ${sponsors.map(s => `<div class="card scard ${spSelecting && spPicked.has(s.id) ? "picked" : ""}" data-id="${esc(s.id)}">
+        ${spSelecting ? `<input type="checkbox" class="tick" tabindex="-1" aria-label="Select ${esc(s.name)}" ${spPicked.has(s.id) ? "checked" : ""}>` : ""}
         <div class="band" style="background:${esc(s.color)}">${s.logo_path ? `<img src="${esc(logoURL(s.logo_path))}" alt="" style="width:26px;height:26px;border-radius:50%;background:#fff;object-fit:cover;margin-right:8px">` : ""}${esc((s.wordmark || s.name).toUpperCase())}</div>
         <div class="row"><b>${esc(s.name)}</b>${s.is_sample ? '<span class="pill">sample</span>' : ""}<span class="space"></span></div>
         <div class="muted small" style="margin-top:4px">${live(s.id)} live challenge${live(s.id) === 1 ? "" : "s"} · <span class="swatch" style="background:${esc(s.color)}"></span> ${esc(s.color)}</div>
       </div>`).join("")}
-    </div>`;
+    </div>
+    ${spSelecting ? `<div class="bulkbar"><span><b>${spPicked.size}</b> selected</span><span class="space"></span>
+      <button class="btn ghost small" data-sbulk="reports-off" ${spPicked.size ? "" : "disabled"}>Stop report emails</button>
+      <button class="btn ghost small" data-sbulk="reports-on" ${spPicked.size ? "" : "disabled"}>Send report emails</button>
+      <button class="btn ghost small" data-sbulk="end" ${spPicked.size ? "" : "disabled"}>End their live challenges</button>
+      <button class="btn danger small" data-sbulk="delete" ${spPicked.size ? "" : "disabled"}>Delete</button></div>` : ""}`;
   $("#newSponsor").onclick = () => editSponsor(null);
-  $$(".scard", el).forEach(d => d.onclick = () => editSponsor(sponsors.find(s => s.id === d.dataset.id)));
+  $("#spSelect").onclick = () => { spSelecting = !spSelecting; spPicked.clear(); loadSponsors(); };
+  // In select mode a click ticks the card; otherwise it opens the sponsor.
+  $$(".scard", el).forEach(d => d.onclick = () => {
+    if (spSelecting) { const id = d.dataset.id; spPicked.has(id) ? spPicked.delete(id) : spPicked.add(id); loadSponsors(); }
+    else editSponsor(sponsors.find(s => s.id === d.dataset.id));
+  });
+  $$("[data-sbulk]", el).forEach(b => b.onclick = () => bulkSponsors(b.dataset.sbulk, ch || []));
+}
+
+// Actions on every ticked sponsor at once.
+async function bulkSponsors(action, ch) {
+  const picked = sponsors.filter(s => spPicked.has(s.id));
+  if (!picked.length) return;
+  const names = picked.length === 1 ? picked[0].name : `${picked.length} sponsors`;
+  const liveOf = s => ch.filter(c => c.sponsor_id === s.id && stateOf(c) === "live").length;
+  const liveTotal = picked.reduce((n, s) => n + liveOf(s), 0);
+  const ask = {
+    "reports-off": `Stop automatic report emails for ${names}? Their report links keep working.`,
+    "reports-on": `Turn on automatic report emails for ${names}? Halftime and final reports go to their contact email.`,
+    end: `End ${liveTotal} live challenge${liveTotal === 1 ? "" : "s"} run by ${names} now? They leave the app; reports keep the numbers.`,
+    delete: `Delete ${names} for good? Their logos, colours, report links and contact details go, and they disappear from the app.${liveTotal ? ` Their ${liveTotal} live challenge${liveTotal === 1 ? "" : "s"} will end now.` : ""} This can't be undone.`,
+  }[action];
+  if (action === "end" && !liveTotal) return toast("None of them have a live challenge.");
+  if (!confirm(ask)) return;
+  let ok = 0; const failed = [];
+  for (const s of picked) {
+    let error;
+    if (action === "reports-off" || action === "reports-on") {
+      ({ error } = await sb.from("sponsor_private").update({ send_reports: action === "reports-on" }).eq("sponsor_id", s.id));
+    } else if (action === "end") {
+      ({ error } = await sb.from("challenges").update({ status: "ended" }).eq("sponsor_id", s.id).eq("status", "live"));
+    } else if (action === "delete") {
+      ({ error } = await sb.rpc("admin_delete_sponsor", { sid: s.id }));
+      if (!error && s.logo_path) await sb.storage.from("brand").remove([s.logo_path]).catch(() => {});
+    }
+    if (error) failed.push(`${s.name}: ${error.message}`); else ok++;
+  }
+  spPicked.clear();
+  if (action === "delete" || action === "end") { challenges = []; }
+  await loadSponsors();
+  if (failed.length) toast(`${ok} done. ${failed.length} couldn't change: ${failed.join("; ")}`, true);
+  else toast({ "reports-off": "Report emails stopped", "reports-on": "Report emails turned on", end: "Live challenges ended", delete: `${ok} sponsor${ok === 1 ? "" : "s"} deleted` }[action]);
 }
 
 // Colour maths: hex ↔ HSL, the light tint, and WCAG contrast of white text on the brand colour.
