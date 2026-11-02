@@ -1102,6 +1102,7 @@ async function editSponsor(orig) {
           <label class="f" style="margin-top:12px"><span>Also send to <small>· optional, separate addresses with commas</small></span><input type="text" name="report_cc" value="${esc(priv.report_cc || "")}" placeholder="marketing@brand.com, ceo@brand.com"></label>
           <div id="reportRows"><div class="muted small">Loading…</div></div></div>`}
         <div class="savebar"><span class="small" style="color:#bbb">${isNew ? "" : "Saved changes show in the app within seconds."}</span><span class="space"></span>
+          ${isNew ? "" : `<button type="button" class="btn ghost" id="deleteSponsor" style="color:#ff8a80">Delete sponsor</button>`}
           ${isNew ? "" : `<button type="button" class="btn ghost" id="newForSponsor">＋ Challenge for ${esc(s.name)}</button>`}
           <button type="submit" class="btn white">${isNew ? "Add sponsor" : "Save"}</button></div>
       </form>
@@ -1137,6 +1138,19 @@ async function editSponsor(orig) {
   };
   form.addEventListener("input", e => { if (isNew && e.target.name === "name") form.slug.value = slugify(e.target.value); preview(); });
   $("#sBack").onclick = e => { e.preventDefault(); loadSponsors(); };
+  // Delete: their live challenges end now (they leave the app), unused drafts go, and the logo is removed.
+  $("#deleteSponsor")?.addEventListener("click", async () => {
+    const theirs = challenges.length ? challenges.filter(c => c.sponsor_id === s.id) : (await sb.from("challenges").select("id,title,status").eq("sponsor_id", s.id)).data || [];
+    const live = theirs.filter(c => c.status === "live");
+    const warn = live.length
+      ? `\n\n${live.length === 1 ? "Its live challenge" : `Its ${live.length} live challenges`} (${live.map(c => c.title).join(", ")}) will end now and leave the app.`
+      : "";
+    if (!confirm(`Delete ${s.name} for good? Their logo, colours, report link and contact details go, and they disappear from the app.${warn}\n\nThis can't be undone.`)) return;
+    const { data, error } = await sb.rpc("admin_delete_sponsor", { sid: s.id }); if (error) return fail(error);
+    if (s.logo_path) await sb.storage.from("brand").remove([s.logo_path]).catch(() => {});
+    toast(`${s.name} deleted${data?.ended ? ` · ${data.ended} challenge${data.ended === 1 ? "" : "s"} ended` : ""}`);
+    await fetchSponsors(); if (typeof loadChallenges === "function") await loadChallenges().catch(() => {}); openTab("sponsors");
+  });
   $("#newForSponsor")?.addEventListener("click", () => { openTab("challenges"); setTimeout(() => { editChallenge(null); const sel = $("#cForm [name=sponsor_id]"); if (sel) { sel.value = s.id; sel.dispatchEvent(new Event("input", { bubbles:true })); } }, 350); });
   if (priv) drawReportRows(s, priv);
   if (priv) {
