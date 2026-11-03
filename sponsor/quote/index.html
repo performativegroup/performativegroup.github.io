@@ -30,7 +30,7 @@
   .place.on .ph { box-shadow:0 0 0 3px var(--bg, #f4f4f0), 0 0 0 5px var(--ink); }
   .place:hover .ph { transform:translateY(-2px); }
   .place.taken { cursor:not-allowed; opacity:.5; }
-  .ph .st { display:flex; justify-content:space-between; font-size:8px; font-weight:700; color:#111; padding:0 4px; }
+  .ph .st { display:flex; justify-content:space-between; font-size:8px; font-weight:700; color:#111; padding:0 4px; min-height:10px; }
   .ph .ttl { font-family:"Instrument Serif", serif; font-size:19px; line-height:1; margin:2px 2px 0; color:#111; }
   .ph .chipsm { display:flex; gap:4px; } .ph .chipsm i { display:block; height:12px; border-radius:6px; background:#ececea; flex:none; } .ph .chipsm i.on { background:#111; }
   .ph .big { border-radius:12px; padding:9px; color:#fff; min-height:34%; display:flex; flex-direction:column; justify-content:space-between; }
@@ -161,10 +161,10 @@
 <body id="top">
 <nav class="top" id="nav"><div class="wrap">
   <a class="logo" href="/">Performative.</a>
-  <div class="links"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/" class=on>For brands</a><a href="/support/">Support</a></div>
+  <div class="links"><a href="/#how">How it works</a><a href="/sponsor/" class=on>For brands</a><a href="/support/">Support</a></div>
   <a class="btn cta" href="mailto:sponsors@performativegroup.com">Contact us</a>
   <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span></button>
-  <div class="sheet"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="mailto:sponsors@performativegroup.com">Contact us</a></div>
+  <div class="sheet"><a href="/#how">How it works</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="mailto:sponsors@performativegroup.com">Contact us</a></div>
 </div></nav>
 <main class="q">
 <div class="wrap qhead">
@@ -396,7 +396,7 @@ function drawPlaces() {
   const other = `<div class="big other"><div class="w">ANOTHER BRAND</div><b style="color:#fff">Someone else's</b><span class="j">Join</span></div>`;
   const row = `<div class="row"><span class="lg"></span><span class="ln"><i></i><i></i></span></div>`;
   const yourRow = `<div class="row you" style="background:${c}"><span class="lg">${st.logo ? `<img src="${st.logo.url}" alt="" style="width:16px;height:16px;border-radius:50%;object-fit:cover">` : ""}</span><span class="ln">${title}</span></div>`;
-  const status = `<div class="st"><span>9:41</span><span>●●● ▮</span></div>`;
+  const status = `<div class="st"></div>`;
   const opts = [
     [null, "Standard", "Listed with the other challenges", `${status}<div class="ttl">Challenges</div>${chips(null)}${other}<div class="sec">ALL CHALLENGES</div>${row}${yourRow}${row}${row}`],
     [st.group, `Featured on ${st.group}`, `The big card on the ${st.group} page`, `${status}<div class="ttl">${esc(st.group)}</div>${chips(Math.min(Math.max(gi, 0), 3))}${yours}<div class="sec">${esc(st.group.toUpperCase())}</div>${row}${row}${row}`],

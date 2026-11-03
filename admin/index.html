@@ -902,7 +902,7 @@ function editChallenge(orig) {
     const days = daysBetween(c.starts_on, c.ends_on) + 1, m = METRICS[c.metric];
     const logo = s?.logo_path ? `<img src="${esc(logoURL(s.logo_path))}" alt="">` : "";
     const firstName = "Alex";
-    $("#cPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+    $("#cPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"></div><div class="scroll">
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
       <div class="pcard" style="background:${esc(color)}">
         <div class="wm">${logo}${esc(s ? (s.wordmark || s.name).toUpperCase() : "PERFORMATIVE")}${c.featured_on ? " · FEATURED" : ""}</div>
@@ -1220,7 +1220,7 @@ async function editSponsor(orig) {
     const name = form.name.value || "Brand", wm = form.wordmark.value || name, color = form.color.value, tint = autoTint ? tintOf(color) : form.tint?.value || tintOf(color);
     const ratio = contrastWhite(color), ok = ratio >= 3;
     const cb = $("#contrast"); cb.className = "contrast " + (ok ? "ok" : "bad"); cb.textContent = ok ? `✓ White text reads well (${ratio.toFixed(1)}:1)` : `⚠ White text is hard to read (${ratio.toFixed(1)}:1). Pick a darker shade.`;
-    $("#sPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+    $("#sPreview").innerHTML = `<div class="phone"><div class="screen"><div class="status"></div><div class="scroll">
       <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
       <div class="pcard" style="background:${esc(color)}"><div class="wm">${logoPreview ? `<img src="${esc(logoPreview)}" alt="">` : ""}${esc(wm.toUpperCase())}</div>
         <div><h4>Example challenge</h4><div class="meta">Name and rules come from the challenge you add next</div></div><span class="join">Join</span></div>
@@ -1476,7 +1476,7 @@ async function openRequest(r) {
         ${r.admin_note ? `<div class="card section"><h3>Your note</h3><p>${esc(r.admin_note)}</p></div>` : ""}
       </div>
       <div class="sticky"><div class="eyebrow" style="text-align:center; margin-bottom:10px">How it would look</div>
-        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span>●●● ▮</span></div><div class="scroll">
+        <div class="phone"><div class="screen"><div class="status"></div><div class="scroll">
           <div style="font-family:'Instrument Serif'; font-size:26px; margin:2px 0 10px">Challenges</div>
           <div class="pcard" style="background:${esc(r.color)}"><div class="wm">${r.logo_path ? `<img src="${esc(logoURL(r.logo_path))}" alt="">` : ""}${esc(r.company.toUpperCase())}${(r.featured_on || r.featured) ? " · FEATURED" : ""}</div>
             <div><h4>${esc(r.title)}</h4><div class="meta">${esc(r.rule)} · ${esc(r.days)} days · ${r.region ? esc(countryName(r.region)) : "Worldwide"}</div></div><span class="join">Join</span></div>

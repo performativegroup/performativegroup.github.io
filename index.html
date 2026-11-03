@@ -37,9 +37,23 @@
   @media (max-width:960px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:32px; } .stage { min-height:0; margin-top:16px; } }
   @media (max-width:520px) { .float.streak { left:0; top:200px; width:118px; padding:10px; } .float.streak .n { font-size:48px; } .float.week { right:0; bottom:40px; width:168px; padding:10px 12px; } .phone { transform:scale(.92); transform-origin:top center; margin-bottom:-48px; } }
 
-  /* Feed screen */
-  .feedtabs { display:flex; justify-content:center; gap:18px; font-size:13px; font-weight:600; color:var(--muted); padding:4px 0 10px; }
-  .feedtabs b { color:var(--ink); }
+  /* Feed screen, drawn like the app: header, Friends/Groups tabs, a post, the floating menu */
+  .apphead { display:flex; align-items:center; gap:6px; padding:0 14px 4px; }
+  .apphead .ttl { flex:1; text-align:center; font-family:var(--serif); font-weight:400; font-size:21px; letter-spacing:-.01em; white-space:nowrap; }
+  .hb { width:28px; height:28px; border-radius:50%; background:var(--bg); display:grid; place-items:center; flex:none; }
+  .hb svg { width:14px; height:14px; stroke:var(--ink); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .apphead .gap { width:28px; flex:none; }
+  .feedtabs { display:flex; justify-content:center; gap:22px; font-size:12.5px; font-weight:500; color:var(--muted); border-bottom:1px solid var(--hair); margin-bottom:10px; }
+  .feedtabs span, .feedtabs b { padding:6px 0; } .feedtabs b { color:var(--ink); font-weight:650; box-shadow:inset 0 -2px 0 var(--ink); }
+  .post .who span { white-space:nowrap; } .post .who > div { min-width:0; }
+  .post .who .chip { margin-left:auto; font-size:8.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; background:var(--bg); padding:4px 8px; border-radius:99px; }
+  .post .who .more { font-weight:800; letter-spacing:1px; font-size:11px; padding:0 2px 0 4px; }
+  .photo .startph { position:absolute; left:9px; top:9px; width:46px; height:61px; border-radius:7px; border:2px solid #fff; background:linear-gradient(160deg, #8d8d8d, #3a3a3a); }
+  .menubar { position:absolute; left:16px; right:16px; bottom:14px; height:52px; border-radius:26px; background:rgba(255,255,255,.92); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:0 8px 24px rgba(0,0,0,.14), inset 0 0 0 1px rgba(0,0,0,.05); display:flex; align-items:center; justify-content:space-around; padding:0 8px; }
+  .menubar svg { width:19px; height:19px; stroke:var(--muted); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .menubar .on svg { stroke:var(--ink); }
+  .menubar .cam { width:40px; height:40px; border-radius:50%; background:var(--ink); display:grid; place-items:center; }
+  .menubar .cam svg { stroke:#fff; }
   .post { padding:0 12px 12px; }
   .post .who { display:flex; gap:9px; align-items:center; margin-bottom:9px; }
   .av { width:30px; height:30px; border-radius:50%; flex:none; background:linear-gradient(135deg, #cfcfcf, #8a8a8a); }
@@ -75,7 +89,7 @@
   .tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:18px; width:100%; }
   .tiles span { background:var(--bg); border-radius:12px; padding:12px 6px; text-align:center; font-size:12px; font-weight:600; }
   .tiles span.on { background:var(--ink); color:#fff; }
-  .tiles span i { display:block; font-style:normal; font-size:20px; margin-bottom:4px; }
+  .tiles span svg { display:block; width:22px; height:22px; margin:0 auto 6px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
   .timer { text-align:center; }
   .timer .big { font-family:var(--display); font-weight:800; font-size:64px; letter-spacing:-.05em; line-height:1; }
   .timer .lbl { font-size:12px; color:var(--muted); margin-top:6px; font-weight:600; }
@@ -101,7 +115,13 @@
   .year { background:#fff; border-radius:22px; padding:22px; box-shadow:0 1px 0 var(--hair); }
   .year .head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
   .year .head b { font-family:var(--display); font-weight:800; font-size:22px; letter-spacing:-.03em; }
-  .year .sq { grid-template-columns:repeat(14, 1fr); grid-template-rows:repeat(7, auto); grid-auto-flow:column; gap:4px; } .year .sq i:not(.on):not(.rest) { background:#DADADA; } .year .sq i.rest { background:#F1F1F1; } .year .sq i { border-radius:4px; }
+  /* A month as a calendar: one box per day, black where you did an activity. */
+  .cal { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; }
+  .cal .dow { font-size:11px; font-weight:600; color:var(--muted); text-align:center; padding-bottom:2px; }
+  .cal i { aspect-ratio:1; border-radius:8px; background:#EDEDEA; font-style:normal; font-size:11px; font-weight:600; color:#8a8a8a; display:grid; place-items:center; font-variant-numeric:tabular-nums; }
+  .cal i.on { background:var(--ink); color:#fff; }
+  .cal i.today { box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--ink); }
+  .cal i.blank { background:transparent; }
   .year .legend { display:flex; gap:16px; margin-top:14px; font-size:12px; color:var(--muted); }
   .year .legend span { display:flex; gap:6px; align-items:center; } .year .legend i { width:12px; height:12px; border-radius:3px; display:block; }
   .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; }
@@ -121,13 +141,34 @@
   .ccard { border-radius:22px; padding:22px; color:#fff; min-height:250px; display:flex; flex-direction:column; justify-content:space-between; }
   .ccard .wm { font-size:11px; font-weight:700; letter-spacing:.16em; }
   .ccard h3 { font-size:32px; margin:28px 0 8px; } .ccard .meta { font-size:13px; opacity:.9; }
-  .ccard .bar { height:5px; background:rgba(255,255,255,.28); border-radius:9px; margin-top:14px; overflow:hidden; } .ccard .bar i { display:block; height:100%; background:#fff; border-radius:9px; }
+  .ccard .top { display:flex; align-items:center; gap:10px; }
+  .ccard .logo { width:30px; height:30px; border-radius:50%; background:#fff; display:grid; place-items:center; flex:none; font-family:var(--serif); font-size:17px; line-height:1; }
+  /* A box per day of the challenge, filled where it's done (stretched into bars when there are many). */
+  .ccard .days { display:flex; gap:4px; margin-top:14px; }
+  .ccard .days i { flex:1; height:18px; border-radius:4px; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45); position:relative; }
+  .ccard .days i.on { box-shadow:inset 0 0 0 1.5px #fff; }
+  .ccard .days i.on::after { content:""; position:absolute; inset:3px; border-radius:2px; background:#fff; }
+  .ccard .days.many { gap:3px; } .ccard .days.many i { height:14px; border-radius:3px; } .ccard .days.many i.on::after { inset:2.5px; }
+  /* 30 days: two rows of 15 boxes. */
+  .ccard .days.rows { display:grid; grid-template-columns:repeat(15, minmax(0, 1fr)); }
   .ccard .join { align-self:flex-start; margin-top:16px; background:#fff; color:#111; border-radius:99px; padding:8px 16px; font-weight:700; font-size:13px; }
   @media (max-width:900px) { .cards { grid-template-columns:1fr; } .ccard { min-height:200px; } }
   .examples { margin:12px 0 0; font-size:13px; color:var(--muted); text-align:center; }
   .brandband { margin-top:18px; background:var(--ink); color:#fff; border-radius:22px; padding:30px 32px; display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
   .brandband h3 { font-size:clamp(24px, 3vw, 32px); } .brandband p { margin:6px 0 0; color:#A3A3A3; max-width:560px; line-height:1.5; }
   .brandband .btn { margin-left:auto; }
+
+  /* Plus */
+  .plans { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:860px; margin:0 auto; }
+  .plan { background:#fff; border-radius:22px; padding:26px; box-shadow:0 1px 0 var(--hair), 0 0 0 1px var(--hair); }
+  .plan.plus { background:var(--ink); color:#fff; box-shadow:none; }
+  .plan h3 { font-size:28px; margin:0 0 4px; } .plan .sub { margin:0 0 18px; color:var(--muted); font-size:14px; } .plan.plus .sub { color:#A3A3A3; }
+  .plan ul { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+  .plan li { display:flex; justify-content:space-between; gap:12px; font-size:15px; border-top:1px solid var(--hair); padding-top:12px; }
+  .plan.plus li { border-top-color:rgba(255,255,255,.14); }
+  .plan li span { color:var(--muted); } .plan.plus li span { color:#A3A3A3; } .plan li b { text-align:right; }
+  .plans-note { text-align:center; color:var(--muted); font-size:13px; margin:14px 0 0; }
+  @media (max-width:700px) { .plans { grid-template-columns:1fr; } }
 
   /* Download */
   .download { text-align:center; padding:110px 0; }
@@ -139,17 +180,17 @@
 <body>
 <nav class="top" id="nav"><div class="wrap">
   <a class="logo" href="/">Performative.</a>
-  <div class="links"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a></div>
+  <div class="links"><a href="/#how">How it works</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a></div>
   <a class="btn cta" href="/early-access/">Early access</a>
   <button class="menu-btn" type="button" aria-label="Menu" aria-expanded="false"><span></span></button>
-  <div class="sheet"><a href="/#how">How it works</a><a href="/#challenges">Challenges</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="/early-access/">Early access</a></div>
+  <div class="sheet"><a href="/#how">How it works</a><a href="/sponsor/">For brands</a><a href="/support/">Support</a><a class="btn" href="/early-access/">Early access</a></div>
 </div></nav>
 
 <header class="hero"><div class="wrap">
   <div>
     <div class="eyebrow">Coming soon to iPhone</div>
     <h1>Celebrate the <em>small wins.</em></h1>
-    <p class="lead">Performative is for doing the things you mean to do. Start a timer, snap a live photo when you're done, and watch your days fill up, together with your friends.</p>
+    <p class="lead">Performative is for setting personal goals, challenging friends, and sharing the productive things you accomplish. Start an activity, end the timer, and snap a photo when you’re done, and watch your days build up, together with your friends.</p>
     <div class="ctas">
       <a class="btn big" href="/early-access/">Get early access</a>
       <span class="soon" aria-label="Coming soon on the App Store"><small>Coming soon on the</small><b>App Store</b></span>
@@ -157,18 +198,29 @@
   </div>
   <div class="stage">
     <div class="phone"><div class="screen"><div class="island"></div>
-      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="status"></div>
+      <div class="apphead">
+        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/></svg></span>
+        <span class="gap"></span>
+        <b class="ttl">Performative.</b>
+        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6"/><circle cx="17" cy="9" r="2.3"/><path d="M16.5 14.3c2.2.2 3.6 1.6 4.2 4.2"/></svg></span>
+        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span>
+      </div>
       <div class="feedtabs"><b>Friends</b><span>Groups</span></div>
       <div class="post">
-        <div class="who"><span class="av"></span><div><b>Mia</b><span>Running · 12 min ago</span></div></div>
-        <div class="photo ph-run" id="heroPhoto"><span class="tag">● LIVE</span><span class="act" id="heroAct">Running · 5.2 km</span><span class="time" id="heroTime">28:14</span></div>
+        <div class="who"><span class="av"></span><div><b id="heroName">Mia</b><span id="heroMeta">12m · 5.2 km · 28 min</span></div><span class="chip" id="heroChip">Running</span><span class="more">•••</span></div>
+        <div class="photo ph-run" id="heroPhoto" style="aspect-ratio:1/1.02"><span class="startph"></span></div>
         <div class="acts"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>24
-          <svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>5</div>
+          <svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>5
+          <svg viewBox="0 0 24 24"><rect x="4" y="8" width="12" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v10"/></svg></div>
         <div class="cap" id="heroCap"><b>Mia</b>Morning loop before class. Day 12.</div>
       </div>
-      <div class="post">
-        <div class="who"><span class="av" style="background:linear-gradient(135deg,#9a9a9a,#3a3a3a)"></span><div><b>Theo</b><span>Studying · 1 h ago</span></div></div>
-        <div class="photo ph-desk" style="aspect-ratio:4/3"><span class="tag">● LIVE</span><span class="time">1:32:05</span></div>
+      <div class="menubar" aria-hidden="true">
+        <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5V20h-5v-5h-6v5H4z"/></svg></span>
+        <span><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></span>
+        <span class="cam"><svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.5-2h7l1.5 2h3v10H4z"/><circle cx="12" cy="13.2" r="3.2"/></svg></span>
+        <span><svg viewBox="0 0 24 24"><path d="M4 6h16v10H9l-5 4z"/></svg></span>
+        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/></svg></span>
       </div>
     </div></div>
     <div class="float streak"><div class="n">12</div><div class="t">day streak</div></div>
@@ -187,14 +239,14 @@
     <p>No typing in numbers and no photos from your camera roll. A post on Performative means you actually did the thing.</p></div>
   <div class="how3">
     <div class="rv"><div class="vis"><div class="tiles">
-        <span><i>🏃</i>Running</span><span class="on"><i>📖</i>Reading</span><span><i>💻</i>Coding</span>
-        <span><i>🧘</i>Yoga</span><span><i>✍️</i>Writing</span><span><i>🎹</i>Music</span></div></div>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14.5" cy="4.5" r="1.8"/><path d="M8 21l3-6 3 2v5M6.5 12.5l2.5-4 4 .5 2.5 3.5 3 .5M11 15l2-6"/></svg>Running</span><span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c2.5-1 5.5-1 8 .8 2.5-1.8 5.5-1.8 8-.8V19c-2.5-1-5.5-1-8 .8-2.5-1.8-5.5-1.8-8-.8z"/><path d="M12 6.3V19.8"/></svg>Reading</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="11" rx="1.8"/><path d="M2 19h20M10 9l-2 2 2 2M14 9l2 2-2 2"/></svg>Coding</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><path d="M12 7.5v6M6 10.5l6 2 6-2M5 19c2.5-2.5 4.5-3.5 7-3.5s4.5 1 7 3.5M9 16.5l-2 3M15 16.5l2 3"/></svg>Yoga</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5l4 4L8.5 19.5H4.5v-4z"/><path d="M13 7l4 4"/></svg>Writing</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>Music</span></div></div>
       <div class="num">1</div><h3>Pick what you're doing</h3><p>A workout, a chapter, an hour of revision, a practice session. Anything you'd like to do more of.</p></div>
     <div class="rv"><div class="vis"><div class="island-la"><i></i>Reading · 24:18</div><div class="timer"><div class="big">24:18</div><div class="lbl">Reading</div>
         <div class="pill"><span>Pause</span><span class="k">Finish &amp; snap</span></div></div></div>
-      <div class="num">2</div><h3>Start the timer</h3><p>It keeps running on your Lock Screen and Dynamic Island. Turn on Focus lock and it only counts if you stay with it.</p></div>
+      <div class="num">2</div><h3>Start the timer</h3><p>When you start the stopwatch or timer and finish, Performative saves how long your activity took.</p></div>
     <div class="rv"><div class="vis"><div class="snap"><div class="vf ph-read"></div><span class="live">● LIVE</span><span class="shutter"></span></div></div>
-      <div class="num">3</div><h3>Snap a live photo</h3><p>One photo at the end, straight from the camera, posted with your time. Friends can cheer you on.</p></div>
+      <div class="num">3</div><h3>Snap a live photo</h3><p>One photo at the end, straight from the camera, posted with your time. Share it to your feed with your friends.</p></div>
   </div>
 </div></section>
 
@@ -202,17 +254,17 @@
   <div class="rv">
     <div class="eyebrow">Your progress</div>
     <h2>Every day you show up <em>gets a square.</em></h2>
-    <p>Fill in the week, keep your streak, and look back at a whole year of days you made count.</p>
+    <p>Fill in the week, keep your streak, and look back at every day that counted.</p>
     <ul class="ticks">
-      <li>A black square for every day you did something.</li>
+      <li>A black square for every day with an activity.</li>
       <li class="r">Rest days are built in, so a day off never breaks your streak.</li>
       <li class="t">Today is outlined, so you always know where you are.</li>
     </ul>
   </div>
   <div class="year rv">
-    <div class="head"><b>Your year</b><span class="small muted">Since January</span></div>
-    <div class="sq" id="yearGrid"></div>
-    <div class="legend"><span><i style="background:var(--ink)"></i>Did something</span><span><i style="background:#F1F1F1; box-shadow:inset 0 0 0 1px #E6E6E6"></i>Rest day</span><span><i style="background:#DADADA"></i>Missed</span></div>
+    <div class="head"><b>October</b><span class="small muted">24 of 31 days</span></div>
+    <div class="cal" id="monthGrid"><span class="dow">M</span><span class="dow">T</span><span class="dow">W</span><span class="dow">T</span><span class="dow">F</span><span class="dow">S</span><span class="dow">S</span></div>
+    <div class="legend"><span><i style="background:var(--ink)"></i>Activity</span><span><i style="background:#EDEDEA"></i>Rest day or missed</span></div>
     <div class="stats"><div><b>31</b><span>longest streak</span></div><div><b>212</b><span>days counted</span></div><div><b>148 h</b><span>time put in</span></div></div>
   </div>
 </div></section>
@@ -237,18 +289,30 @@
 
 <section class="block" id="challenges"><div class="wrap">
   <div class="shead rv"><div class="eyebrow">Challenges</div><h2>Do it together. <em>Every day.</em></h2>
-    <p>Challenges run for a set number of days with one simple rule. Some are made by us, some by brands you know, and every one is free to join.</p></div>
+    <p>Challenges run for a set number of days with one simple rule: complete as many days as you can. Some are made by us, some by brands you know, and every one is free to join.</p></div>
   <div class="cards">
-    <div class="ccard rv" style="background:#2340FF"><div class="wm">NORTHLINE · FEATURED</div><div><h3>Run Week</h3><div class="meta">Run 3 km a day · 7 days · Hong Kong</div><div class="bar"><i style="width:62%"></i></div></div><span class="join">Join</span></div>
-    <div class="ccard rv" style="background:#0F7B5F"><div class="wm">LEAFNOTE</div><div><h3>Read 30</h3><div class="meta">Read 20 min a day · 30 days · Worldwide</div><div class="bar"><i style="width:30%"></i></div></div><span class="join">Join</span></div>
-    <div class="ccard rv" style="background:#111"><div class="wm">PERFORMATIVE</div><div><h3>Morning Yoga</h3><div class="meta">Yoga 15 min before 10am · 14 days</div><div class="bar"><i style="width:45%"></i></div></div><span class="join">Join</span></div>
+    <div class="ccard rv" style="background:#2340FF"><div class="top"><span class="logo" style="color:#2340FF">N</span><div class="wm">NORTHLINE · FEATURED</div></div><div><h3>Run Week</h3><div class="meta">Run 3 km a day · 7 days · Hong Kong</div><div class="days" aria-label="4 of 7 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
+    <div class="ccard rv" style="background:#0F7B5F"><div class="top"><span class="logo" style="color:#0F7B5F">L</span><div class="wm">LEAFNOTE</div></div><div><h3>Read 30</h3><div class="meta">Read 20 min a day · 30 days · Worldwide</div><div class="days many rows" aria-label="9 of 30 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
+    <div class="ccard rv" style="background:#111"><div class="top"><span class="logo" style="color:#111">P.</span><div class="wm">PERFORMATIVE</div></div><div><h3>Morning Yoga</h3><div class="meta">Yoga 15 min before 10am · 14 days</div><div class="days many" aria-label="6 of 14 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
   </div>
   <p class="examples">Examples. The brands shown are made up.</p>
   <div class="brandband rv">
-    <div><div class="eyebrow" style="color:#8a8a8a">For brands</div><h3 style="margin-top:8px">Put your brand inside people's daily habits.</h3>
+    <div><div class="eyebrow" style="color:#8a8a8a">For brands</div><h3 style="margin-top:8px">Associate your brand with the good things.</h3>
       <p>Sponsor a challenge on Performative and get your colours in front of people every day they take part, with real numbers at the end.</p></div>
     <a class="btn light big" href="/sponsor/">Sponsor a challenge →</a>
   </div>
+</div></section>
+
+<section class="block" id="plus"><div class="wrap">
+  <div class="shead rv"><div class="eyebrow">Performative Plus</div><h2>Free to use. <em>Plus</em> for more.</h2>
+    <p>Everything you need is free. Plus raises the limits for people who want longer goals, bigger groups and more challenges at once.</p></div>
+  <div class="plans">
+    <div class="plan rv"><h3>Free</h3><p class="sub">Free to download and use</p>
+      <ul><li><span>Goal length</span><b>Up to a week</b></li><li><span>Daily goals</span><b>Up to 3</b></li><li><span>Group size</span><b>Up to 10 people</b></li><li><span>Groups you can be in</span><b>Up to 5</b></li><li><span>Challenges at once</span><b>Up to 2</b></li></ul></div>
+    <div class="plan plus rv"><h3>Plus</h3><p class="sub">Monthly or yearly, in the app</p>
+      <ul><li><span>Goal length</span><b>2 weeks, 30 days or ongoing</b></li><li><span>Daily goals</span><b>Up to 10</b></li><li><span>Group size</span><b>Up to 50 people</b></li><li><span>Groups you can be in</span><b>Up to 20</b></li><li><span>Challenges at once</span><b>Up to 5</b></li></ul></div>
+  </div>
+  <p class="plans-note">Every challenge is free to join on either plan. Plus is coming with the App Store launch.</p>
 </div></section>
 
 <section class="block alt" id="faq"><div class="wrap" style="max-width:860px">
@@ -275,7 +339,7 @@
   <div class="cols">
     <div><a class="logo" href="/" style="font-size:26px; padding:0">Performative.</a>
       <p style="margin:14px 0 0; max-width:280px">Do something productive, every day, and prove it with a live photo.</p></div>
-    <div><h5>The app</h5><a href="/early-access/">Early access</a><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#challenges">Challenges</a><a href="/#faq">FAQ</a></div>
+    <div><h5>The app</h5><a href="/early-access/">Early access</a><a href="/#how">How it works</a><a href="/#features">Features</a><a href="/#challenges">Challenges</a><a href="/#plus">Plus</a><a href="/#faq">FAQ</a></div>
     <div><h5>Brands</h5><a href="/sponsor/">Sponsor a challenge</a><a href="/sponsor/quote/">See quotes</a><a href="mailto:sponsors@performativegroup.com">sponsors@performativegroup.com</a></div>
     <div><h5>Help</h5><a href="/support/">Support</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/guidelines/">Community Guidelines</a></div>
   </div>
@@ -283,29 +347,26 @@
 </div></footer>
 <script src="/assets/site.js?v=3" defer></script>
 <script>
-// The year grid: about ten weeks of days, mostly done, with rest days and the odd miss, ending today.
+// The month calendar: 31 days of October (starting on a Thursday), 24 with an activity, today outlined.
 (() => {
-  const g = document.getElementById("yearGrid"); if (!g) return;
-  const n = 96, out = [];
-  for (let i = 0; i < n; i++) {
-    const dow = i % 7, r = Math.abs(Math.sin(i * 12.9898) * 43758.5453) % 1;
-    let c = dow === 6 ? "rest" : (r < .14 ? "" : "on");
-    if (i === n - 1) c = "on today";
-    out.push(`<i class="${c}"></i>`);
-  }
-  g.innerHTML = out.join("");
+  const g = document.getElementById("monthGrid"); if (!g) return;
+  const off = [6, 12, 13, 19, 20, 26, 27], out = [];
+  for (let i = 0; i < 3; i++) out.push('<i class="blank" aria-hidden="true"></i>');
+  for (let d = 1; d <= 31; d++) out.push(`<i class="${off.includes(d) ? "" : "on"}${d === 31 ? " today" : ""}">${d}</i>`);
+  g.insertAdjacentHTML("beforeend", out.join(""));
 })();
 // The hero post changes every few seconds: running, reading, coding.
 (() => {
-  const posts = [["ph-run", "Running · 5.2 km", "28:14", "<b>Mia</b>Morning loop before class. Day 12.", "Mia", "Running · 12 min ago"],
-                 ["ph-read", "Reading · 34 min", "34:02", "<b>Theo</b>Two chapters closer to finishing it.", "Theo", "Reading · 40 min ago"],
-                 ["ph-desk", "Coding · 1 h 10 min", "1:10:41", "<b>Ana</b>Shipped the login screen 🎉", "Ana", "Coding · 1 h ago"]];
+  const posts = [["ph-run", "Mia", "12m · 5.2 km · 28 min", "Running", "<b>Mia</b>Morning loop before class. Day 12."],
+                 ["ph-read", "Theo", "40m · 34 min", "Reading", "<b>Theo</b>Two chapters closer to finishing it."],
+                 ["ph-desk", "Ana", "1h · 1 hr 10 min", "Coding", "<b>Ana</b>Shipped the login screen."]];
   let i = 0; const photo = document.getElementById("heroPhoto");
   if (!photo || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   setInterval(() => {
-    i = (i + 1) % posts.length; const [cls, act, time, cap, name, sub] = posts[i];
-    photo.className = "photo " + cls; document.getElementById("heroAct").textContent = act; document.getElementById("heroTime").textContent = time;
-    document.getElementById("heroCap").innerHTML = cap; const who = document.querySelector(".post .who div"); who.innerHTML = `<b>${name}</b><span>${sub}</span>`;
+    i = (i + 1) % posts.length; const [cls, name, meta, chip, cap] = posts[i];
+    photo.className = "photo " + cls;
+    document.getElementById("heroName").textContent = name; document.getElementById("heroMeta").textContent = meta;
+    document.getElementById("heroChip").textContent = chip; document.getElementById("heroCap").innerHTML = cap;
   }, 3800);
 })();
 </script>
