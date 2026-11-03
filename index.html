@@ -37,6 +37,9 @@
   @media (max-width:960px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:32px; } .stage { min-height:0; margin-top:16px; } }
   @media (max-width:520px) { .float.streak { left:0; top:200px; width:118px; padding:10px; } .float.streak .n { font-size:48px; } .float.week { right:0; bottom:40px; width:168px; padding:10px 12px; } .phone { transform:scale(.92); transform-origin:top center; margin-bottom:-48px; } }
 
+  /* The hero phone shows a real screenshot of the app. */
+  .phone .screen img.shot { display:block; width:100%; height:100%; object-fit:cover; object-position:top; }
+
   /* Feed screen, drawn like the app: header, Friends/Groups tabs, a post, the floating menu */
   .apphead { display:flex; align-items:center; gap:6px; padding:0 14px 4px; }
   .apphead .ttl { flex:1; text-align:center; font-family:var(--serif); font-weight:400; font-size:21px; letter-spacing:-.01em; white-space:nowrap; }
@@ -118,7 +121,7 @@
   /* A month as a calendar: one box per day, black where you did an activity. */
   .cal { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; }
   .cal .dow { font-size:11px; font-weight:600; color:var(--muted); text-align:center; padding-bottom:2px; }
-  .cal i { aspect-ratio:1; border-radius:8px; background:#EDEDEA; font-style:normal; font-size:11px; font-weight:600; color:#8a8a8a; display:grid; place-items:center; font-variant-numeric:tabular-nums; }
+  .cal i { aspect-ratio:1; border-radius:8px; background:#D6D6D3; display:block; }
   .cal i.on { background:var(--ink); color:#fff; }
   .cal i.today { box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--ink); }
   .cal i.blank { background:transparent; }
@@ -138,7 +141,15 @@
 
   /* Challenges */
   .cards { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
-  .ccard { border-radius:22px; padding:22px; color:#fff; min-height:250px; display:flex; flex-direction:column; justify-content:space-between; }
+  /* Like the featured challenge card in the app: brand lockup and "Sponsored", the name in serif, the rule,
+     a box per day, and a white "Join the challenge" button. */
+  .ccard { border-radius:20px; padding:20px; color:#fff; min-height:250px; display:flex; flex-direction:column; gap:16px; }
+  .ccard .lock { display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; }
+  .ccard .spons { margin-left:auto; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; padding:4px 8px; border-radius:8px; background:rgba(255,255,255,.18); }
+  .ccard .ttl2 { font-family:var(--serif); font-weight:400; font-size:34px; line-height:1; letter-spacing:-.01em; margin:0; }
+  .ccard .rule { font-size:13px; opacity:.85; margin-top:4px; }
+  .ccard .cnt { display:flex; justify-content:space-between; font-size:12px; opacity:.85; margin-top:8px; }
+  .ccard .jbtn { margin-top:auto; height:44px; border-radius:12px; background:#fff; display:grid; place-items:center; font-weight:700; font-size:14px; }
   .ccard .wm { font-size:11px; font-weight:700; letter-spacing:.16em; }
   .ccard h3 { font-size:32px; margin:28px 0 8px; } .ccard .meta { font-size:13px; opacity:.9; }
   .ccard .top { display:flex; align-items:center; gap:10px; }
@@ -198,32 +209,9 @@
   </div>
   <div class="stage">
     <div class="phone"><div class="screen"><div class="island"></div>
-      <div class="status"></div>
-      <div class="apphead">
-        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/></svg></span>
-        <span class="gap"></span>
-        <b class="ttl">Performative.</b>
-        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6"/><circle cx="17" cy="9" r="2.3"/><path d="M16.5 14.3c2.2.2 3.6 1.6 4.2 4.2"/></svg></span>
-        <span class="hb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span>
-      </div>
-      <div class="feedtabs"><b>Friends</b><span>Groups</span></div>
-      <div class="post">
-        <div class="who"><span class="av"></span><div><b id="heroName">Mia</b><span id="heroMeta">12m · 5.2 km · 28 min</span></div><span class="chip" id="heroChip">Running</span><span class="more">•••</span></div>
-        <div class="photo ph-run" id="heroPhoto" style="aspect-ratio:1/1.02"><span class="startph"></span></div>
-        <div class="acts"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>24
-          <svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>5
-          <svg viewBox="0 0 24 24"><rect x="4" y="8" width="12" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v10"/></svg></div>
-        <div class="cap" id="heroCap"><b>Mia</b>Morning loop before class. Day 12.</div>
-      </div>
-      <div class="menubar" aria-hidden="true">
-        <span class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5V20h-5v-5h-6v5H4z"/></svg></span>
-        <span><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></span>
-        <span class="cam"><svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.5-2h7l1.5 2h3v10H4z"/><circle cx="12" cy="13.2" r="3.2"/></svg></span>
-        <span><svg viewBox="0 0 24 24"><path d="M4 6h16v10H9l-5 4z"/></svg></span>
-        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/></svg></span>
-      </div>
+      <img class="shot" src="/assets/app-feed.jpg" width="840" height="1826" alt="The Performative Friends feed: a good-morning card with today's goals and a 7-day streak, a 30 days of reading challenge card, and a journaling post.">
     </div></div>
-    <div class="float streak"><div class="n">12</div><div class="t">day streak</div></div>
+    <div class="float streak"><div class="n">7</div><div class="t">day streak</div></div>
     <div class="float week"><div class="t">This week</div>
       <div class="sq"><i class="on"></i><i class="on"></i><i class="rest"></i><i class="on"></i><i class="on today"></i><i></i><i></i></div></div>
   </div>
@@ -262,9 +250,9 @@
     </ul>
   </div>
   <div class="year rv">
-    <div class="head"><b>October</b><span class="small muted">24 of 31 days</span></div>
+    <div class="head"><b>October</b><span class="small muted">20 of 31 days</span></div>
     <div class="cal" id="monthGrid"><span class="dow">M</span><span class="dow">T</span><span class="dow">W</span><span class="dow">T</span><span class="dow">F</span><span class="dow">S</span><span class="dow">S</span></div>
-    <div class="legend"><span><i style="background:var(--ink)"></i>Activity</span><span><i style="background:#EDEDEA"></i>Rest day or missed</span></div>
+    <div class="legend"><span><i style="background:var(--ink)"></i>Activity</span><span><i style="background:#D6D6D3"></i>Rest day or missed</span></div>
     <div class="stats"><div><b>31</b><span>longest streak</span></div><div><b>212</b><span>days counted</span></div><div><b>148 h</b><span>time put in</span></div></div>
   </div>
 </div></section>
@@ -291,9 +279,15 @@
   <div class="shead rv"><div class="eyebrow">Challenges</div><h2>Do it together. <em>Every day.</em></h2>
     <p>Challenges run for a set number of days with one simple rule: complete as many days as you can. Some are made by us, some by brands you know, and every one is free to join.</p></div>
   <div class="cards">
-    <div class="ccard rv" style="background:#2340FF"><div class="top"><span class="logo" style="color:#2340FF">N</span><div class="wm">NORTHLINE · FEATURED</div></div><div><h3>Run Week</h3><div class="meta">Run 3 km a day · 7 days · Hong Kong</div><div class="days" aria-label="4 of 7 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
-    <div class="ccard rv" style="background:#0F7B5F"><div class="top"><span class="logo" style="color:#0F7B5F">L</span><div class="wm">LEAFNOTE</div></div><div><h3>Read 30</h3><div class="meta">Read 20 min a day · 30 days · Worldwide</div><div class="days many rows" aria-label="9 of 30 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
-    <div class="ccard rv" style="background:#111"><div class="top"><span class="logo" style="color:#111">P.</span><div class="wm">PERFORMATIVE</div></div><div><h3>Morning Yoga</h3><div class="meta">Yoga 15 min before 10am · 14 days</div><div class="days many" aria-label="6 of 14 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><span class="join">Join</span></div>
+    <div class="ccard rv" style="background:#2340FF"><div class="lock"><span class="logo" style="color:#2340FF">N</span>Northline<span class="spons">Sponsored</span></div>
+      <div><h3 class="ttl2">Run Week</h3><div class="rule">Run 3 km a day · 7 days · Hong Kong</div><div class="days" aria-label="4 of 7 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div><div class="cnt"><span>Day 4 of 7</span><span>1,240 joined</span></div></div>
+      <span class="jbtn" style="color:#2340FF">Join the challenge</span></div>
+    <div class="ccard rv" style="background:#0F7B5F"><div class="lock"><span class="logo" style="color:#0F7B5F">L</span>Leafnote<span class="spons">Sponsored</span></div>
+      <div><h3 class="ttl2">Read 30</h3><div class="rule">Read 20 min a day · 30 days · Worldwide</div><div class="days many rows" aria-label="9 of 30 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cnt"><span>Day 9 of 30</span><span>3,204 joined</span></div></div>
+      <span class="jbtn" style="color:#0F7B5F">Join the challenge</span></div>
+    <div class="ccard rv" style="background:#111111"><div class="lock"><span class="logo" style="color:#111111">P.</span>Performative</div>
+      <div><h3 class="ttl2">Morning Yoga</h3><div class="rule">Yoga 15 min before 10am · 14 days</div><div class="days many" aria-label="6 of 14 days"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cnt"><span>Day 6 of 14</span><span>640 joined</span></div></div>
+      <span class="jbtn" style="color:#111111">Join the challenge</span></div>
   </div>
   <p class="examples">Examples. The brands shown are made up.</p>
   <div class="brandband rv">
@@ -347,27 +341,15 @@
 </div></footer>
 <script src="/assets/site.js?v=3" defer></script>
 <script>
-// The month calendar: 31 days of October (starting on a Thursday), 24 with an activity, today outlined.
+// The month calendar: 31 days from the top-left, weekends as rest days, a few missed, today outlined.
 (() => {
   const g = document.getElementById("monthGrid"); if (!g) return;
-  const off = [6, 12, 13, 19, 20, 26, 27], out = [];
-  for (let i = 0; i < 3; i++) out.push('<i class="blank" aria-hidden="true"></i>');
-  for (let d = 1; d <= 31; d++) out.push(`<i class="${off.includes(d) ? "" : "on"}${d === 31 ? " today" : ""}">${d}</i>`);
+  const missed = [9, 17, 23], out = [];
+  for (let i = 0; i < 31; i++) {
+    const rest = i % 7 >= 5, on = !rest && !missed.includes(i);
+    out.push(`<i class="${on ? "on" : ""}${i === 30 ? " today" : ""}"></i>`);
+  }
   g.insertAdjacentHTML("beforeend", out.join(""));
-})();
-// The hero post changes every few seconds: running, reading, coding.
-(() => {
-  const posts = [["ph-run", "Mia", "12m · 5.2 km · 28 min", "Running", "<b>Mia</b>Morning loop before class. Day 12."],
-                 ["ph-read", "Theo", "40m · 34 min", "Reading", "<b>Theo</b>Two chapters closer to finishing it."],
-                 ["ph-desk", "Ana", "1h · 1 hr 10 min", "Coding", "<b>Ana</b>Shipped the login screen."]];
-  let i = 0; const photo = document.getElementById("heroPhoto");
-  if (!photo || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  setInterval(() => {
-    i = (i + 1) % posts.length; const [cls, name, meta, chip, cap] = posts[i];
-    photo.className = "photo " + cls;
-    document.getElementById("heroName").textContent = name; document.getElementById("heroMeta").textContent = meta;
-    document.getElementById("heroChip").textContent = chip; document.getElementById("heroCap").innerHTML = cap;
-  }, 3800);
 })();
 </script>
 </body>
