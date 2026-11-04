@@ -1937,7 +1937,6 @@ async function loadRevenue() {
     <div class="grid kpis">
       <div class="kpi alert"><span class="eyebrow">Total</span><b>${usd(s.total + p.gross_usd)}</b></div>
       <div class="kpi"><span class="eyebrow">Sponsors</span><b>${usd(s.total)}</b><div class="muted small">${fmt(s.count)} paid</div></div>
-      <div class="kpi"><span class="eyebrow">Awaiting payment</span><b>${usd(s.awaiting_payment)}</b><div class="muted small">approved, not paid</div></div>
       <div class="kpi"><span class="eyebrow">Plus (App Store)</span><b>${usd(p.gross_usd)}</b><div class="muted small">about ${usd(plusNet)} after Apple's 15%</div></div>
       <div class="kpi"><span class="eyebrow">Plus subscribers now</span><b>${fmt(p.subscribers_now)}</b></div>
     </div>
