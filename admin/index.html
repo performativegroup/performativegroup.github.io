@@ -250,6 +250,23 @@
   </form>
 </section>
 
+<!-- Second step: the code from an authenticator app -->
+<section id="mfa" class="login hidden">
+  <span class="mark">P.</span>
+  <h1 style="margin:6px 0 6px" id="mfaTitle">Enter your code</h1>
+  <p class="muted" style="margin:0" id="mfaHelp">Open your authenticator app and type the 6-digit code for Performative Admin.</p>
+  <form id="mfaForm" class="card">
+    <div id="mfaSetup" class="hidden" style="text-align:center; margin-bottom:14px">
+      <img id="mfaQR" alt="QR code to add Performative Admin to your authenticator app" style="width:208px; height:208px; background:#fff; border-radius:14px; padding:8px; border:1px solid var(--hair)">
+      <p class="muted small" style="margin:10px 0 0">Can't scan it? Add it by typing this key:<br><code id="mfaSecret" style="word-break:break-all; user-select:all"></code></p>
+    </div>
+    <label class="f"><span>6-digit code</span><input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="123456"></label>
+    <button class="btn" style="width:100%; justify-content:center; padding:14px" type="submit" id="mfaGo">Continue</button>
+    <p id="mfaErr" class="err"></p>
+    <p style="text-align:center; margin:4px 0 0"><a href="#" id="mfaCancel" class="muted small">Sign in with a different account</a></p>
+  </form>
+</section>
+
 <!-- App -->
 <div id="app" class="shell hidden">
   <aside class="side">
@@ -345,14 +362,55 @@ sb.auth.onAuthStateChange(event => { if (event === "SIGNED_OUT" && !$("#app").cl
 async function start() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return showLogin();
-  const { data: admin, error } = await sb.rpc("am_admin");
-  if (error || !admin) { await sb.auth.signOut({ scope: "local" }); return showLogin(error ? "Your sign-in has ended. Sign in again." : "This account isn't an admin."); }
+  const { data: st, error } = await sb.rpc("admin_status");
+  if (error || !st?.admin) { await sb.auth.signOut({ scope: "local" }); return showLogin(error ? "Your sign-in has ended. Sign in again." : "This account isn't an admin."); }
+  // Admin powers need the code from an authenticator app as well as the password (the database checks this too).
+  if (st.aal !== "aal2") return showMfa();
   $("#who").textContent = session.user.email;
-  $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#login").classList.add("hidden"); $("#mfa").classList.add("hidden"); $("#app").classList.remove("hidden");
   openTab(location.hash.slice(1).split("/")[0] || "overview");
   refreshReportBadge();
 }
-function showLogin(msg = "") { $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); $("#loginErr").textContent = msg; }
+function showLogin(msg = "") { $("#app").classList.add("hidden"); $("#mfa").classList.add("hidden"); $("#login").classList.remove("hidden"); $("#loginErr").textContent = msg; }
+
+// The code step. First time: add Performative Admin to an authenticator app (scan the QR code), then type a code.
+// After that: just the code. Lost the phone? Remove the factor in Supabase › Authentication › Users, then set it up again.
+let mfaFactor = null;
+async function showMfa() {
+  $("#login").classList.add("hidden"); $("#app").classList.add("hidden"); $("#mfa").classList.remove("hidden");
+  $("#mfaErr").textContent = ""; $("#mfaCode").value = "";
+  const { data, error } = await sb.auth.mfa.listFactors();
+  if (error) { $("#mfaErr").textContent = "Couldn't start the code step. Reload and try again."; return; }
+  const ready = (data.totp || []).find(f => f.status === "verified");
+  if (ready) {
+    mfaFactor = ready.id;
+    $("#mfaTitle").textContent = "Enter your code";
+    $("#mfaHelp").textContent = "Open your authenticator app and type the 6-digit code for Performative Admin.";
+    $("#mfaSetup").classList.add("hidden");
+  } else {
+    // Clear any half-finished set-up, then start a fresh one.
+    for (const f of (data.all || []).filter(f => f.status !== "verified")) await sb.auth.mfa.unenroll({ factorId: f.id }).catch(() => {});
+    const { data: en, error: enErr } = await sb.auth.mfa.enroll({ factorType: "totp", friendlyName: "Performative Admin", issuer: "Performative" });
+    if (enErr) { $("#mfaErr").textContent = enErr.message; return; }
+    mfaFactor = en.id;
+    $("#mfaTitle").textContent = "Turn on two-step sign-in";
+    $("#mfaHelp").textContent = "Admins need a code as well as a password. Scan this with an authenticator app (Apple Passwords, Google Authenticator or 1Password), then type the code it shows.";
+    $("#mfaQR").src = en.totp.qr_code; $("#mfaSecret").textContent = en.totp.secret;
+    $("#mfaSetup").classList.remove("hidden");
+  }
+  setTimeout(() => $("#mfaCode").focus(), 50);
+}
+$("#mfaForm").addEventListener("submit", async e => {
+  e.preventDefault(); $("#mfaErr").textContent = "";
+  const code = $("#mfaCode").value.replace(/\D/g, "");
+  if (code.length !== 6) { $("#mfaErr").textContent = "Type the 6 digits from the app."; return; }
+  const b = $("#mfaGo"); b.disabled = true;
+  const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: mfaFactor, code });
+  b.disabled = false;
+  if (error) { $("#mfaErr").textContent = "That code didn't work. Check the time on your phone and try the newest code."; $("#mfaCode").select(); return; }
+  start();
+});
+$("#mfaCancel").onclick = async e => { e.preventDefault(); await sb.auth.signOut({ scope: "local" }); showLogin(); };
 $("#loginForm").addEventListener("submit", async e => {
   e.preventDefault(); $("#loginErr").textContent = "";
   const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
@@ -1714,6 +1772,7 @@ async function openPerson(id) {
   const p = d.profile || {}, c = d.counts || {}, dev = d.last_device || {};
   const urls = await Promise.all((d.posts || []).map(x => photoURL(x.image_path)));
   const avatar = p.avatar_path ? (await sb.storage.from("avatars").createSignedUrl(p.avatar_path, 600)).data?.signedUrl : null;
+  const { data: grant } = await sb.from("plus_grants").select("note, created_at").eq("user_id", id).maybeSingle();
   const histLine = h => `<tr><td class="muted small" style="width:130px">${when(h.at)}</td><td><b>${esc(LOG_LABEL[h.action] || h.action)}</b> ${esc(h.target_type || "")}
       ${h.reason ? `<span class="pill">${esc(h.reason)}</span>` : ""}${h.snapshot?.caption || h.snapshot?.body ? `<div class="muted small">“${esc(h.snapshot.caption || h.snapshot.body)}”</div>` : ""}</td>
       <td class="muted small" style="text-align:right">${h.moderator ? "@" + esc(h.moderator) : ""}</td></tr>`;
@@ -1721,7 +1780,7 @@ async function openPerson(id) {
     <div class="pagehead"><div><a href="#" id="pBack" class="muted small" style="text-decoration:none">← Everyone</a>
       <div class="row" style="margin-top:8px; gap:12px">${avatar ? `<img src="${esc(avatar)}" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover">` : ""}
         <div><h1 style="margin:0">${esc(p.name || "")}</h1><p style="margin:2px 0 0">@${esc(p.handle || "")} · ${esc(p.email || "")} · joined ${dayLabel(p.created_at)}${p.region ? " · " + flag(p.region) + " " + esc(countryName(p.region)) : ""}${p.is_private ? " · private" : ""}</p></div></div>
-      <div class="row" style="gap:6px; margin-top:8px">${p.suspended_at ? `<span class="pill red">Suspended ${when(p.suspended_at)}</span>` : ""}${c.strikes_12m ? `<span class="pill red">${fmt(c.strikes_12m)} strike${c.strikes_12m > 1 ? "s" : ""} in 12 months</span>` : ""}${(d.plus || []).some(x => new Date(x.expires_at) > new Date()) ? '<span class="pill dark">Plus</span>' : ""}</div></div>
+      <div class="row" style="gap:6px; margin-top:8px">${p.suspended_at ? `<span class="pill red">Suspended ${when(p.suspended_at)}</span>` : ""}${c.strikes_12m ? `<span class="pill red">${fmt(c.strikes_12m)} strike${c.strikes_12m > 1 ? "s" : ""} in 12 months</span>` : ""}${(d.plus || []).some(x => new Date(x.expires_at) > new Date()) ? '<span class="pill dark">Plus</span>' : ""}${grant ? '<span class="pill dark">Plus · given</span>' : ""}</div></div>
       <div class="row">${p.suspended_at ? `<button class="btn ghost" id="pSus" data-s="0">Lift suspension</button>` : `<button class="btn" id="pSus" data-s="1">Suspend</button>`}</div></div>
     <div class="grid kpis">
       <div class="kpi"><span class="eyebrow">Posts</span><b>${fmt(c.posts)}</b></div><div class="kpi"><span class="eyebrow">Comments</span><b>${fmt(c.comments)}</b></div>
@@ -1731,7 +1790,10 @@ async function openPerson(id) {
       <div class="kpi"><span class="eyebrow">App opens, 30 days</span><b>${fmt(c.opens_30d)}</b></div>
     </div>
     <p class="muted small" style="margin-top:8px">Last opened ${c.last_open ? when(c.last_open) : "—"} · last signed in ${p.last_sign_in_at ? when(p.last_sign_in_at) : "—"}${dev.app_version ? ` · app ${esc(dev.app_version)} · iOS ${esc(dev.os_version || "?")} · ${esc(dev.device || "")}` : ""}</p>
-    <div class="card section" style="margin-top:14px"><h3>Reports about them</h3>${(d.reports_about || []).length ? `<table><tbody>${d.reports_about.map(r => `<tr><td class="muted small" style="width:130px">${when(r.created_at)}</td><td><span class="pill red">${esc(r.reason)}</span> ${esc(REPORT_KIND[r.target_type] || r.target_type)}${r.note ? `<div class="muted small">${esc(r.note)}</div>` : ""}</td><td class="muted small">by @${esc(r.reporter || "?")}</td><td style="text-align:right">${r.outcome ? `<span class="pill">${esc(r.outcome)}</span>` : '<span class="pill red">Open</span>'}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">None.</p>'}</div>
+    <div class="card section" style="margin-top:14px"><h3>Plus</h3>
+      <label class="switch"><span class="t"><b>Give them Plus</b><span>${grant ? `Given ${when(grant.created_at)}${grant.note ? " · " + esc(grant.note) : ""}. ` : ""}Free Plus until you turn it off, even while Plus isn't on sale. They don't pay and Apple isn't involved. Use it for testers, creators and sponsors.</span></span>
+        <input type="checkbox" id="pPlus" ${grant ? "checked" : ""} aria-label="Give them Plus"></label></div>
+    <div class="card section"><h3>Reports about them</h3>${(d.reports_about || []).length ? `<table><tbody>${d.reports_about.map(r => `<tr><td class="muted small" style="width:130px">${when(r.created_at)}</td><td><span class="pill red">${esc(r.reason)}</span> ${esc(REPORT_KIND[r.target_type] || r.target_type)}${r.note ? `<div class="muted small">${esc(r.note)}</div>` : ""}</td><td class="muted small">by @${esc(r.reporter || "?")}</td><td style="text-align:right">${r.outcome ? `<span class="pill">${esc(r.outcome)}</span>` : '<span class="pill red">Open</span>'}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">None.</p>'}</div>
     <div class="card section"><h3>Moderation history</h3><p>Every action on their account or content, with a copy of anything removed. Kept 12 months.</p>${(d.history || []).length ? `<table><tbody>${d.history.map(histLine).join("")}</tbody></table>` : '<p class="muted">Nothing yet.</p>'}</div>
     <div class="card section"><h3>Posts</h3><p>Newest 60. Remove takes it down for everyone and counts as a strike.</p>
       ${(d.posts || []).length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px">${d.posts.map((x, i) => `<div>
@@ -1744,6 +1806,15 @@ async function openPerson(id) {
     ${(d.plus || []).length ? `<div class="card section"><h3>Plus</h3><table><tbody>${d.plus.map(x => `<tr><td>${esc(x.product_id.split(".").pop())}</td><td>${esc(x.currency || "")} ${esc(x.price ?? "")}</td><td class="muted small">${when(x.purchased_at)} → ${x.expires_at ? dayLabel(x.expires_at) : "—"}</td><td class="muted small">${esc(x.environment || "")}</td></tr>`).join("")}</tbody></table></div>` : ""}
     <p class="muted small">Messages are private, so they only show here when someone reports one (see Reports).</p>`;
   $("#pBack").onclick = e => { e.preventDefault(); $("#tab-people").innerHTML = ""; loadPeople().catch(fail); };
+  $("#pPlus").onchange = async e => {
+    const give = e.target.checked;
+    const why = give ? prompt("Why are you giving them Plus? (kept in their history)", "Tester") : "";
+    if (give && why === null) { e.target.checked = false; return; }
+    if (!give && !confirm("Take Plus away from them? They go back to the free limits, the same as when a subscription ends.")) { e.target.checked = true; return; }
+    const { error } = await sb.rpc("admin_set_plus", { person: id, give, why: why || null });
+    if (error) { e.target.checked = !give; return fail(error); }
+    toast(give ? "Plus given. It shows next time they open the app." : "Plus taken away"); openPerson(id).catch(fail);
+  };
   $("#pSus").onclick = async () => {
     const suspend = $("#pSus").dataset.s === "1";
     const why = suspend ? prompt("Why? (kept in their moderation history)", "Breaking the Community Guidelines") : "";
@@ -1839,12 +1910,23 @@ async function loadData() {
 async function loadRevenue() {
   const el = $("#tab-revenue");
   const { data: v, error } = await sb.rpc("admin_revenue"); if (error) throw error;
+  const [{ data: sale }, { data: grants }] = await Promise.all([
+    sb.from("app_config").select("value, updated_at").eq("key", "plus_on_sale").maybeSingle(),
+    sb.from("plus_grants").select("user_id, note, created_at, profiles(name, handle)").order("created_at", { ascending: false })]);
+  const onSale = sale?.value === true;
   const usd = x => "US$" + Number(x || 0).toLocaleString("en-GB", { maximumFractionDigits: 0 });
   const s = v.sponsors, p = v.plus, months = v.monthly || [];
   const plusNet = (p.gross_usd || 0) * 0.85;
   const max = Math.max(1, ...months.map(m => m.sponsors + m.plus));
   el.innerHTML = `
     <div class="pagehead"><div><h1>Revenue</h1><p>Money in, in US dollars. Sponsors count when you mark their invoice paid; Plus counts each App Store purchase and renewal.</p></div></div>
+    <div class="card section" style="margin-bottom:14px"><h3>Plus</h3>
+      <label class="switch"><span class="t"><b>Sell Plus in the app</b><span>${onSale ? "On: people see Plus in Settings and when they hit a free limit, and can subscribe." : "Off: nobody can buy Plus and nobody is asked to. People you've given Plus to still have it."} Phones pick up a change next time the app opens.${sale?.updated_at ? ` Last changed ${when(sale.updated_at)}.` : ""}</span></span>
+        <input type="checkbox" id="rvSale" ${onSale ? "checked" : ""} aria-label="Sell Plus in the app"></label>
+      <div class="help" style="margin-top:6px">Turn this on before you send a build with Plus to App Review, so the reviewer can buy it, and leave it on after.</div>
+      <div class="eyebrow" style="margin:16px 0 6px">Given Plus · ${fmt((grants || []).length)}</div>
+      ${(grants || []).length ? grants.map(g => `<div class="row" style="padding:6px 0; border-bottom:1px solid var(--hair); cursor:pointer" data-person="${esc(g.user_id)}"><b>${esc(g.profiles?.name || "")}</b><span class="muted small">@${esc(g.profiles?.handle || "")}${g.note ? " · " + esc(g.note) : ""}</span><span class="space"></span><span class="muted small">${when(g.created_at)}</span></div>`).join("") : `<p class="muted small" style="margin:0">Nobody yet. Open someone under People to give them Plus.</p>`}
+    </div>
     <div class="grid kpis">
       <div class="kpi alert"><span class="eyebrow">Total</span><b>${usd(s.total + p.gross_usd)}</b></div>
       <div class="kpi"><span class="eyebrow">Sponsors</span><b>${usd(s.total)}</b><div class="muted small">${fmt(s.count)} paid</div></div>
@@ -1865,6 +1947,14 @@ async function loadRevenue() {
         ${(p.other_currencies || []).map(x => `<div class="row" style="padding:6px 0; border-bottom:1px solid var(--hair)"><span>Paid in ${esc(x.currency)}</span><span class="space"></span><b>${esc(x.amount)}</b></div>`).join("")}
         <div class="muted small" style="margin-top:8px">Prices are what the customer paid, before Apple's cut and tax. Test purchases from TestFlight (${fmt(p.sandbox_transactions)}) aren't counted. App Store Connect › Sales and Trends has Apple's official figures.</div></div>
     </div>`;
+  $("#rvSale").onchange = async e => {
+    const on = e.target.checked;
+    if (!confirm(on ? "Start selling Plus in the app? Everyone will see the Plus offer next time they open it." : "Stop selling Plus? Nobody new can subscribe. People who already pay keep it until their subscription ends.")) { e.target.checked = !on; return; }
+    const { error } = await sb.rpc("admin_set_config", { k: "plus_on_sale", v: on });
+    if (error) { e.target.checked = !on; return fail(error); }
+    toast(on ? "Plus is on sale" : "Plus is off sale"); loadRevenue().catch(fail);
+  };
+  $$("[data-person]", el).forEach(r => r.onclick = () => { openTab("people"); setTimeout(() => openPerson(r.dataset.person).catch(fail), 300); });
 }
 
 start().catch(fail);
