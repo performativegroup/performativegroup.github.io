@@ -36,7 +36,7 @@
   .more { text-align:center; margin-top:18px; font-size:14px; color:var(--muted); }
   .more a { color:inherit; }
   .done { text-align:center; padding:12px 4px; }
-  .done .num { font-family:var(--serif); font-size:96px; line-height:1; -webkit-text-stroke:.6px currentColor; }
+  .done .tick { width:76px; height:76px; border-radius:50%; background:var(--ink, #0A0A0A); color:#fff; display:flex; align-items:center; justify-content:center; }
   .done h2 { font-size:30px; margin:10px 0 8px; }
   .done p { color:var(--muted); margin:0 auto 18px; max-width:340px; }
   .share { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
@@ -72,7 +72,7 @@
         <p class="fine">We'll email you when it's your turn. No spam. <a href="/privacy/">Privacy</a></p>
       </form>
       <div class="done hidden" id="done">
-        <div class="num" id="place">1</div>
+        <div class="tick" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
         <h2 id="doneTitle">You're on the list.</h2>
         <p id="doneText">We've emailed you a confirmation. When it's your turn, you'll get a link to install it.</p>
         <div class="share"><button class="btn soft" type="button" id="share">Share with a friend</button><a class="btn soft" href="/">Back to the home page</a></div>
@@ -129,8 +129,7 @@
       const out = await res.json().catch(() => ({}));
       if (!res.ok || !out.ok) throw new Error(out.error || "Couldn't add you just now. Please try again.");
       $("#f").classList.add("hidden"); $("#done").classList.remove("hidden");
-      $("#place").textContent = out.place ? "#" + Number(out.place).toLocaleString("en-GB") : "✓";
-      if (out.already) { $("#doneTitle").textContent = "You're already on the list."; $("#doneText").textContent = "Same spot as before. We'll email you when it's your turn."; }
+      if (out.already) { $("#doneTitle").textContent = "You're already on the list."; $("#doneText").textContent = "We'll email you when it's your turn."; }
     } catch (err) { $("#err").textContent = err.message; }
     finally { go.disabled = false; go.textContent = "Get early access"; }
   });
