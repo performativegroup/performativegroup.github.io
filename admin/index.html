@@ -323,10 +323,17 @@ const todayISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60
 const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
 
-const GROUPS = ["Exercise","Learning","Work","Arts","Mind","Home","Other"];
+const GROUPS = ["Exercise","Learning","Work","Arts","Mind","Home","Social","Other"];
 const slotLabel = s => !s ? "" : s === "all" ? "Featured · Main" : `Featured · ${s}`;
-const CATEGORIES = { Exercise:["Workout","Walking","Running","Gym","Yoga","Cycling","Swimming","Sport"], Learning:["Reading","Studying","Language","Coding"],
-  Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Mind:["Meditation","Journaling","Yoga"], Home:["Cooking","Cleaning"], Other:["Other"] };
+// The same activities as the app (Models.swift).
+const CATEGORIES = { Exercise:["Workout", "Walking", "Running", "Gym", "Yoga", "Cycling", "Swimming", "Sport", "Pilates", "Stretching & mobility", "Calisthenics", "HIIT", "Boxing", "Martial arts", "Dance", "Hiking", "Climbing & bouldering", "Rowing", "Skipping", "Skating", "Physio exercises", "Tennis", "Padel", "Badminton", "Basketball", "Football", "Skiing", "Snowboarding", "Surfing", "Kayaking", "Paddleboarding", "Horse riding"],
+  Learning:["Reading", "Studying", "Language", "Coding", "Online course", "Podcasts", "Audiobooks", "Chess", "Personal development", "Goal setting", "Workshop"],
+  Work:["Work", "Writing"],
+  Arts:["Music practice", "Art", "Writing", "Drawing", "Painting", "Photography", "Video editing", "Guitar", "Piano", "Singing", "Songwriting & producing", "Knitting & sewing", "Pottery", "Calligraphy", "Design", "Fashion design"],
+  Mind:["Meditation", "Journaling", "Yoga", "Breathwork", "Gratitude", "Mindful walk", "Digital detox", "Cold water", "Prayer"],
+  Home:["Cooking", "Cleaning", "Baking", "Meal prep", "Gardening", "Laundry", "DIY", "Decluttering", "Skincare", "Morning routine", "Sleep routine"],
+  Social:["Volunteering", "Book club", "Coffee meetup", "Fitness class", "Run club", "Walking club", "Community event", "Networking", "Charity event", "Exploring"],
+  Other:["Other"] };
 const ALL_CATEGORIES = [...new Set(Object.values(CATEGORIES).flat())];
 const METRICS = { time:{ label:"Time", unit:"minutes a day", eg:"e.g. 20", step:5, def:20 }, km:{ label:"Distance", unit:"km a day", eg:"e.g. 3", step:0.5, def:3 }, steps:{ label:"Steps", unit:"steps a day", eg:"e.g. 8000", step:500, def:8000 } };
 // Every country (ISO 3166 two-letter codes); names come from the browser in your language.

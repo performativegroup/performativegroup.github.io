@@ -313,8 +313,13 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&
 const whole = x => Math.round(Number(x) || 0).toLocaleString("en-GB");
 const money = x => "US$" + whole(x);
 
-const GROUPS = { Exercise:["Running","Walking","Workout","Gym","Cycling","Swimming","Yoga","Sport"], Learning:["Reading","Studying","Language","Coding"],
-  Mind:["Meditation","Journaling","Yoga"], Work:["Work","Writing"], Arts:["Music practice","Art","Writing"], Home:["Cooking","Cleaning"] };
+const GROUPS = { Exercise:["Workout", "Walking", "Running", "Gym", "Yoga", "Cycling", "Swimming", "Sport", "Pilates", "Stretching & mobility", "Calisthenics", "HIIT", "Boxing", "Martial arts", "Dance", "Hiking", "Climbing & bouldering", "Rowing", "Skipping", "Skating", "Physio exercises", "Tennis", "Padel", "Badminton", "Basketball", "Football", "Skiing", "Snowboarding", "Surfing", "Kayaking", "Paddleboarding", "Horse riding"],
+  Learning:["Reading", "Studying", "Language", "Coding", "Online course", "Podcasts", "Audiobooks", "Chess", "Personal development", "Goal setting", "Workshop"],
+  Mind:["Meditation", "Journaling", "Yoga", "Breathwork", "Gratitude", "Mindful walk", "Digital detox", "Cold water", "Prayer"],
+  Work:["Work", "Writing"],
+  Arts:["Music practice", "Art", "Writing", "Drawing", "Painting", "Photography", "Video editing", "Guitar", "Piano", "Singing", "Songwriting & producing", "Knitting & sewing", "Pottery", "Calligraphy", "Design", "Fashion design"],
+  Home:["Cooking", "Cleaning", "Baking", "Meal prep", "Gardening", "Laundry", "DIY", "Decluttering", "Skincare", "Morning routine", "Sleep routine"],
+  Social:["Volunteering", "Book club", "Coffee meetup", "Fitness class", "Run club", "Walking club", "Community event", "Networking", "Charity event", "Exploring"] };
 const METRICS = { time:{ label:"Time", unit:"minutes a day", def:20, help:"Timed in the app with a live photo at the end." },
   km:{ label:"Distance", unit:"km a day", def:3, help:"From the person's Apple Health workout, so it can't be typed in. Your report shows joins and posts, never distances. Rewards and prizes need a Time challenge." },
   steps:{ label:"Steps", unit:"steps a day", def:8000, help:"From Apple Health's daily step count. Your report shows joins and posts, never step counts. Rewards and prizes need a Time challenge." } };
@@ -410,7 +415,7 @@ function drawPlaces() {
 }
 function suggestRule() {
   const act = st.cats[0] || "it";
-  const verb = { Running:"Run", Walking:"Walk", Cycling:"Ride", Swimming:"Swim", Reading:"Read", Meditation:"Meditate", Yoga:"Do yoga", Studying:"Study", Journaling:"Journal", Cooking:"Cook", Workout:"Work out", Gym:"Train", Writing:"Write", Language:"Practise a language", Coding:"Code", "Music practice":"Practise music", Art:"Make art", Cleaning:"Tidy up", Work:"Focus", Sport:"Play sport" }[act] || "Do it";
+  const verb = { Running:"Run", Walking:"Walk", Cycling:"Ride", Swimming:"Swim", Reading:"Read", Meditation:"Meditate", Yoga:"Do yoga", Studying:"Study", Journaling:"Journal", Cooking:"Cook", Workout:"Work out", Gym:"Train", Writing:"Write", Language:"Practise a language", Coding:"Code", "Music practice":"Practise music", Art:"Make art", Cleaning:"Tidy up", Work:"Focus", Sport:"Play sport", Hiking:"Hike", Dance:"Dance", Pilates:"Do Pilates", Boxing:"Box", HIIT:"Do HIIT", Tennis:"Play tennis", Football:"Play football", Basketball:"Play basketball", Drawing:"Draw", Painting:"Paint", Photography:"Shoot", Singing:"Sing", Guitar:"Play guitar", Piano:"Play piano", Baking:"Bake", Gardening:"Garden", Breathwork:"Breathe", Prayer:"Pray", Volunteering:"Volunteer", Podcasts:"Listen", Audiobooks:"Listen" }[act] || "Do it";
   return st.metric === "km" ? `${verb} ${st.target} km a day` : st.metric === "steps" ? `${whole(st.target)} steps a day` : `${verb} ${st.target} min a day`;
 }
 let ruleTouched = false;
