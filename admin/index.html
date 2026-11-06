@@ -1780,6 +1780,7 @@ async function openPerson(id) {
   const urls = await Promise.all((d.posts || []).map(x => photoURL(x.image_path)));
   const avatar = p.avatar_path ? (await sb.storage.from("avatars").createSignedUrl(p.avatar_path, 600)).data?.signedUrl : null;
   const { data: grant } = await sb.from("plus_grants").select("note, created_at").eq("user_id", id).maybeSingle();
+  const { data: isMod } = await sb.rpc("admin_is_moderator", { person: id });
   const histLine = h => `<tr><td class="muted small" style="width:130px">${when(h.at)}</td><td><b>${esc(LOG_LABEL[h.action] || h.action)}</b> ${esc(h.target_type || "")}
       ${h.reason ? `<span class="pill">${esc(h.reason)}</span>` : ""}${h.snapshot?.caption || h.snapshot?.body ? `<div class="muted small">“${esc(h.snapshot.caption || h.snapshot.body)}”</div>` : ""}</td>
       <td class="muted small" style="text-align:right">${h.moderator ? "@" + esc(h.moderator) : ""}</td></tr>`;
@@ -1800,6 +1801,9 @@ async function openPerson(id) {
     <div class="card section" style="margin-top:14px"><h3>Plus</h3>
       <label class="switch"><span class="t"><b>Give them Plus</b><span>${grant ? `Given ${when(grant.created_at)}${grant.note ? " · " + esc(grant.note) : ""}. ` : ""}Free Plus until you turn it off, even while Plus isn't on sale. They don't pay and Apple isn't involved. Use it for testers, creators and sponsors.</span></span>
         <input type="checkbox" id="pPlus" ${grant ? "checked" : ""} aria-label="Give them Plus"></label></div>
+    <div class="card section"><h3>Admin access</h3>
+      <label class="switch"><span class="t"><b>Admin</b><span>${isMod ? "They can sign in to this page." : "Lets them sign in to this page: reports, people, challenges, sponsors and revenue."} They set up two-step sign-in the first time. You can't remove your own access, and there's always at least one admin.</span></span>
+        <input type="checkbox" id="pMod" ${isMod ? "checked" : ""} aria-label="Admin access"></label></div>
     <div class="card section"><h3>Reports about them</h3>${(d.reports_about || []).length ? `<table><tbody>${d.reports_about.map(r => `<tr><td class="muted small" style="width:130px">${when(r.created_at)}</td><td><span class="pill red">${esc(r.reason)}</span> ${esc(REPORT_KIND[r.target_type] || r.target_type)}${r.note ? `<div class="muted small">${esc(r.note)}</div>` : ""}</td><td class="muted small">by @${esc(r.reporter || "?")}</td><td style="text-align:right">${r.outcome ? `<span class="pill">${esc(r.outcome)}</span>` : '<span class="pill red">Open</span>'}</td></tr>`).join("")}</tbody></table>` : '<p class="muted">None.</p>'}</div>
     <div class="card section"><h3>Moderation history</h3><p>Every action on their account or content, with a copy of anything removed. Kept 12 months.</p>${(d.history || []).length ? `<table><tbody>${d.history.map(histLine).join("")}</tbody></table>` : '<p class="muted">Nothing yet.</p>'}</div>
     <div class="card section"><h3>Posts</h3><p>Newest 60. Remove takes it down for everyone and counts as a strike.</p>
@@ -1821,6 +1825,13 @@ async function openPerson(id) {
     const { error } = await sb.rpc("admin_set_plus", { person: id, give, why: why || null });
     if (error) { e.target.checked = !give; return fail(error); }
     toast(give ? "Plus given. It shows next time they open the app." : "Plus taken away"); openPerson(id).catch(fail);
+  };
+  $("#pMod").onchange = async e => {
+    const make = e.target.checked;
+    if (!confirm(make ? "Make them an admin? They'll be able to see everything on this page and act on it." : "Remove their admin access?")) { e.target.checked = !make; return; }
+    const { error } = await sb.rpc("admin_set_moderator", { person: id, make });
+    if (error) { e.target.checked = !make; return fail(error); }
+    toast(make ? "They're an admin now" : "Admin access removed"); openPerson(id).catch(fail);
   };
   $("#pSus").onclick = async () => {
     const suspend = $("#pSus").dataset.s === "1";
