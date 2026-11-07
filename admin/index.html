@@ -435,8 +435,17 @@ function openTab(name) {
   history.replaceState(null, "", "#" + name);
   $$("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
   Object.keys(loaders).forEach(k => $("#tab-" + k).classList.toggle("hidden", k !== name));
-  Promise.resolve(loaders[name]()).catch(fail);
+  const loading = Promise.resolve(loaders[name]());
+  loading.catch(fail);
   window.scrollTo(0, 0);
+  return loading;
+}
+// Opens the challenge editor once the Challenges page has finished loading. (Opening it on a timer
+// raced the list: when the list loaded slowly it drew over the editor and threw you out of it.)
+async function openChallengeEditor(pick, then) {
+  try { await openTab("challenges"); } catch { return; }
+  editChallenge(pick ? pick() : null);
+  then?.();
 }
 $$("#tabs button").forEach(b => b.onclick = () => openTab(b.dataset.tab));
 async function refreshReportBadge() {
@@ -620,8 +629,8 @@ async function loadOverview() {
     if (error) return fail(error);
     toast(v ? `Testers below build ${v} will be asked to update` : "Update pop-up turned off"); loadOverview().catch(fail);
   };
-  $("#ovNew").onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(null), 50); };
-  $$("[data-open]", el).forEach(a => a.onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === a.dataset.open)), 300); });
+  $("#ovNew").onclick = () => openChallengeEditor(null);
+  $$("[data-open]", el).forEach(a => a.onclick = () => openChallengeEditor(() => challenges.find(c => c.id === a.dataset.open)));
 }
 // Insights: what people do, added up across everyone (last 30 days).
 function hm(m) { m = Math.round(m || 0); return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}`; }
@@ -1396,7 +1405,8 @@ async function editSponsor(orig) {
     toast(`${s.name} deleted${data?.ended ? ` · ${data.ended} challenge${data.ended === 1 ? "" : "s"} ended` : ""}`);
     await fetchSponsors(); if (typeof loadChallenges === "function") await loadChallenges().catch(() => {}); openTab("sponsors");
   });
-  $("#newForSponsor")?.addEventListener("click", () => { openTab("challenges"); setTimeout(() => { editChallenge(null); const sel = $("#cForm [name=sponsor_id]"); if (sel) { sel.value = s.id; sel.dispatchEvent(new Event("input", { bubbles:true })); } }, 350); });
+  $("#newForSponsor")?.addEventListener("click", () => openChallengeEditor(null, () => {
+    const sel = $("#cForm [name=sponsor_id]"); if (sel) { sel.value = s.id; sel.dispatchEvent(new Event("input", { bubbles:true })); } }));
   if (priv) drawReportRows(s, priv);
   if (priv) {
     $("#copyLink").onclick = async () => { await navigator.clipboard.writeText($("#reportLink").textContent); toast("Link copied"); };
@@ -1470,7 +1480,7 @@ async function loadReports(showResolved = false) {
       : '<div class="empty">Nothing to review. 🎉</div>'}</div>`;
   $$(".segs button", el).forEach(b => b.onclick = () => loadReports(b.dataset.r === "1").catch(fail));
   $$("img[data-path]", el).forEach(async img => { img.src = await photoURL(img.dataset.path) || ""; });
-  $$("[data-person]", el).forEach(a => a.onclick = e => { e.preventDefault(); openTab("people"); setTimeout(() => openPerson(a.dataset.person).catch(fail), 150); });
+  $$("[data-person]", el).forEach(a => a.onclick = e => { e.preventDefault(); openTab("people").then(() => openPerson(a.dataset.person)).catch(fail); });
   $$("button[data-act]", el).forEach(b => b.onclick = async () => {
     const words = { removed: b.dataset.type === "message" ? "Delete this message from the chat for everyone?" : "Remove this for everyone?", suspended:"Suspend this person? They can still open the app but can't post, comment or message.", dismissed:"Dismiss this report?" };
     if (!confirm(words[b.dataset.act])) return;
@@ -1631,7 +1641,7 @@ async function openRequest(r) {
   $("#rApprove")?.addEventListener("click", () => { if (confirm(`Approve ${r.company}'s challenge? They'll get an email saying an invoice is coming.`)) act({ action:"decide", id:r.id, decision:"approve", note:$("#rNote").value }, "Approved. Sponsor and draft challenge created."); });
   $("#rDecline")?.addEventListener("click", () => { if (confirm(`Decline ${r.company}'s request? They'll get an email${$("#rNote").value ? " with your note" : ""}.`)) act({ action:"decide", id:r.id, decision:"decline", note:$("#rNote").value }, "Declined"); });
   $("#rPaid")?.addEventListener("click", () => { if (confirm("Mark it paid? The challenge goes live on its start date and they get their report link.")) act({ action:"publish", id:r.id }, "Paid and live"); });
-  $("#rOpen")?.addEventListener("click", async () => { await loadChallenges(); openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === r.challenge_id)), 300); });
+  $("#rOpen")?.addEventListener("click", () => openChallengeEditor(() => challenges.find(c => c.id === r.challenge_id)));
   $("#rSponsor")?.addEventListener("click", async () => { openTab("sponsors"); setTimeout(async () => { await fetchSponsors(); editSponsor(sponsors.find(s => s.id === r.sponsor_id)); }, 300); });
   window.scrollTo(0, 0);
 }
@@ -1921,7 +1931,7 @@ async function loadModLog() {
     <div class="card" style="padding:6px 8px">${data.length ? `<table><thead><tr><th>When</th><th>What</th><th>Who</th><th>Reason</th><th>By</th></tr></thead><tbody>${data.map(l => `<tr>
       <td class="muted small">${when(l.at)}</td><td><b>${esc(LOG_LABEL[l.action] || l.action)}</b> ${esc(l.target_type || "")}${l.snapshot?.caption || l.snapshot?.body ? `<div class="muted small">“${esc((l.snapshot.caption || l.snapshot.body).slice(0, 120))}”</div>` : ""}</td>
       <td>${l.person_id ? `<a href="#" data-person="${esc(l.person_id)}">@${esc(l.person || "?")}</a>` : "—"}</td><td class="small">${esc(l.reason || "")}</td><td class="muted small">${l.moderator ? "@" + esc(l.moderator) : ""}</td></tr>`).join("")}</tbody></table>` : '<div class="empty">Nothing yet. Decisions from Reports and People show here.</div>'}</div>`;
-  $$("[data-person]", el).forEach(a => a.onclick = e => { e.preventDefault(); openTab("people"); setTimeout(() => openPerson(a.dataset.person).catch(fail), 150); });
+  $$("[data-person]", el).forEach(a => a.onclick = e => { e.preventDefault(); openTab("people").then(() => openPerson(a.dataset.person)).catch(fail); });
   $("#logCsv").onclick = () => downloadCSV(`moderation-log-${todayISO()}.csv`, ["at", "action", "target_type", "target_id", "person", "reason", "moderator"],
     data.map(l => [l.at, l.action, l.target_type, l.target_id, l.person, l.reason, l.moderator]));
 }
@@ -2033,7 +2043,7 @@ async function loadRevenue() {
     if (error) { e.target.checked = !on; return fail(error); }
     toast(on ? "Plus is on sale" : "Plus is off sale"); loadRevenue().catch(fail);
   };
-  $$("[data-person]", el).forEach(r => r.onclick = () => { openTab("people"); setTimeout(() => openPerson(r.dataset.person).catch(fail), 300); });
+  $$("[data-person]", el).forEach(r => r.onclick = () => { openTab("people").then(() => openPerson(r.dataset.person)).catch(fail); });
 }
 
 start().catch(fail);
