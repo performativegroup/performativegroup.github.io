@@ -573,7 +573,7 @@ function bars(rows, key, label) {
 }
 async function loadOverview() {
   const el = $("#tab-overview");
-  const [{ data, error }, ch, mx] = await Promise.all([sb.rpc("admin_overview"), sb.from("challenges").select("id,title,status,starts_on,ends_on,featured"), sb.rpc("admin_metrics")]);
+  const [{ data, error }, ch, mx, ins] = await Promise.all([sb.rpc("admin_overview"), sb.from("challenges").select("id,title,status,starts_on,ends_on,featured"), sb.rpc("admin_metrics"), sb.rpc("admin_insights")]);
   const act = mx.data?.active || {};
   if (error) throw error;
   const t = data.totals, d = data.daily || [];
@@ -603,9 +603,67 @@ async function loadOverview() {
       ${miniList("Ending in 3 days or less", endingSoon, c => `ends ${dayLabel(c.ends_on)}`)}
       ${miniList("Drafts", drafts, c => "not live yet")}
     </div>
-    <p class="muted small" style="margin-top:14px">Days are Hong Kong time.</p>`;
+    ${ins.data ? insights(ins.data) : ""}
+    <p class="muted small" style="margin-top:14px">Days are Hong Kong time. Insights are totals across everyone for the last 30 days: no single person's data, and nothing from Apple Health.</p>`;
   $("#ovNew").onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(null), 50); };
   $$("[data-open]", el).forEach(a => a.onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === a.dataset.open)), 300); });
+}
+// Insights: what people do, added up across everyone (last 30 days).
+function hm(m) { m = Math.round(m || 0); return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}`; }
+function pct(n, total) { return total ? `${Math.round((n / total) * 100)}%` : "–"; }
+function miniBars(values, labels, label) {
+  const max = Math.max(1, ...values), w = 600, h = 80, bw = w / values.length, top = values.indexOf(Math.max(...values));
+  const rects = values.map((v, i) => { const bh = Math.round((v / max) * (h - 6));
+    return `<rect x="${i * bw + 1}" y="${h - bh}" width="${Math.max(2, bw - 3)}" height="${Math.max(bh, 1.5)}" rx="2" fill="${i === top ? "#0A0A0A" : "#BDBDB8"}"><title>${labels[i]}: ${fmt(v)} posts</title></rect>`; }).join("");
+  return `<div class="eyebrow" style="margin-top:14px">${label}</div>
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${label}" style="margin-top:8px">${rects}</svg>`;
+}
+function insights(d) {
+  const acts = d.activities || [], f = d.features || {}, c = d.challenges || {};
+  const total = f.posts || 0, maxPosts = Math.max(1, ...acts.map(a => a.posts));
+  const hours = d.hours || [], days = d.weekdays || [];
+  const busiest = hours.length ? hours.indexOf(Math.max(...hours)) : null;
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const trend = a => a.posts_before ? `${a.posts >= a.posts_before ? "▲" : "▼"} ${Math.round(Math.abs(a.posts - a.posts_before) / a.posts_before * 100)}%` : '<span class="muted">new</span>';
+  const line = (k, v) => `<div class="row" style="padding:7px 0; border-bottom:1px solid var(--hair)"><span>${k}</span><span class="space"></span><b>${v}</b></div>`;
+  return `
+    <div class="pagehead" style="margin-top:28px"><div><div class="eyebrow">Last 30 days</div><h2 style="margin:4px 0 0">Insights</h2></div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-top:10px">
+      <div class="card" style="grid-column:1 / -1">
+        <div class="eyebrow" style="margin-bottom:8px">Most popular activities</div>
+        ${acts.length ? `<table><thead><tr><th>Activity</th><th style="width:40%"></th><th>Posts</th><th>People</th><th>Time put in</th><th>vs. 30 days before</th></tr></thead><tbody>
+          ${acts.map(a => `<tr><td><b>${esc(a.category)}</b></td>
+            <td><div style="height:8px; border-radius:4px; background:#0A0A0A; width:${Math.max(3, Math.round(a.posts / maxPosts * 100))}%"></div></td>
+            <td>${fmt(a.posts)} <span class="muted small">${pct(a.posts, total)}</span></td><td>${fmt(a.people)}</td><td>${hm(a.minutes)}</td><td class="small">${trend(a)}</td></tr>`).join("")}
+        </tbody></table>` : '<div class="muted small">No posts yet.</div>'}
+      </div>
+      <div class="card">
+        <div class="row"><span class="eyebrow">When people post</span><span class="space"></span>${busiest !== null ? `<span class="muted small">Busiest: ${String(busiest).padStart(2, "0")}:00</span>` : ""}</div>
+        ${miniBars(hours, hours.map((_, i) => `${String(i).padStart(2, "0")}:00`), "By hour (Hong Kong time)")}
+        <div class="row muted small" style="margin-top:4px"><span>00:00</span><span class="space"></span><span>12:00</span><span class="space"></span><span>23:00</span></div>
+        ${miniBars(days, dayNames, "By day of the week")}
+        <div class="row muted small" style="margin-top:4px">${dayNames.map(n => `<span style="flex:1; text-align:center">${n}</span>`).join("")}</div>
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:4px">How people use it</div>
+        ${line("Posts from a timed session", `${fmt(f.timed)} <span class="muted small">${pct(f.timed, total)}</span>`)}
+        ${line("Posts with other people on them", `${fmt(f.with_people)} <span class="muted small">${pct(f.with_people, total)}</span>`)}
+        ${line("Posts that @mention someone", `${fmt(f.with_mentions)} <span class="muted small">${pct(f.with_mentions, total)}</span>`)}
+        ${line("Posts shared to a group", `${fmt(f.in_groups)} <span class="muted small">${pct(f.in_groups, total)}</span>`)}
+        ${line("Reposts", fmt(f.reposts))}
+        ${line("Cheers during sessions", fmt(f.cheers))}
+        ${line("New friendships", fmt(f.new_friendships))}
+        ${line("Friends per account (average)", f.avg_friends ?? "–")}
+      </div>
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:4px">Challenges</div>
+        ${line("Joins", fmt(c.joins))}
+        ${line("Finished", `${fmt(c.finished)} <span class="muted small">${pct(c.finished, c.joins)} of joins</span>`)}
+        ${line("Left early", fmt(c.left))}
+        <div class="eyebrow" style="margin:16px 0 4px">App versions in use · last 7 days</div>
+        ${(d.versions || []).map(v => line(esc(v.version), `${fmt(v.people)} <span class="muted small">people</span>`)).join("") || '<div class="muted small">No app opens yet.</div>'}
+      </div>
+    </div>`;
 }
 function miniList(title, items, sub) {
   return `<div class="card"><div class="eyebrow" style="margin-bottom:8px">${title}</div>
