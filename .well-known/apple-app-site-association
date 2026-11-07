@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["NZS7Z8QXUS.com.jamesalex.performative"],
+        "components": [
+          { "/": "/invite/*", "comment": "A friend's invite link opens their profile in the app" }
+        ]
+      }
+    ]
+  }
+}
