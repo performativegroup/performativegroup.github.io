@@ -573,7 +573,8 @@ function bars(rows, key, label) {
 }
 async function loadOverview() {
   const el = $("#tab-overview");
-  const [{ data, error }, ch, mx, ins] = await Promise.all([sb.rpc("admin_overview"), sb.from("challenges").select("id,title,status,starts_on,ends_on,featured"), sb.rpc("admin_metrics"), sb.rpc("admin_insights")]);
+  const [{ data, error }, ch, mx, ins, tf] = await Promise.all([sb.rpc("admin_overview"), sb.from("challenges").select("id,title,status,starts_on,ends_on,featured"), sb.rpc("admin_metrics"), sb.rpc("admin_insights"),
+    sb.from("app_config").select("value, updated_at").eq("key", "testflight_build").maybeSingle()]);
   const act = mx.data?.active || {};
   if (error) throw error;
   const t = data.totals, d = data.daily || [];
@@ -603,8 +604,22 @@ async function loadOverview() {
       ${miniList("Ending in 3 days or less", endingSoon, c => `ends ${dayLabel(c.ends_on)}`)}
       ${miniList("Drafts", drafts, c => "not live yet")}
     </div>
+    <div class="card section" style="margin-top:14px"><h3>TestFlight</h3>
+      <p>Testers on an older build get a pop-up asking them to update in TestFlight (shown at most once a day if they tap Later). Once the new build has finished processing in App Store Connect, put its number here. 0 turns the pop-up off. It never shows in the App Store version.</p>
+      <div class="row" style="gap:10px; margin-top:8px"><label class="muted small" for="tfBuild">Latest build</label>
+        <input id="tfBuild" type="number" min="0" step="1" value="${esc(tf.data?.value ?? 0)}" style="width:100px">
+        <button class="btn" id="tfSave">Save</button>
+        ${tf.data?.updated_at ? `<span class="muted small">Last changed ${when(tf.data.updated_at)}</span>` : ""}</div>
+    </div>
     ${ins.data ? insights(ins.data) : ""}
     <p class="muted small" style="margin-top:14px">Days are Hong Kong time. Insights are totals across everyone for the last 30 days: no single person's data, and nothing from Apple Health.</p>`;
+  $("#tfSave").onclick = async () => {
+    const v = Number($("#tfBuild").value);
+    if (!Number.isInteger(v) || v < 0) return toast("Enter a whole build number");
+    const { error } = await sb.rpc("admin_set_config", { k: "testflight_build", v });
+    if (error) return fail(error);
+    toast(v ? `Testers below build ${v} will be asked to update` : "Update pop-up turned off"); loadOverview().catch(fail);
+  };
   $("#ovNew").onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(null), 50); };
   $$("[data-open]", el).forEach(a => a.onclick = () => { openTab("challenges"); setTimeout(() => editChallenge(challenges.find(c => c.id === a.dataset.open)), 300); });
 }
