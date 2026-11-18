@@ -97,6 +97,21 @@
   .snap .vf { position:absolute; inset:14px 14px 64px; border-radius:12px; }
   .snap .shutter { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); width:44px; height:44px; border-radius:50%; background:#fff; box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--ink); }
   .snap .live { position:absolute; left:24px; top:24px; background:rgba(0,0,0,.55); color:#fff; border-radius:99px; padding:4px 9px; font-size:10px; font-weight:700; letter-spacing:.08em; }
+  /* "Snap a live photo": a character raises its phone, the flash pops red and a live photo slides out. */
+  .snapper { width:100%; height:100%; display:block; }
+  .snapper * { transform-box:fill-box; transform-origin:center; }
+  .sn-body { animation:sn-bob 1.6s ease-in-out infinite; }
+  .sn-eye { animation:sn-blink 4s infinite; }
+  .sn-arm { animation:sn-arm 4s ease-out infinite; transform-origin:0% 100%; }
+  .sn-flash { opacity:0; animation:sn-flash 4s ease-out infinite; }
+  .sn-print { animation:sn-print 4s cubic-bezier(.2,.8,.2,1) infinite; }
+  @keyframes sn-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+  @keyframes sn-blink { 0%,44%,48%,100% { transform:scaleY(1); } 46% { transform:scaleY(.1); } }
+  @keyframes sn-arm { 0%,30% { transform:rotate(18deg); } 40%,100% { transform:rotate(0); } }
+  @keyframes sn-flash { 0%,40% { opacity:0; transform:scale(.2); } 46% { opacity:1; transform:scale(1); } 58%,100% { opacity:0; transform:scale(1.6); } }
+  @keyframes sn-print { 0%,48% { opacity:0; transform:translate(-26px,30px) rotate(-14deg) scale(.6); } 62% { opacity:1; transform:translate(0,0) rotate(6deg) scale(1); } 70%,92% { opacity:1; transform:rotate(4deg); } 100% { opacity:0; transform:rotate(4deg); } }
+  /* Reduced motion: the finished picture, standing still. */
+  @media (prefers-reduced-motion:reduce) { .snapper * { animation:none !important; } .sn-print { opacity:1; transform:rotate(4deg); } }
   @media (max-width:900px) { .how3 { grid-template-columns:1fr; } }
 
   /* Squares */
@@ -220,7 +235,26 @@
     <div class="rv"><div class="vis"><div class="island-la"><i></i>Reading · 24:18</div><div class="timer"><div class="big">24:18</div><div class="lbl">Reading</div>
         <div class="pill"><span>Pause</span><span class="k">Finish &amp; snap</span></div></div></div>
       <div class="stepnum">2</div><h3>Start the timer</h3><p>When you start the stopwatch or timer and finish, Performative saves how long your activity took.</p></div>
-    <div class="rv"><div class="vis"><div class="snap"><div class="vf ph-read"></div><span class="live">● LIVE</span><span class="shutter"></span></div></div>
+    <div class="rv"><div class="vis"><svg class="snapper" viewBox="0 0 300 230" role="img" aria-label="A character holds up a phone, the flash pops and a live photo slides out with the time 24:18">
+<line x1="40" y1="198" x2="260" y2="198" stroke="#D6D6D3" stroke-width="3" stroke-linecap="round"/>
+<g class="sn-body">
+<rect x="70" y="100" width="76" height="96" rx="32" fill="#0A0A0A"/>
+<g class="sn-eye"><circle cx="96" cy="132" r="5.5" fill="#fff"/><circle cx="120" cy="132" r="5.5" fill="#fff"/></g>
+<path d="M98 150 q10 9 20 0" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<g class="sn-arm"><line x1="140" y1="150" x2="164" y2="120" stroke="#0A0A0A" stroke-width="11" stroke-linecap="round"/>
+<rect x="156" y="78" width="36" height="58" rx="8" fill="#fff" stroke="#0A0A0A" stroke-width="4"/>
+<circle cx="174" cy="90" r="4" fill="#0A0A0A"/></g>
+</g>
+<circle class="sn-flash" cx="176" cy="92" r="26" fill="#E1251B"/>
+<g class="sn-print">
+<rect x="196" y="50" width="76" height="96" rx="7" fill="#fff" stroke="#0A0A0A" stroke-width="3"/>
+<rect x="203" y="57" width="62" height="58" rx="4" fill="#2A2A2A"/>
+<rect x="222" y="78" width="24" height="30" rx="10" fill="#F5F4F0"/>
+<circle cx="230" cy="90" r="2.4" fill="#0A0A0A"/><circle cx="238" cy="90" r="2.4" fill="#0A0A0A"/>
+<rect x="207" y="61" width="24" height="10" rx="5" fill="#E1251B"/><text x="219" y="68.5" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" font-family="-apple-system, system-ui, sans-serif">LIVE</text>
+<text x="234" y="134" text-anchor="middle" font-size="15" font-weight="800" fill="#0A0A0A" font-family="-apple-system, system-ui, sans-serif" letter-spacing="-.5">24:18</text>
+</g>
+</svg></div>
       <div class="stepnum">3</div><h3>Snap a live photo</h3><p>One photo at the end, straight from the camera, posted with your time. Share it to your feed with your friends.</p></div>
   </div>
 </div></section>
