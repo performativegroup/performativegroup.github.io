@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/site.css?v=4">
 <title>Performative · Celebrate the small wins</title>
 <meta name="description" content="Performative is an iPhone app for doing the things you mean to do. Start a timer, snap a live photo at the end, and watch your days fill up. Coming soon to iPhone.">
 <meta property="og:title" content="Performative · Celebrate the small wins">
@@ -19,7 +19,7 @@
   /* Hero */
   .hero { padding:64px 0 88px; overflow:hidden; }
   .hero .wrap { display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; }
-  .hero h1 { font-size:clamp(46px, 7vw, 92px); line-height:.96; margin:18px 0 22px; }
+  .hero h1 { font-size:clamp(54px, 8vw, 108px); line-height:.94; margin:18px 0 24px; }
   .hero .lead { font-size:19px; line-height:1.55; color:var(--muted); max-width:500px; margin:0 0 30px; }
   .hero .ctas { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
   /* "Coming soon" sits beside the main button: same height and shape, quieter. */
@@ -28,14 +28,14 @@
   .soon b { font-size:16px; font-weight:700; letter-spacing:-.01em; }
   .ctas .btn.big { height:54px; padding-top:0; padding-bottom:0; }
   .stage { position:relative; display:flex; justify-content:center; min-height:640px; }
-  .float { position:absolute; background:#fff; border-radius:18px; box-shadow:0 18px 40px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06); padding:14px 16px; }
-  .float.streak { left:-4px; top:290px; width:150px; text-align:center; }
-  .float.streak .n { font-family:var(--serif); font-size:64px; line-height:.9; }
-  .float.week { right:-8px; bottom:40px; width:200px; }
-  .float.week .sq { grid-template-columns:repeat(7, 1fr); margin-top:10px; }
-  .float .t { font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-  @media (max-width:960px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:32px; } .stage { min-height:0; margin-top:16px; } }
-  @media (max-width:520px) { .float.streak { left:0; top:200px; width:118px; padding:10px; } .float.streak .n { font-size:48px; } .float.week { right:0; bottom:40px; width:168px; padding:10px 12px; } .phone { transform:scale(.92); transform-origin:top center; margin-bottom:-48px; } }
+  /* What only Performative does, in three lines under the buttons. */
+  .proof3 { list-style:none; padding:0; margin:30px 0 0; display:flex; flex-wrap:wrap; gap:10px 22px; font-size:14px; font-weight:600; }
+  .proof3 li { display:flex; align-items:center; gap:8px; }
+  .proof3 li::before { content:""; width:12px; height:12px; border-radius:3px; background:var(--ink); flex:none; }
+  /* The phone's island grows into the live timer, as it does while a session runs. */
+  .phone .island-la { top:10px; z-index:2; padding:7px 14px; font-size:12px; font-variant-numeric:tabular-nums; }
+  @media (max-width:960px) { .hero .wrap { grid-template-columns:1fr; } .hero { padding-top:32px; } .stage { min-height:0; margin-top:24px; } }
+  @media (max-width:520px) { .phone { transform:scale(.92); transform-origin:top center; margin-bottom:-48px; } }
 
   /* The hero phone shows a real screenshot of the app. */
   .phone .screen img.shot { display:block; width:100%; height:100%; object-fit:cover; object-position:top; }
@@ -76,13 +76,6 @@
   .ph-desk { background:radial-gradient(70% 50% at 30% 30%, #ededed, transparent 70%), linear-gradient(200deg, #9c9c9c, #3a3a3a 60%, #151515); }
   .ph-desk::after { content:""; position:absolute; left:16%; right:16%; top:34%; height:30%; border-radius:6px; background:#1e1e1e; box-shadow:inset 0 0 0 5px #3c3c3c, 0 14px 28px rgba(0,0,0,.4); }
 
-  /* Strip */
-  .strip { background:var(--ink); color:#fff; padding:22px 0; overflow:hidden; overflow:clip; contain:paint; max-width:100%; }
-  .strip .row { display:flex; gap:44px; white-space:nowrap; animation:slide 38s linear infinite; width:max-content; font-family:var(--display); font-weight:var(--title-weight); font-size:22px; letter-spacing:-.03em; }
-  .strip .row span::after { content:"·"; margin-left:44px; color:#555; }
-  @keyframes slide { to { transform:translateX(-50%); } }
-  @media (prefers-reduced-motion:reduce) { .strip .row { animation:none; } }
-
   /* How it works */
   .how3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
   .how3 > div { background:var(--bg); border-radius:22px; padding:24px; display:flex; flex-direction:column; gap:16px; }
@@ -108,7 +101,7 @@
 
   /* Squares */
   .squares { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
-  .squares h2 { font-size:clamp(32px, 4.4vw, 56px); line-height:1.02; margin:12px 0 16px; }
+  .squares h2 { font-size:clamp(40px, 5.2vw, 66px); line-height:1; margin:14px 0 18px; }
   .squares p { color:var(--muted); font-size:18px; line-height:1.55; margin:0 0 22px; }
   .ticks { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
   .ticks li { display:flex; gap:12px; align-items:flex-start; line-height:1.45; }
@@ -166,14 +159,14 @@
   @media (max-width:900px) { .cards { grid-template-columns:1fr; } .ccard { min-height:200px; } }
   .examples { margin:12px 0 0; font-size:13px; color:var(--muted); text-align:center; }
   .brandband { margin-top:18px; background:var(--ink); color:#fff; border-radius:22px; padding:30px 32px; display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
-  .brandband h3 { font-size:clamp(24px, 3vw, 32px); } .brandband p { margin:6px 0 0; color:#A3A3A3; max-width:560px; line-height:1.5; }
+  .brandband h3 { font-family:var(--serif); font-weight:400; letter-spacing:-.01em; font-size:clamp(30px, 3.6vw, 42px); line-height:1.02; } .brandband p { margin:6px 0 0; color:#A3A3A3; max-width:560px; line-height:1.5; }
   .brandband .btn { margin-left:auto; }
 
   /* Plus */
   .plans { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:860px; margin:0 auto; }
   .plan { background:#fff; border-radius:22px; padding:26px; box-shadow:0 1px 0 var(--hair), 0 0 0 1px var(--hair); }
   .plan.plus { background:var(--ink); color:#fff; box-shadow:none; }
-  .plan h3 { font-size:28px; margin:0 0 4px; } .plan .sub { margin:0 0 18px; color:var(--muted); font-size:14px; } .plan.plus .sub { color:#A3A3A3; }
+  .plan h3 { font-family:var(--serif); font-weight:400; letter-spacing:-.01em; font-size:38px; line-height:1; margin:0 0 6px; } .plan .sub { margin:0 0 18px; color:var(--muted); font-size:14px; } .plan.plus .sub { color:#A3A3A3; }
   .plan ul { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
   .plan li { display:flex; justify-content:space-between; gap:12px; font-size:15px; border-top:1px solid var(--hair); padding-top:12px; }
   .plan.plus li { border-top-color:rgba(255,255,255,.14); }
@@ -182,9 +175,9 @@
   @media (max-width:700px) { .plans { grid-template-columns:1fr; } }
 
   /* Download */
-  .download { text-align:center; padding:110px 0; }
+  .download { text-align:center; padding:140px 0; }
   .download .mark { font-family:var(--serif); font-size:96px; line-height:1; -webkit-text-stroke:.6px currentColor; }
-  .download h2 { font-size:clamp(36px, 5.6vw, 68px); margin:16px 0 14px; }
+  .download h2 { font-size:clamp(44px, 6.6vw, 84px); margin:16px 0 16px; }
   .download p { color:var(--muted); font-size:18px; max-width:520px; margin:0 auto 28px; }
 </style>
 </head>
@@ -201,26 +194,19 @@
   <div>
     <div class="eyebrow">Coming soon to iPhone</div>
     <h1>Celebrate the <em>small wins.</em></h1>
-    <p class="lead">Performative is for setting personal goals, challenging friends, and sharing the productive things you accomplish. Start an activity, end the timer, and snap a photo when you’re done, and watch your days build up, together with your friends.</p>
+    <p class="lead">Start a timer, do the thing, then snap a live photo to prove it. Your friends see what you got done, your days fill in, and challenges keep you going.</p>
     <div class="ctas">
       <a class="btn big" href="/early-access/">Get early access</a>
       <span class="soon" aria-label="Coming soon on the App Store"><small>Coming soon on the</small><b>App Store</b></span>
     </div>
+    <ul class="proof3"><li>Timed in the app</li><li>Live photos only</li><li>Free challenges</li></ul>
   </div>
   <div class="stage">
-    <div class="phone"><div class="screen"><div class="island"></div>
+    <div class="phone"><div class="screen"><div class="island-la" aria-hidden="true"><i></i>Reading · 24:18</div>
       <img class="shot" src="/assets/app-feed.jpg" width="840" height="1826" alt="The Performative Friends feed: a good-morning card with today's goals and a 7-day streak, a 30 days of reading challenge card, and a journaling post.">
     </div></div>
-    <div class="float streak"><div class="n">7</div><div class="t">day streak</div></div>
-    <div class="float week"><div class="t">This week</div>
-      <div class="sq"><i class="on"></i><i class="on"></i><i class="rest"></i><i class="on"></i><i class="on today"></i><i></i><i></i></div></div>
   </div>
 </div></header>
-
-<div class="strip" aria-hidden="true"><div class="row">
-  <span>Running</span><span>Reading</span><span>Studying</span><span>Yoga</span><span>Coding</span><span>Music practice</span><span>Journaling</span><span>Gym</span><span>Cooking</span><span>Meditation</span>
-  <span>Running</span><span>Reading</span><span>Studying</span><span>Yoga</span><span>Coding</span><span>Music practice</span><span>Journaling</span><span>Gym</span><span>Cooking</span><span>Meditation</span>
-</div></div>
 
 <section class="block" id="how"><div class="wrap">
   <div class="shead rv"><div class="eyebrow">How it works</div><h2>Start it. Do it. <em>Snap it.</em></h2>
@@ -241,7 +227,7 @@
 <section class="block alt"><div class="wrap squares">
   <div class="rv">
     <div class="eyebrow">Your progress</div>
-    <h2>Every day you show up <em>gets a square.</em></h2>
+    <h2>Every day you put in <em>gets a square.</em></h2>
     <p>Fill in the week, keep your streak, and look back at every day that counted.</p>
     <ul class="ticks">
       <li>A black square for every day with an activity.</li>
