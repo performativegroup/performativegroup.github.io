@@ -2,7 +2,8 @@
    Big headings in Instrument Serif like the app's titles, Inter Tight for smaller titles and numbers,
    the system font for reading, and the app's blue for section labels. */
 :root {
-  --ink:#0A0A0A; --paper:#FFFFFF; --bg:#F4F4F4; --soft:#F4F4F4; --soft2:#EAEAEA; --hair:#E6E6E6;
+  /* A warm off-white page, like paper, with warm greys to match. Cards stay pure white so they lift off it. */
+  --ink:#0A0A0A; --paper:#F5F4F0; --card:#FFFFFF; --bg:#ECEBE5; --soft:#ECEBE5; --soft2:#E0DFD8; --hair:#E2E1DA;
   --muted:#5C5C5C; --red:#D6281F; --green:#16834A; --brand:#2340FF; --accent:#2340FF;
   --sans:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Tight", system-ui, sans-serif;
   --display:"Inter Tight", -apple-system, system-ui, sans-serif;
@@ -42,7 +43,7 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .btn:disabled { opacity:.45; cursor:default; transform:none; }
 
 /* Nav */
-nav.top { position:sticky; top:0; z-index:20; background:rgba(255,255,255,.86); -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid transparent; transition:border-color .2s; }
+nav.top { position:sticky; top:0; z-index:20; background:rgba(245,244,240,.86); -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px); border-bottom:1px solid transparent; transition:border-color .2s; }
 nav.top.scrolled { border-color:var(--hair); }
 nav.top .wrap { display:flex; align-items:center; height:64px; gap:28px; }
 nav.top .links { display:flex; gap:24px; margin-left:auto; font-size:14px; font-weight:500; }
@@ -56,7 +57,7 @@ nav.top.open .menu-btn span { background:transparent; } nav.top.open .menu-btn s
 @media (max-width:820px) {
   nav.top .links, nav.top .cta { display:none; }
   .menu-btn { display:grid; }
-  nav.top.open .sheet { display:block; position:absolute; left:0; right:0; top:64px; background:#fff; border-bottom:1px solid var(--hair); padding:8px 16px 18px; }
+  nav.top.open .sheet { display:block; position:absolute; left:0; right:0; top:64px; background:var(--paper); border-bottom:1px solid var(--hair); padding:8px 16px 18px; }
   .sheet a { display:block; padding:14px 4px; font-size:18px; font-weight:600; text-decoration:none; border-bottom:1px solid var(--bg); font-family:var(--display); letter-spacing:-.02em; }
   .sheet .btn { display:flex; margin-top:14px; font-size:16px; border-bottom:0; }
 }
@@ -66,7 +67,8 @@ section.block { padding:120px 0; }
 section.block.alt { background:var(--bg); }
 section.block.ink { background:var(--ink); color:#fff; }
 section.block.ink .eyebrow, section.block.ink .shead p { color:#A3A3A3; }
-.shead { max-width:720px; margin-bottom:56px; }
+/* Section headings sit centred over what follows, as in a magazine. */
+.shead { max-width:760px; margin:0 auto 56px; text-align:center; }
 .shead.center { margin-left:auto; margin-right:auto; text-align:center; }
 .shead h2 { font-size:clamp(38px, 4.8vw, 62px); line-height:1.02; margin:14px 0 16px; }
 .shead p { font-size:18px; line-height:1.55; color:var(--muted); margin:0; }
@@ -116,6 +118,28 @@ details p { color:#444; line-height:1.6; margin:12px 0 0; max-width:760px; }
 .doc .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
 .doc .tabs a { text-decoration:none; padding:8px 14px; border-radius:999px; background:var(--bg); font-size:14px; font-weight:600; }
 .doc .tabs a.on { background:var(--ink); color:#fff; }
+
+/* Big italic step numbers in the app's blue (1, 2, 3 on How it works and For brands). */
+.stepnum { font-family:var(--serif); font-style:italic; font-size:56px; line-height:.8; color:var(--accent); }
+
+/* Support: each group's title on the left, its questions on the right (one column on a phone). */
+.doc.support { max-width:980px; }
+.doc.support > :not(.qgroup) { max-width:720px; }
+.qgroup { display:grid; grid-template-columns:230px minmax(0, 1fr); gap:0 48px; border-top:1px solid var(--ink); margin-top:48px; padding-top:6px; }
+.qgroup h2 { margin:14px 0 0; font-size:30px; }
+.qgroup details:last-child { border-bottom:0; }
+@media (max-width:760px) { .qgroup { grid-template-columns:1fr; } }
+
+/* Long legal pages: an "On this page" list down the left on a wide screen, following you as you read. */
+.toc { display:none; }
+@media (min-width:1100px) {
+  .doc.has-toc { max-width:1060px; display:grid; grid-template-columns:200px minmax(0, 760px); column-gap:72px; }
+  .doc.has-toc > * { grid-column:2; }
+  .doc.has-toc > .toc { display:flex; flex-direction:column; gap:10px; grid-column:1; grid-row:1 / span 400; align-self:start; position:sticky; top:96px; font-size:14px; }
+  .toc .eyebrow { margin-bottom:4px; }
+  .toc a { text-decoration:none; color:var(--muted); line-height:1.35; }
+  .toc a:hover, .toc a.on { color:var(--ink); }
+}
 
 /* Reveal on scroll */
 .rv { opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; }

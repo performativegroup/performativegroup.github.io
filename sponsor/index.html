@@ -5,12 +5,12 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://rwyopnhqcnwsxcgpwgtr.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#F5F4F0">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site.css?v=4">
+<link rel="stylesheet" href="/assets/site.css?v=5">
 <title>Sponsor a Challenge · Performative</title>
 <meta name="description" content="Associate your brand with the good things. Sponsor a challenge on Performative: people join, do it every day and prove it with a live photo. See prices and build yours online.">
 <meta property="og:title" content="Sponsor a Challenge · Performative">
@@ -85,7 +85,7 @@
 
   .steps4 { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; counter-reset:s; }
   .steps4 div { background:#fff; border-radius:14px; padding:24px; }
-  .steps4 div::before { counter-increment:s; content:counter(s); display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:var(--ink); color:#fff; font-weight:700; font-size:14px; margin-bottom:18px; }
+  .steps4 div::before { counter-increment:s; content:counter(s); display:block; font-family:var(--serif); font-style:italic; font-size:52px; line-height:.8; color:var(--accent); margin-bottom:18px; }
   .steps4 b { display:block; font-family:var(--display); font-weight:700; letter-spacing:-.02em; font-size:18px; margin-bottom:6px; } .steps4 p { margin:0; color:var(--muted); font-size:14px; line-height:1.5; }
   @media (max-width:900px) { .steps4 { grid-template-columns:1fr 1fr; } } @media (max-width:520px) { .steps4 { grid-template-columns:1fr; } }
 
@@ -317,7 +317,7 @@
   </div>
   <div class="base"><span>© <span id="year">2026</span> Performative Group</span><a href="mailto:support@performativegroup.com" style="display:inline">support@performativegroup.com</a></div>
 </div></footer>
-<script src="/assets/site.js?v=3" defer></script>
+<script src="/assets/site.js?v=4" defer></script>
 <script>
 // The example report: switch between halftime and final, and open it to full length.
 (() => {
